@@ -27,7 +27,7 @@ public:
 private:
 	double totalAmount;
 	double totalMoney;
-	vector<CMinuteData> m_historyData;
+	vector<CHalfMinuteData> m_historyData;
 	string m_InstrumentID;
 	int m_Amount;
 	ofstream m_log;

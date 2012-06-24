@@ -133,7 +133,7 @@ void RandomAlgorithm::OnPositionData(const CThostFtdcInvestorPositionField& data
 BOOL RandomAlgorithm::InitInstance()
 {
 	kkk=1;
-	CTime currTime = CTime::GetCurrentTime();
+	/*CTime currTime = CTime::GetCurrentTime();
 	int year = currTime.GetYear();
 	int month = currTime.GetMonth();
 	int day = currTime.GetDay();
@@ -165,12 +165,12 @@ BOOL RandomAlgorithm::InitInstance()
 	int s_second = startTime.GetSecond();
 
 	sprintf(startDayBuffer, "%d%02d%02d", s_year, s_month, s_day);
-	sprintf(startTimeBuffer, "%02d:%02d:%02d", s_hour, s_minute, s_second);
+	sprintf(startTimeBuffer, "%02d:%02d:%02d", s_hour, s_minute, s_second);*/
 
 	try{
 		DbConn conn(dbAccessPool);
-		conn.m_db->getData(m_InstrumentID, startDayBuffer, startTimeBuffer,
-			currDayBuffer, currTimeBuffer, m_historyData);
+		//conn.m_db->getData(m_InstrumentID, startDayBuffer, startTimeBuffer,
+		//	currDayBuffer, currTimeBuffer, m_historyData);
 		conn.m_db->getData(m_InstrumentID, 1000, m_historyData);
 	}
 	catch(CDBException* pe)

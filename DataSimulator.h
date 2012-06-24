@@ -27,7 +27,8 @@ private:
 	string m_Instrument;
 	string m_StartDate;
 	string m_EndDate;
-	vector<CMinuteData> m_Data;
+	vector<CMinuteData> m_MinuteData;
+	vector<CHalfMinuteData> m_HalfMinuteData;
 };
 
 #endif // !defined(AFX_DATASIMULATOR_H__9AC9A654_E0AC_4679_BEC9_6D77355CC72C__INCLUDED_)
