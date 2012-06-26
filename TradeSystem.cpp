@@ -42,7 +42,7 @@ TThostFtdcPasswordType  PASSWORD = "123456";			// 用户密码
 */
 char *ppInstrumentID[30];			// 行情订阅列表
 int iInstrumentID = 0;									// 行情订阅数量
-
+char DB_CONN[128]="DSN=PostgreSQL35W;UID=postgres;PWD=123";
 TThostFtdcInstrumentIDType INSTRUMENT_ID = "IF1207";	// 合约代码
 
 DbAccessorPool dbAccessPool;
@@ -80,6 +80,7 @@ CTradeSystemApp theApp;
 
 void CTradeSystemApp::LoadConfig()
 {
+	// the read sequence must be the same as config file
 	CFile file;
 	file.Open(".\\config.xml", CFile::modeRead);
 	int len = (int) file.GetLength();
@@ -107,7 +108,7 @@ void CTradeSystemApp::LoadConfig()
     xml.FindChildElem("PASSWORD");
     CString passwd = xml.GetChildData();
     strcpy( PASSWORD, (LPCSTR)passwd);
-    
+
     xml.FindChildElem("INSTRUMENT");
     xml.IntoElem();
     
@@ -119,6 +120,10 @@ void CTradeSystemApp::LoadConfig()
         strcpy(ppInstrumentID[iInstrumentID++], (LPCSTR) item);
     }
     xml.OutOfElem();
+
+    xml.FindChildElem("DB_CONN");
+    CString db_conn = xml.GetChildData();
+    strcpy( DB_CONN, (LPCSTR)db_conn);
 
 	delete [] buf;
 }
@@ -177,6 +182,10 @@ BOOL CTradeSystemApp::InitInstance()
 		AfxMessageBox("Could not initialize libMethod_1Initialize!");   
 		return -1;   
 	}   // 为变量分配内存空间，可以查帮助*/
+
+	// first init db access
+	dbAccessPool.Init();
+	// then init algorithm
 	MessageRouter::Router.InitAlgorithm();
 	return TRUE;
 }

@@ -178,5 +178,5 @@ void CTradeSystemView::OnClearLong()
 	// TODO: Add your control notification handler code here
 	CString instrument;
 	m_Instruments.GetWindowText(instrument);
-	tradeConn.m_TradeSpi->ClearShortPos((LPCSTR)instrument, m_BidPrice);	
+	tradeConn.m_TradeSpi->ClearLongPos((LPCSTR)instrument, m_BidPrice);	
 }

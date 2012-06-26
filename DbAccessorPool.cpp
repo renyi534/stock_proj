@@ -21,14 +21,7 @@ DbAccessorPool::DbAccessorPool(int size):
 	m_size(size),
 	m_dbVector()
 {
-	m_sem = CreateSemaphore(NULL, size, size, NULL);
-	for(int i=0;i<m_size;i++)
-	{
-		DbAccessor* accessor= new DbAccessor();
-		DbAccessorItem item(accessor,false);
-		this->m_dbVector.push_back(item);
-	}
-	InitializeCriticalSection(&m_critsec);
+
 }
 
 DbAccessorPool::~DbAccessorPool()
@@ -77,4 +70,16 @@ void DbAccessorPool::releaseDbAccessor(DbAccessor& acc)
 	}
 	
 	ASSERT("releaseDbAccessor wrong");
+}
+
+void DbAccessorPool::Init()
+{
+	m_sem = CreateSemaphore(NULL, m_size, m_size, NULL);
+	for(int i=0;i<m_size;i++)
+	{
+		DbAccessor* accessor= new DbAccessor();
+		DbAccessorItem item(accessor,false);
+		this->m_dbVector.push_back(item);
+	}
+	InitializeCriticalSection(&m_critsec);
 }

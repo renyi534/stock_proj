@@ -224,6 +224,24 @@ void CTraderSpi::OnRspQryInvestorPosition(CThostFtdcInvestorPositionField *pInve
 				}
 			}
 		}
+		else
+		{
+			if (pInvestorPosition->PosiDirection == THOST_FTDC_PD_Net)
+			{
+				if( pos.YdNet == 0)
+					pos.YdNet = pInvestorPosition->YdPosition;
+			}
+			else if (pInvestorPosition->PosiDirection == THOST_FTDC_PD_Long)
+			{
+				if( pos.YdLong == 0)
+					pos.YdLong = pInvestorPosition->YdPosition;
+			}
+			else
+			{
+				if( pos.YdShort == 0)
+					pos.YdShort = pInvestorPosition->YdPosition;
+			}
+		}
 
 		if ( m_inv_pos.find(key) != m_inv_pos.end() )
 		{

@@ -17,12 +17,12 @@ static char THIS_FILE[]=__FILE__;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-
+extern char DB_CONN[];
 DbAccessor::DbAccessor():
 	m_db()
 {
 	try{
-		m_db.OpenEx("DSN=PostgreSQL35W;UID=postgres;PWD=123");
+		m_db.OpenEx(DB_CONN);
 	}
 	catch(CDBException* pe)
 	{
