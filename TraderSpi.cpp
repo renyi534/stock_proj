@@ -753,3 +753,197 @@ bool CTraderSpi::IsTradingOrder(CThostFtdcOrderField *pOrder)
 		(pOrder->OrderStatus != THOST_FTDC_OST_Canceled) &&
 		(pOrder->OrderStatus != THOST_FTDC_OST_AllTraded));
 }
+
+void CTraderSpi::ClearLongPos(string instrument, double price)
+{
+	InvestorPosition pos;
+	if( m_inv_pos.find(instrument) == m_inv_pos.end() )
+	{
+		return;
+	}
+	else
+	{
+		pos = m_inv_pos[instrument];
+	}
+
+
+	CThostFtdcInputOrderField req;
+	memset(&req, 0, sizeof(req));
+	///经纪公司代码
+	strcpy(req.BrokerID, BROKER_ID);
+	///投资者代码
+	strcpy(req.InvestorID, INVESTOR_ID);
+	///合约代码
+	strcpy(req.InstrumentID, instrument.c_str());
+
+	///用户代码
+	//	TThostFtdcUserIDType	UserID;
+	strcpy(req.UserID, INVESTOR_ID);
+	///报单价格条件: 限价
+	
+	if (price<0) {
+		req.OrderPriceType = THOST_FTDC_OPT_AnyPrice;
+	}
+	else
+	{
+		req.OrderPriceType = THOST_FTDC_OPT_LimitPrice;
+	}
+
+	///买卖方向: 
+	req.Direction = THOST_FTDC_D_Sell;
+	
+	///组合投机套保标志
+	req.CombHedgeFlag[0] = THOST_FTDC_HF_Speculation;
+	///价格
+	req.LimitPrice = price;
+
+	///有效期类型: 当日有效
+	req.TimeCondition = THOST_FTDC_TC_GFD;
+	///GTD日期
+	//	TThostFtdcDateType	GTDDate;
+	///成交量类型: 任何数量
+	req.VolumeCondition = THOST_FTDC_VC_AV;
+	///最小成交量: 1
+	req.MinVolume = 0;
+	///触发条件: 立即
+	req.ContingentCondition = THOST_FTDC_CC_Immediately;
+	///止损价
+	//	TThostFtdcPriceType	StopPrice;
+	req.StopPrice =0;
+	///强平原因: 非强平
+	req.ForceCloseReason = THOST_FTDC_FCC_NotForceClose; //THOST_FTDC_FCC_ClientOverPositionLimit; //
+	///自动挂起标志: 否
+	req.IsAutoSuspend = 0;
+
+	///用户强评标志: 否
+	req.UserForceClose = 0;
+
+	if( pos.YdLong > 0 )
+	{
+		///报单引用
+		strcpy(req.OrderRef, ORDER_REF);
+		///业务单元
+		//	TThostFtdcBusinessUnitType	BusinessUnit;
+		///请求编号
+		//	TThostFtdcRequestIDType	RequestID;
+		req.RequestID = m_requestID;
+
+		req.CombOffsetFlag[0] = THOST_FTDC_OF_Close;
+		///数量: 
+		req.VolumeTotalOriginal = pos.YdLong;
+		this->ReqOrderInsert(req);
+	}
+
+	if(pos.Long >0)
+	{
+		///报单引用
+		strcpy(req.OrderRef, ORDER_REF);
+		///业务单元
+		//	TThostFtdcBusinessUnitType	BusinessUnit;
+		///请求编号
+		//	TThostFtdcRequestIDType	RequestID;
+		req.RequestID = m_requestID;
+
+		req.CombOffsetFlag[0] = THOST_FTDC_OF_CloseToday;
+		///数量: 
+		req.VolumeTotalOriginal = pos.Long;
+		this->ReqOrderInsert(req);
+	}
+}
+
+void CTraderSpi::ClearShortPos(string instrument, double price)
+{
+	InvestorPosition pos;
+	if( m_inv_pos.find(instrument) == m_inv_pos.end() )
+	{
+		return;
+	}
+	else
+	{
+		pos = m_inv_pos[instrument];
+	}
+
+
+	CThostFtdcInputOrderField req;
+	memset(&req, 0, sizeof(req));
+	///经纪公司代码
+	strcpy(req.BrokerID, BROKER_ID);
+	///投资者代码
+	strcpy(req.InvestorID, INVESTOR_ID);
+	///合约代码
+	strcpy(req.InstrumentID, instrument.c_str());
+
+	///用户代码
+	//	TThostFtdcUserIDType	UserID;
+	strcpy(req.UserID, INVESTOR_ID);
+	///报单价格条件: 限价
+	
+	if (price<0) {
+		req.OrderPriceType = THOST_FTDC_OPT_AnyPrice;
+	}
+	else
+	{
+		req.OrderPriceType = THOST_FTDC_OPT_LimitPrice;
+	}
+
+	///买卖方向: 
+	req.Direction = THOST_FTDC_D_Buy;
+	
+	///组合投机套保标志
+	req.CombHedgeFlag[0] = THOST_FTDC_HF_Speculation;
+	///价格
+	req.LimitPrice = price;
+
+	///有效期类型: 当日有效
+	req.TimeCondition = THOST_FTDC_TC_GFD;
+	///GTD日期
+	//	TThostFtdcDateType	GTDDate;
+	///成交量类型: 任何数量
+	req.VolumeCondition = THOST_FTDC_VC_AV;
+	///最小成交量: 1
+	req.MinVolume = 0;
+	///触发条件: 立即
+	req.ContingentCondition = THOST_FTDC_CC_Immediately;
+	///止损价
+	//	TThostFtdcPriceType	StopPrice;
+	req.StopPrice =0;
+	///强平原因: 非强平
+	req.ForceCloseReason = THOST_FTDC_FCC_NotForceClose; //THOST_FTDC_FCC_ClientOverPositionLimit; //
+	///自动挂起标志: 否
+	req.IsAutoSuspend = 0;
+
+	///用户强评标志: 否
+	req.UserForceClose = 0;
+
+	if( pos.YdShort > 0 )
+	{
+		///报单引用
+		strcpy(req.OrderRef, ORDER_REF);
+		///业务单元
+		//	TThostFtdcBusinessUnitType	BusinessUnit;
+		///请求编号
+		//	TThostFtdcRequestIDType	RequestID;
+		req.RequestID = m_requestID;
+
+		req.CombOffsetFlag[0] = THOST_FTDC_OF_Close;
+		///数量: 
+		req.VolumeTotalOriginal = pos.YdShort;
+		this->ReqOrderInsert(req);
+	}
+
+	if(pos.Short >0)
+	{
+		///报单引用
+		strcpy(req.OrderRef, ORDER_REF);
+		///业务单元
+		//	TThostFtdcBusinessUnitType	BusinessUnit;
+		///请求编号
+		//	TThostFtdcRequestIDType	RequestID;
+		req.RequestID = m_requestID;
+
+		req.CombOffsetFlag[0] = THOST_FTDC_OF_CloseToday;
+		///数量: 
+		req.VolumeTotalOriginal = pos.Short;
+		this->ReqOrderInsert(req);
+	}
+}

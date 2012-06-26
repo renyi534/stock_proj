@@ -59,6 +59,8 @@ public:
 	virtual void OnRtnTrade(CThostFtdcTradeField *pTrade);
 
 public:
+	void ClearShortPos(string instrument, double price);
+	void ClearLongPos(string instrument, double price);
 	///用户登录请求
 	void ReqUserLogin();
 	///投资者结算结果确认

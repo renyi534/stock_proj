@@ -36,6 +36,8 @@ public:
 	CComboBox	m_Instruments;
 	//}}AFX_DATA
 
+	double m_BidPrice;
+	double m_AskPrice;
 // Attributes
 public:
 	CTradeSystemDoc* GetDocument();
@@ -71,6 +73,8 @@ protected:
 protected:
 	//{{AFX_MSG(CTradeSystemView)
 	afx_msg void OnSimuStart();
+	afx_msg void OnClearShort();
+	afx_msg void OnClearLong();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

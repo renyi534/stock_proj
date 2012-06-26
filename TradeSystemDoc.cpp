@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 #include "TradeSystem.h"
-
+#include "TradeConn.h"
 #include "TradeSystemDoc.h"
 
 #ifdef _DEBUG
@@ -13,9 +13,8 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 
+extern TradeConn tradeConn;
 
-// «Î«Û±‡∫≈
-int iRequestID = 0; 
 /////////////////////////////////////////////////////////////////////////////
 // CTradeSystemDoc
 

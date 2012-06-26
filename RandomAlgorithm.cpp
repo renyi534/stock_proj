@@ -21,7 +21,6 @@ extern DbAccessorPool dbAccessPool;
 RandomAlgorithm::RandomAlgorithm(string instrument_id):
 	m_InstrumentID(instrument_id), m_Amount(0), m_log("c:\\random_algo_data.log")
 {
-
 	totalAmount=0;
 	totalMoney=0;
 }
@@ -123,6 +122,7 @@ void RandomAlgorithm::OnTickData(const CThostFtdcDepthMarketDataField& data)
 void RandomAlgorithm::OnTradeData(const CThostFtdcTradeField& data)
 {
 }
+
 void RandomAlgorithm::OnAccountData(const CThostFtdcTradingAccountField& data)
 {
 }

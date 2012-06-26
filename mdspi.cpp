@@ -140,12 +140,14 @@ void CMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketDa
 	CTradeSystemView* view = (CTradeSystemView*)((CFrameWnd*)AfxGetMainWnd())->GetActiveView();
 	if( view != NULL)
 	{
-	str.Format("Curr Price: %f", pDepthMarketData->LastPrice);
-	view->m_Price.SetWindowText( str);
-	str.Format("Curr Volume: %d", pDepthMarketData->Volume);
-	view->m_Volume.SetWindowText( str);
-	str.Format("Open Interest: %f", pDepthMarketData->OpenInterest);
-	view->m_OpenInterest.SetWindowText( str);
+		str.Format("Curr Price: %f", pDepthMarketData->LastPrice);
+		view->m_Price.SetWindowText( str);
+		str.Format("Curr Volume: %d", pDepthMarketData->Volume);
+		view->m_Volume.SetWindowText( str);
+		str.Format("Open Interest: %f", pDepthMarketData->OpenInterest);
+		view->m_OpenInterest.SetWindowText( str);
+		view->m_AskPrice = pDepthMarketData->AskPrice1;
+		view->m_BidPrice = pDepthMarketData->BidPrice1;
 	}
 	char* buffer = new char[8196];
 	int index=0;

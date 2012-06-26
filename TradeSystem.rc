@@ -214,6 +214,8 @@ BEGIN
     PUSHBUTTON      "Start",IDC_SIMU_START,499,351,50,14
     LTEXT           "Long Position:",IDC_LONG_POS,29,309,134,8
     LTEXT           "Short Position:",IDC_SHORT_POS,254,311,137,8
+    PUSHBUTTON      "Clear Short",IDC_CLEAR_SHORT,433,309,50,14
+    PUSHBUTTON      "Clear Long",IDC_CLEAR_LONG,527,309,50,14
 END
 
 

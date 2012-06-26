@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 #include "TradeSystem.h"
-
+#include "TradeConn.h"
 #include "TradeSystemDoc.h"
 #include "TradeSystemView.h"
 #include "DataSimulator.h"
@@ -13,6 +13,7 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
+extern TradeConn tradeConn;
 extern char *ppInstrumentID[30];			// 行情订阅列表
 extern int iInstrumentID;									// 行情订阅数量
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +24,8 @@ IMPLEMENT_DYNCREATE(CTradeSystemView, CFormView)
 BEGIN_MESSAGE_MAP(CTradeSystemView, CFormView)
 	//{{AFX_MSG_MAP(CTradeSystemView)
 	ON_BN_CLICKED(IDC_SIMU_START, OnSimuStart)
+	ON_BN_CLICKED(IDC_CLEAR_SHORT, OnClearShort)
+	ON_BN_CLICKED(IDC_CLEAR_LONG, OnClearLong)
 	//}}AFX_MSG_MAP
 	// Standard printing commands
 	ON_COMMAND(ID_FILE_PRINT, CFormView::OnFilePrint)
@@ -160,4 +163,20 @@ void CTradeSystemView::OnSimuStart()
 	DataSimulator simu((LPCSTR)str);
 	simu.SetRange(startDayBuffer, endDayBuffer);
 	simu.Start();
+}
+
+void CTradeSystemView::OnClearShort() 
+{
+	// TODO: Add your control notification handler code here
+	CString instrument;
+	m_Instruments.GetWindowText(instrument);
+	tradeConn.m_TradeSpi->ClearShortPos((LPCSTR)instrument, m_AskPrice);
+}
+
+void CTradeSystemView::OnClearLong() 
+{
+	// TODO: Add your control notification handler code here
+	CString instrument;
+	m_Instruments.GetWindowText(instrument);
+	tradeConn.m_TradeSpi->ClearShortPos((LPCSTR)instrument, m_BidPrice);	
 }
