@@ -2,7 +2,7 @@
 
 [General Info]
 Version=1
-LastClass=CAboutDlg
+LastClass=CTradeSystemApp
 LastTemplate=CDialog
 NewFileInclude1=#include "stdafx.h"
 NewFileInclude2=#include "tradesystem.h"
@@ -16,8 +16,8 @@ Class4=CTradeSystemDoc
 Class5=CTradeSystemView
 
 ResourceCount=3
-Resource1=IDD_ABOUTBOX
-Resource2=IDR_MAINFRAME
+Resource1=IDR_MAINFRAME
+Resource2=IDD_ABOUTBOX
 Resource3=IDD_TRADESYSTEM_FORM
 
 [CLS:CMainFrame]
@@ -31,6 +31,7 @@ Type=0
 BaseClass=CWinApp
 HeaderFile=TradeSystem.h
 ImplementationFile=TradeSystem.cpp
+LastObject=CTradeSystemApp
 
 [CLS:CAboutDlg]
 Type=0

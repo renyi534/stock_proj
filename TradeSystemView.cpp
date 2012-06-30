@@ -13,7 +13,7 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-extern TradeConn tradeConn;
+extern TradeConn* tradeConn;
 extern char *ppInstrumentID[30];			// 行情订阅列表
 extern int iInstrumentID;									// 行情订阅数量
 /////////////////////////////////////////////////////////////////////////////
@@ -170,7 +170,7 @@ void CTradeSystemView::OnClearShort()
 	// TODO: Add your control notification handler code here
 	CString instrument;
 	m_Instruments.GetWindowText(instrument);
-	tradeConn.m_TradeSpi->ClearShortPos((LPCSTR)instrument, m_AskPrice);
+	tradeConn->m_TradeSpi->ClearShortPos((LPCSTR)instrument, m_AskPrice);
 }
 
 void CTradeSystemView::OnClearLong() 
@@ -178,5 +178,5 @@ void CTradeSystemView::OnClearLong()
 	// TODO: Add your control notification handler code here
 	CString instrument;
 	m_Instruments.GetWindowText(instrument);
-	tradeConn.m_TradeSpi->ClearLongPos((LPCSTR)instrument, m_BidPrice);	
+	tradeConn->m_TradeSpi->ClearLongPos((LPCSTR)instrument, m_BidPrice);	
 }

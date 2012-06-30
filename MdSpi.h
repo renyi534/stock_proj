@@ -12,7 +12,7 @@ class DbConn;
 class CMdSpi : public CThostFtdcMdSpi
 {
 public:
-	CMdSpi(CThostFtdcMdApi* api):m_pUserApi(api),m_requestID(0),m_log("c:\\marketdata.log"){}
+	CMdSpi(CThostFtdcMdApi* api):m_pUserApi(api),m_requestID(0),m_log("c:\\marketdata.log",ios::app){}
 	~CMdSpi();
 	///´íÎóÓ¦´ð
 	virtual void OnRspError(CThostFtdcRspInfoField *pRspInfo,

@@ -46,7 +46,7 @@ char DB_CONN[128]="DSN=PostgreSQL35W;UID=postgres;PWD=123";
 TThostFtdcInstrumentIDType INSTRUMENT_ID = "IF1207";	// ºÏÔ¼´úÂë
 
 DbAccessorPool dbAccessPool;
-TradeConn tradeConn(FRONT_ADDR_MD,FRONT_ADDR_TRADE,TERT_RESUME);
+TradeConn* tradeConn; //(FRONT_ADDR_MD,FRONT_ADDR_TRADE,TERT_RESUME);
 /////////////////////////////////////////////////////////////////////////////
 // CTradeSystemApp
 
@@ -187,6 +187,7 @@ BOOL CTradeSystemApp::InitInstance()
 	dbAccessPool.Init();
 	// then init algorithm
 	MessageRouter::Router.InitAlgorithm();
+	tradeConn= new TradeConn(FRONT_ADDR_MD,FRONT_ADDR_TRADE,TERT_RESUME);
 	return TRUE;
 }
 
@@ -258,6 +259,7 @@ int CTradeSystemApp::ExitInstance()
 	{
 		delete [] ppInstrumentID[i];
 	}
-
+	
+	delete tradeConn;
 	return CWinApp::ExitInstance();
 }

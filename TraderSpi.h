@@ -13,7 +13,7 @@ using namespace std;
 class CTraderSpi : public CThostFtdcTraderSpi
 {
 public:
-	CTraderSpi(CThostFtdcTraderApi* api):m_pTradeApi(api),m_requestID(0),m_log("c:\\trade.log")
+	CTraderSpi(CThostFtdcTraderApi* api):m_pTradeApi(api),m_requestID(0),m_log("c:\\trade.log", ios::app)
 	{
 		m_TradeCount =0;
 		m_OrderCount =0;

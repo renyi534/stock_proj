@@ -19,7 +19,7 @@ extern DbAccessorPool dbAccessPool;
 //////////////////////////////////////////////////////////////////////
 
 RandomAlgorithm::RandomAlgorithm(string instrument_id):
-	m_InstrumentID(instrument_id), m_Amount(0), m_log("c:\\random_algo_data.log")
+	m_InstrumentID(instrument_id), m_Amount(0), m_log("c:\\random_algo_data.log",ios::app)
 {
 	totalAmount=0;
 	totalMoney=0;
@@ -29,7 +29,7 @@ RandomAlgorithm::~RandomAlgorithm()
 {
 	m_log.close();
 }
-int kkk;
+int kkk=-1;
 void RandomAlgorithm::OnMinuteData(const CMinuteData& data)
 {
 	double val = 0;
@@ -85,7 +85,10 @@ void RandomAlgorithm::OnMinuteData(const CMinuteData& data)
 	res.amount = amount;
 	res.day= data.m_Day;
 	res.time = data.m_Time;
-	res.price = data.m_ClosePrice;
+	if( res.amount < 0)
+		res.price = m_BidPrice;
+	else
+		res.price = m_AskPrice;
 	res.milliSec =0;
 	res.m_instrumentID = data.m_InstrumentID;
 	res.totalAmount = newrm;
@@ -118,6 +121,8 @@ int	RandomAlgorithm::SendStrategy(const OrderInfoShort & res)
 
 void RandomAlgorithm::OnTickData(const CThostFtdcDepthMarketDataField& data)
 {
+	m_AskPrice = data.AskPrice1;
+	m_BidPrice = data.BidPrice1;
 }
 void RandomAlgorithm::OnTradeData(const CThostFtdcTradeField& data)
 {

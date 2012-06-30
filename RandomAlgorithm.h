@@ -31,6 +31,8 @@ private:
 	string m_InstrumentID;
 	int m_Amount;
 	ofstream m_log;
+	double m_AskPrice;
+	double m_BidPrice;
 };
 
 #endif // !defined(AFX_RANDOMALGORITHM_H__2EA7E4BA_C2CD_4FDD_978B_C3B4E42FEF93__INCLUDED_)

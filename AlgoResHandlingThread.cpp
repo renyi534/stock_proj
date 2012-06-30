@@ -11,7 +11,7 @@ using namespace std;
 
 CThreadPool gThreadPool(2);
 
-extern TradeConn tradeConn;
+extern TradeConn* tradeConn;
 extern DbAccessorPool dbAccessPool;
 
 static void HandleAlgoResponse(MSG& msg)
@@ -22,13 +22,13 @@ static void HandleAlgoResponse(MSG& msg)
 	if( msg.lParam == 1)
 	{
 		data= (OrderInfo*)msg.wParam;
-		tradeConn.m_TradeSpi->ReqOrderInsert(*data);
+		tradeConn->m_TradeSpi->ReqOrderInsert(*data);
 		delete data;
 	}
 	else
 	{
 		data_short = (OrderInfoShort*)msg.wParam;
-		tradeConn.m_TradeSpi->ReqOrderInsert(*data_short);
+		tradeConn->m_TradeSpi->ReqOrderInsert(*data_short);
 		delete data_short;
 	}
 
