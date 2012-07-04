@@ -1,8 +1,8 @@
 //
 // MATLAB Compiler: 4.3 (R14SP3)
-// Date: Sun Jun 10 17:29:33 2012
-// Arguments: "-B" "macro_default" "-G" "-W" "cpplib:libMethod_1" "-T"
-// "link:lib" "MinKsymbProcess.m" "IniMethod.m" "GetK.m" "MyFigure.m" 
+// Date: Mon Jul 02 21:30:23 2012
+// Arguments: "-B" "macro_default" "-W" "cpplib:libMethod_1" "-T" "link:lib"
+// "MinKsymbProcess.m" "IniMethod.m" "TransPriAndVol.m" 
 //
 
 #ifndef __libMethod_1_h
@@ -75,10 +75,7 @@ extern LIB_libMethod_1_C_API
 void mlxIniMethod(int nlhs, mxArray *plhs[], int nrhs, mxArray *prhs[]);
 
 extern LIB_libMethod_1_C_API 
-void mlxGetK(int nlhs, mxArray *plhs[], int nrhs, mxArray *prhs[]);
-
-extern LIB_libMethod_1_C_API 
-void mlxMyFigure(int nlhs, mxArray *plhs[], int nrhs, mxArray *prhs[]);
+void mlxTransPriAndVol(int nlhs, mxArray *plhs[], int nrhs, mxArray *prhs[]);
 
 #ifdef __cplusplus
 }
@@ -120,6 +117,7 @@ extern LIB_libMethod_1_CPP_API void MinKsymbProcess(int nargout
                                                     , const mwArray& th
                                                     , const mwArray& tl
                                                     , const mwArray& tc
+                                                    , const mwArray& tv
                                                     , const mwArray& trm
                                                     , const mwArray& tre);
 
@@ -142,16 +140,11 @@ extern LIB_libMethod_1_CPP_API void IniMethod(int nargout, mwArray& erroCode
                                               , const mwArray& inul
                                               , const mwArray& indl);
 
-extern LIB_libMethod_1_CPP_API void GetK(int nargout, mwArray& o, mwArray& h
-                                         , mwArray& l, mwArray& c
-                                         , mwArray& v, mwArray& num
-                                         , const mwArray& isini);
-
-extern LIB_libMethod_1_CPP_API void MyFigure(const mwArray& f11
-                                             , const mwArray& f12
-                                             , const mwArray& f21
-                                             , const mwArray& f22
-                                             , const mwArray& isd);
+extern LIB_libMethod_1_CPP_API void TransPriAndVol(int nargout, mwArray& flag
+                                                   , const mwArray& ia
+                                                   , const mwArray& ib
+                                                   , const mwArray& iav
+                                                   , const mwArray& ibv);
 
 #endif
 

@@ -19,18 +19,27 @@ extern DbAccessorPool dbAccessPool;
 //////////////////////////////////////////////////////////////////////
 
 RandomAlgorithm::RandomAlgorithm(string instrument_id):
-	m_InstrumentID(instrument_id), m_Amount(0), m_log("c:\\random_algo_data.log",ios::app)
+	m_InstrumentID(instrument_id), m_Amount(0), m_log("c:\\random_algo_data.log")
 {
+	lastVol=0;
 	totalAmount=0;
 	totalMoney=0;
+	m_BidPrice=0;
+	m_AskPrice=0;
 }
 
 RandomAlgorithm::~RandomAlgorithm()
 {
 	m_log.close();
 }
-int kkk=-1;
+
 void RandomAlgorithm::OnMinuteData(const CMinuteData& data)
+{
+	return;
+}
+
+int mkk=1;
+void RandomAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 {
 	double val = 0;
 	mwArray newopen(1,1, mxDOUBLE_CLASS);
@@ -43,6 +52,7 @@ void RandomAlgorithm::OnMinuteData(const CMinuteData& data)
 	mwArray th(1,1, mxDOUBLE_CLASS);
 	mwArray tl(1,1, mxDOUBLE_CLASS);
 	mwArray tc(1,1, mxDOUBLE_CLASS);
+	mwArray tv(1,1, mxDOUBLE_CLASS);
 	mwArray trm(1,1, mxDOUBLE_CLASS);
 	mwArray tre(1,1, mxDOUBLE_CLASS);
 	mwArray time(1,100,mxCHAR_CLASS);
@@ -55,65 +65,111 @@ void RandomAlgorithm::OnMinuteData(const CMinuteData& data)
 	tl.SetData(&val,1);
 	val = data.m_ClosePrice;
 	tc.SetData(&val,1);
+	val = data.m_Volume-lastVol;
+//	val = data.m_Volume;
+	lastVol = data.m_Volume;
+	tv.SetData(&val,1);
 	trm.SetData(&val,1);
 	tre.SetData(&val,1);
 
 
 
-/*	MinKsymbProcess(6, newopen, newm, newe, newrm, newre
-                    , bidprice, to, th, tl, tc, trm, tre);
+	MinKsymbProcess(6, newopen, newm, newe, newrm, newre
+                    , bidprice, to, th, tl, tc, tv, trm, tre);
 
-*/
+
 
 	OrderInfoShort res;
 
-//	bidprice.GetData(&(res.price), 1);
+	bidprice.GetData(&(res.price), 1);
 	double amount;
-//	newopen.GetData(&(amount), 1);
-
-
-	amount = kkk;
-	if (kkk==1)
-	{
-		kkk=-1;
-	}
-	else
-	{
-		kkk=1;
-	}
+	newopen.GetData(&(amount), 1);
 
 	res.amount = amount;
+	mkk = -mkk;
 	res.day= data.m_Day;
 	res.time = data.m_Time;
-	if( res.amount < 0)
-		res.price = m_BidPrice;
-	else
-		res.price = m_AskPrice;
 	res.milliSec =0;
 	res.m_instrumentID = data.m_InstrumentID;
+
+	if (res.amount<0)
+		res.price = res.price+5;
+	else
+		res.price = res.price-5;
+
 	res.totalAmount = newrm;
 	totalAmount += amount;
 
+
+	if( res.time=="15:13:29")
+	{
+		res.amount=-totalAmount;
+		res.totalAmount=0;
+	}
+
+	if( res.time=="15:13:59")
+	{
+		res.amount=-totalAmount;
+		res.totalAmount=0;
+	}
+
+	if( res.time=="15:14:29")
+	{
+		res.amount=-totalAmount;
+		res.totalAmount=0;
+	}
+
+	if( res.time=="15:14:59")
+	{
+		res.amount=-totalAmount;
+		res.totalAmount=0;
+	}
 	if( res.time=="15:13:00")
 	{
 		res.amount=-totalAmount;
 		res.totalAmount=0;
 	}
 
-	
+	if( res.time=="15:13:30")
+	{
+		res.amount=-totalAmount;
+		res.totalAmount=0;
+	}
 
-	if( res.amount != 0 )
-		SendStrategy(res);
-}
+	if( res.time=="15:14:00")
+	{
+		res.amount=-totalAmount;
+		res.totalAmount=0;
+	}
 
-void RandomAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
-{
-	int i = 40;
+	if( res.time=="15:14:30")
+	{
+		res.amount=-totalAmount;
+		res.totalAmount=0;
+	}
+
+
+
+/*	if (amount>0)
+	{
+		res.price=m_AskPrice;
+	}
+	if(amount<0)
+	{
+		res.price=m_BidPrice;
+	}
+*/
+
+
+	SendStrategy(res);
 }
 int	RandomAlgorithm::SendStrategy(const OrderInfoShort & res)
 {
 	//第一行就是真实的发送指令，第二行是本地模拟写log
-	Algorithm::SendStrategy(res);	
+	if( res.amount != 0 )
+	{
+		Algorithm::SendStrategy(res);	
+	}
 	m_log<<res.m_instrumentID+",  "+res.day+" "+res.time<<",  Amount, "<< res.amount <<", Price, "<<res.price<<endl;
 
 	return 0;
@@ -123,11 +179,32 @@ void RandomAlgorithm::OnTickData(const CThostFtdcDepthMarketDataField& data)
 {
 	m_AskPrice = data.AskPrice1;
 	m_BidPrice = data.BidPrice1;
+	double val;
+	val = data.AskPrice1;
+	mwArray ia(1,1, mxDOUBLE_CLASS);
+	ia.SetData(&val,1);
+
+	val = data.BidPrice1;
+	mwArray ib(1,1, mxDOUBLE_CLASS);
+	ib.SetData(&val,1);
+
+	val = data.AskVolume1;
+	mwArray iav(1,1, mxDOUBLE_CLASS);
+	iav.SetData(&val,1);
+
+	val = data.BidVolume1;
+	mwArray ibv(1,1, mxDOUBLE_CLASS);
+	ibv.SetData(&val,1);
+
+	mwArray flag(1,1, mxDOUBLE_CLASS);
+
+
+	TransPriAndVol(1, flag,ia,ib,iav,ibv);
+                                                  
 }
 void RandomAlgorithm::OnTradeData(const CThostFtdcTradeField& data)
 {
 }
-
 void RandomAlgorithm::OnAccountData(const CThostFtdcTradingAccountField& data)
 {
 }
@@ -137,41 +214,6 @@ void RandomAlgorithm::OnPositionData(const CThostFtdcInvestorPositionField& data
 
 BOOL RandomAlgorithm::InitInstance()
 {
-	kkk=1;
-	/*CTime currTime = CTime::GetCurrentTime();
-	int year = currTime.GetYear();
-	int month = currTime.GetMonth();
-	int day = currTime.GetDay();
-	int hour = currTime.GetHour();
-	int minute = currTime.GetMinute();
-	int second = currTime.GetSecond();
-
-	int dayOfWeek = currTime.GetDayOfWeek();
-
-	int backtrack = 2;
-
-	if (dayOfWeek == 1)//sunday
-		backtrack = 3;
-	else if ( dayOfWeek <= 3 )//monday tuesday
-		backtrack = 4;
-
-
-	char currDayBuffer[20], currTimeBuffer[20], startDayBuffer[20], startTimeBuffer[20];
-	sprintf(currDayBuffer, "%d%02d%02d", year, month, day);
-	sprintf(currTimeBuffer, "%02d:%02d:%02d", hour, minute, second);
-
-	CTimeSpan timeSpan(backtrack, 0,0,0);
-	CTime startTime = currTime-timeSpan;
-	int s_year = startTime.GetYear();
-	int s_month = startTime.GetMonth();
-	int s_day = startTime.GetDay();
-	int s_hour = startTime.GetHour();
-	int s_minute = startTime.GetMinute();
-	int s_second = startTime.GetSecond();
-
-	sprintf(startDayBuffer, "%d%02d%02d", s_year, s_month, s_day);
-	sprintf(startTimeBuffer, "%02d:%02d:%02d", s_hour, s_minute, s_second);*/
-
 	try{
 		DbConn conn(dbAccessPool);
 		//conn.m_db->getData(m_InstrumentID, startDayBuffer, startTimeBuffer,
@@ -238,25 +280,49 @@ BOOL RandomAlgorithm::InitInstance()
 	ine.SetData(closePrice, size);
 	inre.SetData(closePrice, size);
 	mwErrorCode.SetData(&val,1);
-	val = 60;
+
+
+	val = 120;
 	insp.SetData(&val,1);
-	val = 50;
+	val = 60;
 	inp.SetData(&val,1);
-	val = 50;
+	val = 120;
 	inw.SetData(&val,1);
-	val = 70;
+	val = 240;
 	inwl.SetData(&val,1);
-	val = 0;
+	val = 0.01;
 	inkb.SetData(&val,1);
-	val = 40;
+	val = 5;
 	inks.SetData(&val,1);
-	val =0;
+	val =0.01;
 	inkm.SetData(&val,1);
-	val =4;
+	val =5;
 	inul.SetData(&val,1);
 	val =2;
-	indl.SetData(&val,1);	
+	indl.SetData(&val,1);
+	
 
+
+/*	val = 120;
+	insp.SetData(&val,1);
+	val = 60;
+	inp.SetData(&val,1);
+	val = 120;
+	inw.SetData(&val,1);
+	val = 240;
+	inwl.SetData(&val,1);
+	val = 1.8;
+	inkb.SetData(&val,1);
+	val = 60;
+	inks.SetData(&val,1);
+	val =5.7;
+	inkm.SetData(&val,1);
+	val =5;
+	inul.SetData(&val,1);
+	val =3;
+	indl.SetData(&val,1);
+
+*/
 	IniMethod(1, mwErrorCode,
 		mwOpen, mwHigh, mwLow, mwClose,
 		 inm,
