@@ -2,7 +2,7 @@
 
 [General Info]
 Version=1
-LastClass=CTradeSystemApp
+LastClass=CTradeSystemView
 LastTemplate=CDialog
 NewFileInclude1=#include "stdafx.h"
 NewFileInclude2=#include "tradesystem.h"
@@ -16,8 +16,8 @@ Class4=CTradeSystemDoc
 Class5=CTradeSystemView
 
 ResourceCount=3
-Resource1=IDR_MAINFRAME
-Resource2=IDD_ABOUTBOX
+Resource1=IDD_ABOUTBOX
+Resource2=IDR_MAINFRAME
 Resource3=IDD_TRADESYSTEM_FORM
 
 [CLS:CMainFrame]
@@ -53,6 +53,7 @@ HeaderFile=TradeSystemView.h
 ImplementationFile=TradeSystemView.cpp
 Filter=D
 VirtualFilter=VWC
+LastObject=CTradeSystemView
 
 [DLG:IDD_ABOUTBOX]
 Type=1

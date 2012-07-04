@@ -26,6 +26,7 @@ BEGIN_MESSAGE_MAP(CTradeSystemView, CFormView)
 	ON_BN_CLICKED(IDC_SIMU_START, OnSimuStart)
 	ON_BN_CLICKED(IDC_CLEAR_SHORT, OnClearShort)
 	ON_BN_CLICKED(IDC_CLEAR_LONG, OnClearLong)
+	ON_WM_TIMER()
 	//}}AFX_MSG_MAP
 	// Standard printing commands
 	ON_COMMAND(ID_FILE_PRINT, CFormView::OnFilePrint)
@@ -89,6 +90,7 @@ void CTradeSystemView::OnInitialUpdate()
 		this->m_Instruments.AddString(ppInstrumentID[i]);
 
 	m_Instruments.SetCurSel(0);
+	m_nTimer = SetTimer(1, 10000, 0);	
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -179,4 +181,18 @@ void CTradeSystemView::OnClearLong()
 	CString instrument;
 	m_Instruments.GetWindowText(instrument);
 	tradeConn->m_TradeSpi->ClearLongPos((LPCSTR)instrument, m_BidPrice);	
+}
+
+BOOL CTradeSystemView::DestroyWindow() 
+{
+	// TODO: Add your specialized code here and/or call the base class
+	KillTimer(m_nTimer);
+	return CFormView::DestroyWindow();
+}
+
+void CTradeSystemView::OnTimer(UINT nIDEvent) 
+{
+	// TODO: Add your message handler code here and/or call default
+	tradeConn->m_TradeSpi->ReqQryTradingAccount();
+	CFormView::OnTimer(nIDEvent);
 }

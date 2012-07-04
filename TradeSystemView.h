@@ -50,6 +50,7 @@ public:
 	//{{AFX_VIRTUAL(CTradeSystemView)
 	public:
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
+	virtual BOOL DestroyWindow();
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	virtual void OnInitialUpdate(); // called first time after construct
@@ -68,13 +69,14 @@ public:
 #endif
 
 protected:
-
+	int m_nTimer;
 // Generated message map functions
 protected:
 	//{{AFX_MSG(CTradeSystemView)
 	afx_msg void OnSimuStart();
 	afx_msg void OnClearShort();
 	afx_msg void OnClearLong();
+	afx_msg void OnTimer(UINT nIDEvent);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

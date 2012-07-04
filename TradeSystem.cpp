@@ -253,8 +253,8 @@ int CTradeSystemApp::ExitInstance()
 {
 	// TODO: Add your specialized code here and/or call the base class
 	// terminate the lib   
-	/*libMethod_1Terminate();   // terminate MCR   
-	mclTerminateApplication();   	*/
+	libMethod_1Terminate();   // terminate MCR   
+	mclTerminateApplication(); 
 	for( int i=0 ; i< iInstrumentID; i++)
 	{
 		delete [] ppInstrumentID[i];
