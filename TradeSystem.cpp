@@ -187,7 +187,7 @@ BOOL CTradeSystemApp::InitInstance()
 	dbAccessPool.Init();
 	// then init algorithm
 	MessageRouter::Router.InitAlgorithm();
-	tradeConn= new TradeConn(FRONT_ADDR_MD,FRONT_ADDR_TRADE,TERT_RESUME);
+	tradeConn= new TradeConn(FRONT_ADDR_MD,FRONT_ADDR_TRADE,TERT_QUICK);
 	return TRUE;
 }
 
