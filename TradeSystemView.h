@@ -19,6 +19,12 @@ protected: // create from serialization only
 public:
 	//{{AFX_DATA(CTradeSystemView)
 	enum { IDD = IDD_TRADESYSTEM_FORM };
+	CStatic	m_CloseProfit;
+	CStatic	m_PositionProfit;
+	CStatic	m_Balance;
+	CStatic	m_YdShortPos;
+	CStatic	m_YdLongPos;
+	CStatic	m_AlgoPos;
 	CStatic	m_ShortPos;
 	CStatic	m_LongPos;
 	CDateTimeCtrl	m_DateEnd;
@@ -69,7 +75,9 @@ public:
 #endif
 
 protected:
-	int m_nTimer;
+	int m_RefreshFormTimer;
+	int m_RefreshPosTimer;
+	int m_CorrectionPosTimer;
 // Generated message map functions
 protected:
 	//{{AFX_MSG(CTradeSystemView)

@@ -16,8 +16,8 @@ Class4=CTradeSystemDoc
 Class5=CTradeSystemView
 
 ResourceCount=3
-Resource1=IDD_ABOUTBOX
-Resource2=IDR_MAINFRAME
+Resource1=IDR_MAINFRAME
+Resource2=IDD_ABOUTBOX
 Resource3=IDD_TRADESYSTEM_FORM
 
 [CLS:CMainFrame]
@@ -53,7 +53,7 @@ HeaderFile=TradeSystemView.h
 ImplementationFile=TradeSystemView.cpp
 Filter=D
 VirtualFilter=VWC
-LastObject=CTradeSystemView
+LastObject=IDC_CLOSE_PROFIT
 
 [DLG:IDD_ABOUTBOX]
 Type=1
@@ -67,7 +67,7 @@ Control4=IDOK,button,1342373889
 [DLG:IDD_TRADESYSTEM_FORM]
 Type=1
 Class=CTradeSystemView
-ControlCount=24
+ControlCount=30
 Control1=IDC_INS_LABEL,static,1342308352
 Control2=IDC_INSTRUMENT_COMBO,combobox,1344340290
 Control3=IDC_MD_STATUS,static,1342308352
@@ -92,6 +92,12 @@ Control21=IDC_LONG_POS,static,1342308352
 Control22=IDC_SHORT_POS,static,1342308352
 Control23=IDC_CLEAR_SHORT,button,1342242816
 Control24=IDC_CLEAR_LONG,button,1342242816
+Control25=IDC_ALGO_POS,static,1342308352
+Control26=IDC_YDLONG_POS,static,1342308352
+Control27=IDC_YDSHORT_POS,static,1342308352
+Control28=IDC_BALANCE,static,1342308352
+Control29=IDC_POS_PROFIT,static,1342308352
+Control30=IDC_CLOSE_PROFIT,static,1342308352
 
 [TB:IDR_MAINFRAME]
 Type=1

@@ -181,7 +181,7 @@ BEGIN
     DEFPUSHBUTTON   "È·¶¨",IDOK,178,7,50,14,WS_GROUP
 END
 
-IDD_TRADESYSTEM_FORM DIALOG DISCARDABLE  0, 0, 668, 394
+IDD_TRADESYSTEM_FORM DIALOG DISCARDABLE  0, 0, 679, 435
 STYLE WS_CHILD
 FONT 9, "ËÎÌå"
 BEGIN
@@ -195,27 +195,33 @@ BEGIN
     LTEXT           "Open Interest:",IDC_OPEN_INTEREST,429,57,151,8
     LTEXT           "ORDER COUNT:",IDC_ORDER_TOTAL,28,87,118,8
     LTEXT           "Trade Count:",IDC_TRADE_TOTAL,249,85,126,8
-    LTEXT           "Order Details:",IDC_STATIC,31,112,57,8
-    EDITTEXT        IDC_ORDER_DETAIL,30,127,607,69,ES_MULTILINE | 
+    LTEXT           "Order Details:",IDC_STATIC,29,135,57,8
+    EDITTEXT        IDC_ORDER_DETAIL,29,155,607,69,ES_MULTILINE | 
                     ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | 
                     WS_VSCROLL | WS_HSCROLL
-    EDITTEXT        IDC_TRADE_DETAIL,29,220,613,72,ES_MULTILINE | 
+    EDITTEXT        IDC_TRADE_DETAIL,29,254,613,72,ES_MULTILINE | 
                     ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | 
                     WS_VSCROLL | WS_HSCROLL
-    LTEXT           "Trade Details:",IDC_STATIC,30,206,57,8
+    LTEXT           "Trade Details:",IDC_STATIC,29,235,57,8
     LTEXT           "Cash:",IDC_CASH,428,85,147,8
-    GROUPBOX        "Simulation Panel",IDC_STATIC,29,331,547,43
-    LTEXT           "Start Date:",IDC_STATIC,39,353,45,8
+    GROUPBOX        "Simulation Panel",IDC_STATIC,30,379,547,43
+    LTEXT           "Start Date:",IDC_STATIC,41,401,45,8
     CONTROL         "DateTimePicker2",IDC_DATETIME_START,"SysDateTimePick32",
-                    DTS_RIGHTALIGN | WS_TABSTOP,98,349,100,15
-    LTEXT           "End Date:",IDC_STATIC,233,352,37,8
+                    DTS_RIGHTALIGN | WS_TABSTOP,97,399,100,15
+    LTEXT           "End Date:",IDC_STATIC,231,402,37,8
     CONTROL         "DateTimePicker3",IDC_DATETIME_END,"SysDateTimePick32",
-                    DTS_RIGHTALIGN | WS_TABSTOP,297,350,100,15
-    PUSHBUTTON      "Start",IDC_SIMU_START,499,351,50,14
-    LTEXT           "Long Position:",IDC_LONG_POS,29,309,134,8
-    LTEXT           "Short Position:",IDC_SHORT_POS,254,311,137,8
-    PUSHBUTTON      "Clear Short",IDC_CLEAR_SHORT,433,309,50,14
-    PUSHBUTTON      "Clear Long",IDC_CLEAR_LONG,527,309,50,14
+                    DTS_RIGHTALIGN | WS_TABSTOP,285,397,100,15
+    PUSHBUTTON      "Start",IDC_SIMU_START,424,397,50,14
+    LTEXT           "Long Position:",IDC_LONG_POS,31,337,134,8
+    LTEXT           "Short Position:",IDC_SHORT_POS,231,335,137,8
+    PUSHBUTTON      "Clear Short",IDC_CLEAR_SHORT,409,358,50,14
+    PUSHBUTTON      "Clear Long",IDC_CLEAR_LONG,484,357,50,14
+    LTEXT           "Algorithm Position:",IDC_ALGO_POS,409,335,112,8
+    LTEXT           "Yd Long Position:",IDC_YDLONG_POS,32,358,134,8
+    LTEXT           "Yd Short Position:",IDC_YDSHORT_POS,229,360,134,8
+    LTEXT           "Balance:",IDC_BALANCE,29,115,147,8
+    LTEXT           "Position Profit:",IDC_POS_PROFIT,249,117,141,8
+    LTEXT           "Close Profit:",IDC_CLOSE_PROFIT,426,120,141,8
 END
 
 
@@ -281,9 +287,9 @@ BEGIN
     IDD_TRADESYSTEM_FORM, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 661
+        RIGHTMARGIN, 672
         TOPMARGIN, 7
-        BOTTOMMARGIN, 387
+        BOTTOMMARGIN, 428
     END
 END
 #endif    // APSTUDIO_INVOKED

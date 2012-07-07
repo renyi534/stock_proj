@@ -141,13 +141,7 @@ void CTraderSpi::OnRspQryTradingAccount(CThostFtdcTradingAccountField *pTradingA
 	
     m_account = *pTradingAccount;
 	MessageRouter::Router.sendData(*pTradingAccount);
-	CString str;
-	CTradeSystemView* view = (CTradeSystemView*)((CFrameWnd*)AfxGetMainWnd())->GetActiveView();
-	if( view != NULL)
-	{
-		str.Format("Cash: %f", m_account.Available);
-		view->m_Cash.SetWindowText(str);
-	}
+
 	if (bIsLast && !IsErrorRspInfo(pRspInfo))
 	{
 		
@@ -195,8 +189,7 @@ void CTraderSpi::OnRspQryInvestorPosition(CThostFtdcInvestorPositionField *pInve
 		
 		if (pInvestorPosition->PositionDate == THOST_FTDC_PSD_Today)
 		{
-			CTradeSystemView* view = (CTradeSystemView*)((CFrameWnd*)AfxGetMainWnd())->GetActiveView();
-			CString str;
+
 			if (pInvestorPosition->PosiDirection == THOST_FTDC_PD_Net)
 			{
 				pos.Net = pInvestorPosition->TodayPosition;
@@ -207,21 +200,13 @@ void CTraderSpi::OnRspQryInvestorPosition(CThostFtdcInvestorPositionField *pInve
 			{
 				pos.Long = pInvestorPosition->TodayPosition;
 				pos.YdLong = pInvestorPosition->Position-pInvestorPosition->TodayPosition;
-				if( view != NULL)
-				{
-					str.Format("Long Position: %d", pos.Long );
-					view->m_LongPos.SetWindowText(str);
-				}
+
 			}
 			else
 			{
 				pos.Short = pInvestorPosition->TodayPosition;
 				pos.YdShort = pInvestorPosition->Position-pInvestorPosition->TodayPosition;
-				if( view != NULL)
-				{
-					str.Format("Short Position: %d", pos.Short );
-					view->m_ShortPos.SetWindowText(str);
-				}
+
 			}
 		}
 		else
@@ -401,10 +386,13 @@ void CTraderSpi::ReqOrderInsert(OrderInfo& order_req)
     sprintf(ORDER_REF, "%d", iNextOrderRef);    		
 }
 
-void CTraderSpi::ReqOrderInsert(OrderInfoShort& order_req)
+void CTraderSpi::ReqOrderInsert(OrderInfoShort& order_req, bool isCorrection)
 {
 	InvestorPosition pos;
 	string key = order_req.m_instrumentID;
+
+	if( !isCorrection )
+		m_AlgoPos += order_req.amount;
 	
 	memset(&pos, 0, sizeof(pos));
 	if ( m_inv_pos.find(key) != m_inv_pos.end() )
@@ -414,7 +402,7 @@ void CTraderSpi::ReqOrderInsert(OrderInfoShort& order_req)
 	
 	if ( order_req.amount ==0 )
 		return;
-	
+
 	OrderInfo order;
 	order.amount = fabs(order_req.amount);
 	order.day = order_req.day;
@@ -511,11 +499,7 @@ void CTraderSpi::OnRspOrderInsert(CThostFtdcInputOrderField *pInputOrder, CThost
 }
 
 void CTraderSpi::ReqOrderAction(CThostFtdcOrderField *pOrder)
-{
-	static bool ORDER_ACTION_SENT = false;		//是否发送了报单
-	if (ORDER_ACTION_SENT)
-		return;
-	
+{	
 	CThostFtdcInputOrderActionField req;
 	memset(&req, 0, sizeof(req));
 	///经纪公司代码
@@ -549,7 +533,6 @@ void CTraderSpi::ReqOrderAction(CThostFtdcOrderField *pOrder)
 	
 	int iResult = m_pTradeApi->ReqOrderAction(&req, ++m_requestID);
 	m_log << "--->>> 报单操作请求: " << ((iResult == 0) ? "成功" : "失败") << endl;
-	ORDER_ACTION_SENT = true;
 }
 
 void CTraderSpi::OnRspOrderAction(CThostFtdcInputOrderActionField *pInputOrderAction, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
@@ -761,8 +744,7 @@ bool CTraderSpi::IsErrorRspInfo(CThostFtdcRspInfoField *pRspInfo)
 bool CTraderSpi::IsMyOrder(CThostFtdcOrderField *pOrder)
 {
 	return ((pOrder->FrontID == FRONT_ID) &&
-		(pOrder->SessionID == SESSION_ID) &&
-		(strcmp(pOrder->OrderRef, ORDER_REF) == 0));
+		(pOrder->SessionID == SESSION_ID) );
 }
 
 bool CTraderSpi::IsTradingOrder(CThostFtdcOrderField *pOrder)
@@ -963,5 +945,21 @@ void CTraderSpi::ClearShortPos(string instrument, double price)
 		///数量: 
 		req.VolumeTotalOriginal = pos.Short;
 		this->ReqOrderInsert(req);
+	}
+}
+
+void CTraderSpi::CancelAllOrders(string instrument)
+{
+	order_state_map::iterator iter =  m_order_state.begin();
+
+	while ( iter != m_order_state.end() )
+	{
+		CThostFtdcOrderField order = iter->second;
+
+		if (IsTradingOrder(&order) && IsMyOrder(&order) )
+		{
+			ReqOrderAction(&order);
+		}
+		iter++;
 	}
 }

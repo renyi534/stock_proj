@@ -9,7 +9,15 @@ struct OrderInfoShort;
 #include <fstream>
 using namespace std;
 
-
+	struct InvestorPosition
+	{
+		int  Net;
+		int	 Long;
+		int  Short;
+		int  YdNet;
+		int  YdLong;
+		int  YdShort;
+	};
 class CTraderSpi : public CThostFtdcTraderSpi
 {
 public:
@@ -17,6 +25,8 @@ public:
 	{
 		m_TradeCount =0;
 		m_OrderCount =0;
+		m_AlgoPos =0;
+		memset(&m_account, 0 ,sizeof(m_account));
 	}
 	CTraderSpi::~CTraderSpi();
 	///当客户端与交易后台建立起通信连接时（还未登录前），该方法被调用。
@@ -59,6 +69,7 @@ public:
 	virtual void OnRtnTrade(CThostFtdcTradeField *pTrade);
 
 public:
+	void CancelAllOrders(string instrument);
 	void ClearShortPos(string instrument, double price);
 	void ClearLongPos(string instrument, double price);
 	///用户登录请求
@@ -76,7 +87,7 @@ public:
 	///报单录入请求
 	void ReqOrderInsert(CThostFtdcInputOrderField& req);
 	void ReqOrderInsert(OrderInfo& req);
-	void ReqOrderInsert(OrderInfoShort& order_req)	;
+	void ReqOrderInsert(OrderInfoShort& order_req, bool isCorrection=false)	;
 	///报单操作请求
 	void ReqOrderAction(CThostFtdcOrderField *pOrder);
 
@@ -87,16 +98,6 @@ public:
 	// 是否正在交易的报单
 	bool IsTradingOrder(CThostFtdcOrderField *pOrder);
 private:
-	struct InvestorPosition
-	{
-		int  Net;
-		int	 Long;
-		int  Short;
-		int  YdNet;
-		int  YdLong;
-		int  YdShort;
-	};
-
 
 	void StoreOrder(const OrderInfo& initialData, bool isRej=false);
 	CThostFtdcTraderApi* m_pTradeApi;
@@ -110,8 +111,10 @@ private:
 	ofstream m_log;
 	int m_TradeCount;
 	int m_OrderCount;
+	int m_AlgoPos;
 
     typedef map<string,CThostFtdcOrderField> order_state_map;	
     typedef pair<string,CThostFtdcOrderField> order_state_pair;			    
     order_state_map m_order_state;
+	friend class CTradeSystemView;
 };

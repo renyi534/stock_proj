@@ -7,6 +7,8 @@
 #include "TradeSystemDoc.h"
 #include "TradeSystemView.h"
 #include "DataSimulator.h"
+#include "StockRetriever.h"
+#include "Algorithm.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -55,6 +57,12 @@ void CTradeSystemView::DoDataExchange(CDataExchange* pDX)
 {
 	CFormView::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CTradeSystemView)
+	DDX_Control(pDX, IDC_CLOSE_PROFIT, m_CloseProfit);
+	DDX_Control(pDX, IDC_POS_PROFIT, m_PositionProfit);
+	DDX_Control(pDX, IDC_BALANCE, m_Balance);
+	DDX_Control(pDX, IDC_YDSHORT_POS, m_YdShortPos);
+	DDX_Control(pDX, IDC_YDLONG_POS, m_YdLongPos);
+	DDX_Control(pDX, IDC_ALGO_POS, m_AlgoPos);
 	DDX_Control(pDX, IDC_SHORT_POS, m_ShortPos);
 	DDX_Control(pDX, IDC_LONG_POS, m_LongPos);
 	DDX_Control(pDX, IDC_DATETIME_END, m_DateEnd);
@@ -90,7 +98,9 @@ void CTradeSystemView::OnInitialUpdate()
 		this->m_Instruments.AddString(ppInstrumentID[i]);
 
 	m_Instruments.SetCurSel(0);
-	m_nTimer = SetTimer(1, 10000, 0);	
+	m_RefreshFormTimer = SetTimer(1, 1000, 0);	
+	m_RefreshPosTimer  = SetTimer(2, 10000, 0);	
+	m_CorrectionPosTimer  = SetTimer(3, 20000, 0);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -170,6 +180,9 @@ void CTradeSystemView::OnSimuStart()
 void CTradeSystemView::OnClearShort() 
 {
 	// TODO: Add your control notification handler code here
+	StockRetriever ret;
+	CString str=ret.GetStockInfo("http://hq.sinajs.cn/list=sh601006");
+
 	CString instrument;
 	m_Instruments.GetWindowText(instrument);
 	tradeConn->m_TradeSpi->ClearShortPos((LPCSTR)instrument, m_AskPrice);
@@ -186,13 +199,92 @@ void CTradeSystemView::OnClearLong()
 BOOL CTradeSystemView::DestroyWindow() 
 {
 	// TODO: Add your specialized code here and/or call the base class
-	KillTimer(m_nTimer);
+	KillTimer(m_RefreshFormTimer);
+	KillTimer(m_RefreshPosTimer);
+	KillTimer(m_CorrectionPosTimer);
 	return CFormView::DestroyWindow();
 }
 
 void CTradeSystemView::OnTimer(UINT nIDEvent) 
 {
 	// TODO: Add your message handler code here and/or call default
-	tradeConn->m_TradeSpi->ReqQryTradingAccount();
+	CString instrument ;
+	m_Instruments.GetWindowText(instrument);
+	InvestorPosition pos;
+	memset(&pos, 0, sizeof(pos));
+	CTraderSpi::inv_pos_map::iterator pos_iter = 
+		tradeConn->m_TradeSpi->m_inv_pos.find((LPCSTR)instrument);
+	if ( pos_iter != tradeConn->m_TradeSpi->m_inv_pos.end() )
+	{
+		pos = pos_iter->second;
+	}
+
+	if( nIDEvent == m_RefreshPosTimer )
+	{
+		tradeConn->m_TradeSpi->ReqQryTradingAccount();
+	}
+	else if (nIDEvent == m_RefreshFormTimer)
+	{
+		CString str;
+		str.Format("Algorithm Position:%d", tradeConn->m_TradeSpi->m_AlgoPos);
+		this->m_AlgoPos.SetWindowText(str);
+
+		str.Format("Long Position:%d", pos.Long);
+		this->m_LongPos.SetWindowText(str);
+		
+		str.Format("Short Position:%d", pos.Short);
+		this->m_ShortPos.SetWindowText(str);
+		
+		str.Format("Yd Short Position:%d", pos.YdShort);
+		this->m_YdShortPos.SetWindowText(str);
+		
+		str.Format("Yd Long Position:%d", pos.YdLong);
+		this->m_YdLongPos.SetWindowText(str);
+
+		str.Format("Cash:%f", tradeConn->m_TradeSpi->m_account.Available);
+		m_Cash.SetWindowText(str);
+
+		str.Format("Balance:%f", tradeConn->m_TradeSpi->m_account.Balance);
+		m_Balance.SetWindowText(str);
+
+		str.Format("Position_Profit:%f", tradeConn->m_TradeSpi->m_account.PositionProfit);
+		m_PositionProfit.SetWindowText(str);
+
+		str.Format("Close_Profit:%f", tradeConn->m_TradeSpi->m_account.CloseProfit);
+		m_CloseProfit.SetWindowText(str);
+	}
+	else if (m_CorrectionPosTimer == nIDEvent)
+	{
+		static errorInterval =0;
+		if( pos.Long-pos.Short != tradeConn->m_TradeSpi->m_AlgoPos )
+		{
+			errorInterval++;
+
+			if ( errorInterval >= 3 )
+			{
+
+				tradeConn->m_TradeSpi->CancelAllOrders((LPCSTR)instrument);
+				
+				OrderInfoShort orderShort;
+				orderShort.m_instrumentID = (LPCSTR)instrument;
+				orderShort.amount = tradeConn->m_TradeSpi->m_AlgoPos-(pos.Long-pos.Short);
+				
+				if ( orderShort.amount > 0 )
+				{
+					orderShort.price = m_AskPrice;
+				}
+				else
+				{
+					orderShort.price = m_BidPrice;				
+				}
+				errorInterval =0;
+				tradeConn->m_TradeSpi->ReqOrderInsert(orderShort, true);
+			}
+		}
+		else
+		{
+			errorInterval =0;
+		}
+	}
 	CFormView::OnTimer(nIDEvent);
 }

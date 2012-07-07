@@ -141,6 +141,10 @@ SOURCE=.\StdAfx.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\StockRetriever.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ThreadPool.cpp
 # End Source File
 # Begin Source File
@@ -226,6 +230,10 @@ SOURCE=.\RunObject.h
 # Begin Source File
 
 SOURCE=.\StdAfx.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\StockRetriever.h
 # End Source File
 # Begin Source File
 
