@@ -15,7 +15,7 @@
 #include "RunObject.h"
 #include "stdafx.h"
 #include "OneMinuteData.h"
-
+#include <set>
 using namespace std;
 struct OrderInfo 
 {
@@ -56,8 +56,11 @@ public:
 	virtual int	 SendStrategy(const OrderInfoShort &);
 	virtual int  Run();
 	virtual ~Algorithm();
+	void RegisterInstrument(string instrument);
+	bool IsInterestingInstrument(string instrument);
 protected:
     string  m_configFile;
+	set<string>  m_Instruments;
 private:
     void HandleNewMarketData(MSG& msg);
     void UpdateTradeInfo(MSG&);

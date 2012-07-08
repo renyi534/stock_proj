@@ -186,9 +186,15 @@ void CTraderSpi::OnRspQryInvestorPosition(CThostFtdcInvestorPositionField *pInve
 		{
 			pos = m_inv_pos[key];
 		}		
-		
+		static bool is_of_today_state = false;
+
 		if (pInvestorPosition->PositionDate == THOST_FTDC_PSD_Today)
 		{
+			if( is_of_today_state == false )
+			{
+				is_of_today_state = true;
+				pos.YdLong = pos.YdShort =0;
+			}
 
 			if (pInvestorPosition->PosiDirection == THOST_FTDC_PD_Net)
 			{
@@ -200,30 +206,25 @@ void CTraderSpi::OnRspQryInvestorPosition(CThostFtdcInvestorPositionField *pInve
 			{
 				pos.Long = pInvestorPosition->TodayPosition;
 				pos.YdLong = pInvestorPosition->Position-pInvestorPosition->TodayPosition;
-
 			}
 			else
 			{
 				pos.Short = pInvestorPosition->TodayPosition;
 				pos.YdShort = pInvestorPosition->Position-pInvestorPosition->TodayPosition;
-
 			}
 		}
-		else
+		else if( !is_of_today_state )
 		{
 			if (pInvestorPosition->PosiDirection == THOST_FTDC_PD_Net)
 			{
-				if( pos.YdNet == 0)
 					pos.YdNet = pInvestorPosition->YdPosition;
 			}
 			else if (pInvestorPosition->PosiDirection == THOST_FTDC_PD_Long)
 			{
-				if( pos.YdLong == 0)
 					pos.YdLong = pInvestorPosition->YdPosition;
 			}
 			else
 			{
-				if( pos.YdShort == 0)
 					pos.YdShort = pInvestorPosition->YdPosition;
 			}
 		}
@@ -836,6 +837,7 @@ void CTraderSpi::ClearLongPos(string instrument, double price)
 
 	if(pos.Long >0)
 	{
+		m_AlgoPos -= pos.Long;  
 		///报单引用
 		strcpy(req.OrderRef, ORDER_REF);
 		///业务单元
@@ -933,6 +935,7 @@ void CTraderSpi::ClearShortPos(string instrument, double price)
 
 	if(pos.Short >0)
 	{
+		m_AlgoPos += pos.Short;  
 		///报单引用
 		strcpy(req.OrderRef, ORDER_REF);
 		///业务单元
@@ -956,7 +959,8 @@ void CTraderSpi::CancelAllOrders(string instrument)
 	{
 		CThostFtdcOrderField order = iter->second;
 
-		if (IsTradingOrder(&order) && IsMyOrder(&order) )
+		if (instrument == order.InstrumentID && 
+			IsTradingOrder(&order) && IsMyOrder(&order) )
 		{
 			ReqOrderAction(&order);
 		}

@@ -212,6 +212,7 @@ void RandomAlgorithm::OnPositionData(const CThostFtdcInvestorPositionField& data
 
 BOOL RandomAlgorithm::InitInstance()
 {
+	this->RegisterInstrument(m_InstrumentID);
 	try{
 		DbConn conn(dbAccessPool);
 		//conn.m_db->getData(m_InstrumentID, startDayBuffer, startTimeBuffer,

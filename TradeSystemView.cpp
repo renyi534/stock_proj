@@ -18,6 +18,7 @@ static char THIS_FILE[] = __FILE__;
 extern TradeConn* tradeConn;
 extern char *ppInstrumentID[30];			// 行情订阅列表
 extern int iInstrumentID;									// 行情订阅数量
+extern char HS300_URL[];
 /////////////////////////////////////////////////////////////////////////////
 // CTradeSystemView
 
@@ -101,6 +102,7 @@ void CTradeSystemView::OnInitialUpdate()
 	m_RefreshFormTimer = SetTimer(1, 1000, 0);	
 	m_RefreshPosTimer  = SetTimer(2, 10000, 0);	
 	m_CorrectionPosTimer  = SetTimer(3, 20000, 0);
+	m_HS300Timer  = SetTimer(4, 500, 0);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -180,11 +182,11 @@ void CTradeSystemView::OnSimuStart()
 void CTradeSystemView::OnClearShort() 
 {
 	// TODO: Add your control notification handler code here
-	StockRetriever ret;
-	CString str=ret.GetStockInfo("http://hq.sinajs.cn/list=sh601006");
+
 
 	CString instrument;
 	m_Instruments.GetWindowText(instrument);
+	tradeConn->m_TradeSpi->CancelAllOrders((LPCSTR)instrument);
 	tradeConn->m_TradeSpi->ClearShortPos((LPCSTR)instrument, m_AskPrice);
 }
 
@@ -193,6 +195,7 @@ void CTradeSystemView::OnClearLong()
 	// TODO: Add your control notification handler code here
 	CString instrument;
 	m_Instruments.GetWindowText(instrument);
+	tradeConn->m_TradeSpi->CancelAllOrders((LPCSTR)instrument);
 	tradeConn->m_TradeSpi->ClearLongPos((LPCSTR)instrument, m_BidPrice);	
 }
 
@@ -202,6 +205,7 @@ BOOL CTradeSystemView::DestroyWindow()
 	KillTimer(m_RefreshFormTimer);
 	KillTimer(m_RefreshPosTimer);
 	KillTimer(m_CorrectionPosTimer);
+	KillTimer(m_HS300Timer);
 	return CFormView::DestroyWindow();
 }
 
@@ -284,6 +288,22 @@ void CTradeSystemView::OnTimer(UINT nIDEvent)
 		else
 		{
 			errorInterval =0;
+		}
+	}
+	else if( m_HS300Timer == nIDEvent )
+	{
+		static CThostFtdcDepthMarketDataField old_data;
+		StockRetriever ret;
+		CThostFtdcDepthMarketDataField data;
+		memset(&data, 0, sizeof(data));
+		ret.GetStockData(HS300_URL, data);
+		if( !(
+				strcmp(data.TradingDay, old_data.TradingDay ) == 0 &&
+				strcmp(data.UpdateTime, old_data.UpdateTime ) == 0
+			 ) )
+		{
+			old_data = data;
+			tradeConn->m_UserSpi->OnRtnDepthMarketData(&data);
 		}
 	}
 	CFormView::OnTimer(nIDEvent);

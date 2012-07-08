@@ -13,6 +13,7 @@
 #include "TradeConn.h"
 #include "MessageRouter.h"
 #include "matlab\\libMethod_1.h"
+#include "matlab\\libMethod_2.h"
 #include "Markup.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -43,6 +44,7 @@ TThostFtdcPasswordType  PASSWORD = "123456";			// 用户密码
 char *ppInstrumentID[30];			// 行情订阅列表
 int iInstrumentID = 0;									// 行情订阅数量
 char DB_CONN[128]="DSN=PostgreSQL35W;UID=postgres;PWD=123";
+char HS300_URL[128]="http://hq.sinajs.cn/list=sz399300"; 
 TThostFtdcInstrumentIDType INSTRUMENT_ID = "IF1207";	// 合约代码
 
 DbAccessorPool dbAccessPool;
@@ -125,6 +127,10 @@ void CTradeSystemApp::LoadConfig()
     CString db_conn = xml.GetChildData();
     strcpy( DB_CONN, (LPCSTR)db_conn);
 
+    xml.FindChildElem("HS300_URL");
+    CString hs300_url = xml.GetChildData();
+    strcpy( HS300_URL, (LPCSTR)hs300_url);
+
 	delete [] buf;
 }
 
@@ -177,17 +183,25 @@ BOOL CTradeSystemApp::InitInstance()
 	// The one and only window has been initialized, so show and update it.
 	m_pMainWnd->ShowWindow(SW_SHOW);
 	m_pMainWnd->UpdateWindow();
+	// first init db access
+	dbAccessPool.Init();
+	tradeConn= new TradeConn(FRONT_ADDR_MD,FRONT_ADDR_TRADE,TERT_QUICK);
 	if( !libMethod_1Initialize())   
 	{   
 		AfxMessageBox("Could not initialize libMethod_1Initialize!");   
 		return -1;   
 	}   // 为变量分配内存空间，可以查帮助*/
 
-	// first init db access
-	dbAccessPool.Init();
+	if( !libMethod_2Initialize())   
+	{   
+		AfxMessageBox("Could not initialize libMethod_2Initialize!");   
+		return -1;   
+	}   // 为变量分配内存空间，可以查帮助*/
+
+
 	// then init algorithm
 	MessageRouter::Router.InitAlgorithm();
-	tradeConn= new TradeConn(FRONT_ADDR_MD,FRONT_ADDR_TRADE,TERT_QUICK);
+
 	return TRUE;
 }
 

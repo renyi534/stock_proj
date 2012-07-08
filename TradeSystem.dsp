@@ -112,6 +112,10 @@ SOURCE=.\DbAccessorPool.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\HsAlgorithm.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\MainFrm.cpp
 # End Source File
 # Begin Source File
@@ -193,7 +197,15 @@ SOURCE=.\DbConn.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\HsAlgorithm.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\matlab\libMethod_1.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\matlab\libMethod_2.h
 # End Source File
 # Begin Source File
 
@@ -319,6 +331,10 @@ SOURCE=.\matlab\libMethod_1.dll
 # End Source File
 # Begin Source File
 
+SOURCE=.\matlab\libMethod_2.dll
+# End Source File
+# Begin Source File
+
 SOURCE=.\ReadMe.txt
 # End Source File
 # Begin Source File
@@ -340,6 +356,10 @@ SOURCE=.\ThostTraderApi\thosttraderapi.lib
 # Begin Source File
 
 SOURCE=.\matlab\libMethod_1.lib
+# End Source File
+# Begin Source File
+
+SOURCE=.\matlab\libMethod_2.lib
 # End Source File
 # End Target
 # End Project

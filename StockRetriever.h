@@ -9,16 +9,18 @@
 #pragma once
 #endif // _MSC_VER > 1000
 #include <afxinet.h>
+#include "THOSTTRADERAPI\ThostFtdcUserApiStruct.h"	// Added by ClassView
 
 
 class StockRetriever  
 {
 public:
+	void GetStockData(CString url, CThostFtdcDepthMarketDataField& data);
 	StockRetriever();
 	virtual ~StockRetriever();
 	CString  GetStockInfo(CString url);
 private:
-	CInternetSession m_session;
+	CString   convertTime(CString str);
 
 };
 

@@ -157,3 +157,16 @@ void Algorithm::UpdateAccountInfo(MSG& msg)
     OnAccountData(*data);
     delete data;
 }
+
+void Algorithm::RegisterInstrument(string instrument)
+{
+	this->m_Instruments.insert(instrument);
+}
+
+bool Algorithm::IsInterestingInstrument(string instrument)
+{
+	if( m_Instruments.find( instrument ) != m_Instruments.end() )
+		return true;
+	else
+		return false;
+}

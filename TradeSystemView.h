@@ -78,6 +78,7 @@ protected:
 	int m_RefreshFormTimer;
 	int m_RefreshPosTimer;
 	int m_CorrectionPosTimer;
+	int m_HS300Timer;
 // Generated message map functions
 protected:
 	//{{AFX_MSG(CTradeSystemView)
