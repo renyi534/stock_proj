@@ -635,7 +635,30 @@ void CTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade)
 		is_open);
 	
 	
-	string insert_txt = pTrade->InstrumentID;
+	string display_str = pTrade->InstrumentID;
+	display_str+=", ";
+	display_str+=pTrade->TradeDate;
+	display_str+=" ";
+	display_str+=pTrade->TradeTime;
+	
+	if ( is_buy )
+		display_str += ", buy";
+	else
+		display_str += ", sell";
+
+	if (is_open )
+		display_str += ", open, ";
+	else
+		display_str += ", close, ";
+
+	char temp_buf[30];
+	sprintf(temp_buf, "price: %f, ", pTrade->Price);
+
+	display_str += temp_buf;
+
+	sprintf(temp_buf, "amount: %d", amount);
+
+	display_str += temp_buf;
 
 	m_TradeCount++;
 
@@ -644,7 +667,7 @@ void CTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade)
 	if( view != NULL)
 	{
 		view->m_TradeDetail.SetSel(-1,-1);
-		view->m_TradeDetail.ReplaceSel(buffer);
+		view->m_TradeDetail.ReplaceSel(display_str.c_str());
 		view->m_TradeDetail.SetSel(-1,-1);
 		view->m_TradeDetail.ReplaceSel("\r\n");
 		str.Format("Trade Count: %d", m_TradeCount);
@@ -682,7 +705,27 @@ void CTraderSpi::StoreOrder(const OrderInfo& initialData, bool isRej)
 		initialData.is_open
         );
 	
+	string display_str = initialData.m_instrumentID;
+	display_str+=", "+initialData.day+" "+initialData.time;
+	
+	if ( initialData.is_buy )
+		display_str += ", buy";
+	else
+		display_str += ", sell";
 
+	if (initialData.is_open )
+		display_str += ", open, ";
+	else
+		display_str += ", close, ";
+
+	char temp_buf[30];
+	sprintf(temp_buf, "price: %f, ", initialData.price);
+
+	display_str += temp_buf;
+
+	sprintf(temp_buf, "amount: %d", initialData.amount);
+
+	display_str += temp_buf;
 	
 	//conn.m_db->execSql(buffer);
 	CString str;
@@ -690,7 +733,7 @@ void CTraderSpi::StoreOrder(const OrderInfo& initialData, bool isRej)
 	if( view != NULL)
 	{
 		view->m_OrderDetail.SetSel(-1,-1);
-		view->m_OrderDetail.ReplaceSel(buffer);
+		view->m_OrderDetail.ReplaceSel(display_str.c_str());
 		view->m_OrderDetail.SetSel(-1,-1);
 		view->m_OrderDetail.ReplaceSel("\r\n");
 		str.Format("Order Count: %d", m_OrderCount);
