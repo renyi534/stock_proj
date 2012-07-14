@@ -35,6 +35,10 @@ HsAlgorithm::~HsAlgorithm()
 int hs_mkk=1;
 void HsAlgorithm::OnMinuteData(const CMinuteData& data)
 {
+	// Filter IF's minute K series
+	if( m_InstrumentID == data.m_InstrumentID )
+		return;
+
 	double val = 0;
 	mwArray newopen(1,1, mxDOUBLE_CLASS);
 
@@ -50,16 +54,6 @@ void HsAlgorithm::OnMinuteData(const CMinuteData& data)
 	tl.SetData(&val,1);
 	val = data.m_ClosePrice;
 	tc.SetData(&val,1);
-
-	/*
-extern LIB_libMethod_2_CPP_API void MinKsymbProcess_hs(int nargout
-                                                       , mwArray& newopen
-                                                       , const mwArray& tph
-                                                       , const mwArray& tpl
-                                                       , const mwArray& tpc);
-												 */
-
-
 
 	MinKsymbProcess_hs(1, newopen, th, tl, tc);
 
@@ -91,7 +85,7 @@ extern LIB_libMethod_2_CPP_API void MinKsymbProcess_hs(int nargout
 		res.totalAmount=0;
 	}
 
-	if (res.amount>0)
+	if (res.amount>=0)
 	{
 		res.price=m_AskPrice;
 	}
@@ -122,8 +116,12 @@ int	HsAlgorithm::SendStrategy(const OrderInfoShort & res)
 
 void HsAlgorithm::OnTickData(const CThostFtdcDepthMarketDataField& data)
 {
-	m_AskPrice = data.AskPrice1;
-	m_BidPrice = data.BidPrice1;                                                  
+	// record IF's latest price
+	if( m_InstrumentID == data.InstrumentID )
+	{
+		m_AskPrice = data.AskPrice1;
+		m_BidPrice = data.BidPrice1;    
+	}
 }
 
 void HsAlgorithm::OnTradeData(const CThostFtdcTradeField& data)
@@ -145,7 +143,7 @@ BOOL HsAlgorithm::InitInstance()
 		DbConn conn(dbAccessPool);
 		//conn.m_db->getData(m_InstrumentID, startDayBuffer, startTimeBuffer,
 		//	currDayBuffer, currTimeBuffer, m_historyData);
-		conn.m_db->getData(m_InstrumentID, 10, m_historyData);
+		conn.m_db->getData(hs300_ins, 10, m_historyData);
 	}
 	catch(CDBException* pe)
 	{
@@ -205,13 +203,13 @@ BOOL HsAlgorithm::InitInstance()
 	mwErrorCode.SetData(&val,1);
 
 
-	val = 9;
+	val = 10;
 	intt.SetData(&val,1);
-	val = 0.2;
+	val = 4;
 	inf1.SetData(&val,1);
-	val = 0.3;
+	val = 6;
 	inf2.SetData(&val,1);
-	val = 0.4;
+	val = 3;
 	inf3.SetData(&val,1);
 	
 	
