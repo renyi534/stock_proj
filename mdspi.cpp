@@ -136,16 +136,21 @@ void CMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketDa
 	genHalfMinuteData(*pDepthMarketData);
 	//CTradeSystemApp* app = (CTradeSystemApp*) AfxGetApp();
 
+	CTickDataMap::iterator iter = m_tick_data_map.find(pDepthMarketData->InstrumentID);
+	if (iter == m_tick_data_map.end())
+	{
+		//add map data for this instrument
+		m_tick_data_map.insert(CTickDataPair(pDepthMarketData->InstrumentID, *pDepthMarketData));
+	}
+	else
+	{
+		m_tick_data_map[pDepthMarketData->InstrumentID] = *pDepthMarketData;
+	}
+
 	CString str;
 	CTradeSystemView* view = (CTradeSystemView*)((CFrameWnd*)AfxGetMainWnd())->GetActiveView();
-	if( view != NULL)
+	if( view != NULL && strcmp("»¦Éî300",pDepthMarketData->InstrumentID) != 0)
 	{
-		str.Format("Curr Price: %f", pDepthMarketData->LastPrice);
-		view->m_Price.SetWindowText( str);
-		str.Format("Curr Volume: %d", pDepthMarketData->Volume);
-		view->m_Volume.SetWindowText( str);
-		str.Format("Open Interest: %f", pDepthMarketData->OpenInterest);
-		view->m_OpenInterest.SetWindowText( str);
 		view->m_AskPrice = pDepthMarketData->AskPrice1;
 		view->m_BidPrice = pDepthMarketData->BidPrice1;
 	}

@@ -46,6 +46,7 @@ public:
 	///深度行情通知
 	virtual void OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData);
 
+
 private:
 	void genOneMinuteData(CThostFtdcDepthMarketDataField&);
 	void genHalfMinuteData(CThostFtdcDepthMarketDataField&);
@@ -63,6 +64,10 @@ private:
 	typedef map<string,CHalfMinuteData> CHalfMinuteDataMap;	
 	typedef pair<string,CHalfMinuteData> CHalfMinuteDataPair;	
 	CHalfMinuteDataMap m_half_minute_data_map;
+	typedef map<string,CThostFtdcDepthMarketDataField> CTickDataMap;	
+	typedef pair<string,CThostFtdcDepthMarketDataField> CTickDataPair;
+	CTickDataMap m_tick_data_map;
 	ofstream m_log;
 	int m_requestID;
+	friend class CTradeSystemView;
 };

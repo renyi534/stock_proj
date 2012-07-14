@@ -16,8 +16,8 @@ Class4=CTradeSystemDoc
 Class5=CTradeSystemView
 
 ResourceCount=3
-Resource1=IDR_MAINFRAME
-Resource2=IDD_ABOUTBOX
+Resource1=IDD_ABOUTBOX
+Resource2=IDR_MAINFRAME
 Resource3=IDD_TRADESYSTEM_FORM
 
 [CLS:CMainFrame]
@@ -69,7 +69,7 @@ Type=1
 Class=CTradeSystemView
 ControlCount=30
 Control1=IDC_INS_LABEL,static,1342308352
-Control2=IDC_INSTRUMENT_COMBO,combobox,1344340290
+Control2=IDC_INSTRUMENT_COMBO,combobox,1344340291
 Control3=IDC_MD_STATUS,static,1342308352
 Control4=IDC_TRADE_STATUS,static,1342308352
 Control5=IDC_PRICE,static,1342308352
@@ -124,14 +124,8 @@ Command6=ID_FILE_PRINT_PREVIEW
 Command7=ID_FILE_PRINT_SETUP
 Command8=ID_FILE_MRU_FILE1
 Command9=ID_APP_EXIT
-Command10=ID_EDIT_UNDO
-Command11=ID_EDIT_CUT
-Command12=ID_EDIT_COPY
-Command13=ID_EDIT_PASTE
-Command14=ID_VIEW_TOOLBAR
-Command15=ID_VIEW_STATUS_BAR
-Command16=ID_APP_ABOUT
-CommandCount=16
+Command10=ID_APP_ABOUT
+CommandCount=10
 
 [ACL:IDR_MAINFRAME]
 Type=1

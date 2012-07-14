@@ -121,19 +121,6 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "退出(&X)",                    ID_APP_EXIT
     END
-    POPUP "编辑(&E)"
-    BEGIN
-        MENUITEM "撤消(&U)\tCtrl+Z",            ID_EDIT_UNDO
-        MENUITEM SEPARATOR
-        MENUITEM "剪切(&T)\tCtrl+X",            ID_EDIT_CUT
-        MENUITEM "复制(&C)\tCtrl+C",            ID_EDIT_COPY
-        MENUITEM "粘贴(&P)\tCtrl+V",            ID_EDIT_PASTE
-    END
-    POPUP "查看(&V)"
-    BEGIN
-        MENUITEM "工具栏(&T)",                  ID_VIEW_TOOLBAR
-        MENUITEM "状态栏(&S)",                  ID_VIEW_STATUS_BAR
-    END
     POPUP "帮助(&H)"
     BEGIN
         MENUITEM "关于 TradeSystem(&A)...",     ID_APP_ABOUT
@@ -186,7 +173,7 @@ STYLE WS_CHILD
 FONT 9, "宋体"
 BEGIN
     LTEXT           "Instrument Sel:",IDC_INS_LABEL,26,23,61,8
-    COMBOBOX        IDC_INSTRUMENT_COMBO,95,21,62,30,CBS_DROPDOWN | 
+    COMBOBOX        IDC_INSTRUMENT_COMBO,95,21,62,30,CBS_DROPDOWNLIST | 
                     CBS_AUTOHSCROLL | CBS_SORT | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Data Server: OFF ",IDC_MD_STATUS,253,24,75,8
     LTEXT           "Trade Server: OFF",IDC_TRADE_STATUS,429,21,75,8

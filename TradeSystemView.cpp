@@ -97,7 +97,8 @@ void CTradeSystemView::OnInitialUpdate()
 	ResizeParentToFit();
 	for ( int i =0 ; i< iInstrumentID; i++)
 		this->m_Instruments.AddString(ppInstrumentID[i]);
-
+	
+	m_Instruments.AddString("»¦Éî300");
 	m_Instruments.SetCurSel(0);
 	m_RefreshFormTimer = SetTimer(1, 1000, 0);	
 	m_RefreshPosTimer  = SetTimer(2, 10000, 0);	
@@ -218,9 +219,21 @@ void CTradeSystemView::OnTimer(UINT nIDEvent)
 	memset(&pos, 0, sizeof(pos));
 	CTraderSpi::inv_pos_map::iterator pos_iter = 
 		tradeConn->m_TradeSpi->m_inv_pos.find((LPCSTR)instrument);
+	
 	if ( pos_iter != tradeConn->m_TradeSpi->m_inv_pos.end() )
 	{
 		pos = pos_iter->second;
+	}
+
+	CThostFtdcDepthMarketDataField tick_data;
+	memset(&tick_data, 0, sizeof(tick_data));
+
+	CMdSpi::CTickDataMap::iterator tick_iter = 
+		tradeConn->m_UserSpi->m_tick_data_map.find((LPCSTR)instrument);
+
+	if ( tick_iter != tradeConn->m_UserSpi->m_tick_data_map.end() )
+	{
+		tick_data = tick_iter->second;
 	}
 
 	if( nIDEvent == m_RefreshPosTimer )
@@ -251,11 +264,20 @@ void CTradeSystemView::OnTimer(UINT nIDEvent)
 		str.Format("Balance:%f", tradeConn->m_TradeSpi->m_account.Balance);
 		m_Balance.SetWindowText(str);
 
-		str.Format("Position_Profit:%f", tradeConn->m_TradeSpi->m_account.PositionProfit);
+		str.Format("Position_Profit:%f", 
+			tradeConn->m_TradeSpi->m_account.PositionProfit);
 		m_PositionProfit.SetWindowText(str);
 
-		str.Format("Close_Profit:%f", tradeConn->m_TradeSpi->m_account.CloseProfit);
+		str.Format("Close_Profit:%f", 
+			tradeConn->m_TradeSpi->m_account.CloseProfit);
 		m_CloseProfit.SetWindowText(str);
+
+		str.Format("Curr Price: %f", tick_data.LastPrice);
+		m_Price.SetWindowText( str);
+		str.Format("Curr Volume: %d", tick_data.Volume);
+		m_Volume.SetWindowText( str);
+		str.Format("Open Interest: %f", tick_data.OpenInterest);
+		m_OpenInterest.SetWindowText( str);
 	}
 	else if (m_CorrectionPosTimer == nIDEvent)
 	{

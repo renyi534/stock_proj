@@ -16,7 +16,7 @@ struct TradeConn
 	CTraderSpi*				m_TradeSpi;
 	//CCriticalSection		m_critSec;
 	CThostFtdcMdApi*		m_UserApi;
-	CThostFtdcMdSpi*		m_UserSpi;
+	CMdSpi*		m_UserSpi;
 
 	TradeConn(string FRONT_ADDR_MD, string FRONT_ADDR_TRADE,TE_RESUME_TYPE nResumeType)
 	{
