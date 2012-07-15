@@ -85,8 +85,8 @@ void RandomAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 	double amount;
 	newopen.GetData(&(amount), 1);
 
-	res.amount = mkk;//amount;
-	mkk = -mkk;
+	res.amount = amount;
+	//mkk = -mkk;
 	res.day= data.m_Day;
 	res.time = data.m_Time;
 	res.milliSec =0;
@@ -101,53 +101,11 @@ void RandomAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 	totalAmount += amount;
 
 
-	if( res.time=="15:13:29")
+	if( res.time>"15:13:29")
 	{
 		res.amount=-totalAmount;
 		res.totalAmount=0;
 	}
-
-	if( res.time=="15:13:59")
-	{
-		res.amount=-totalAmount;
-		res.totalAmount=0;
-	}
-
-	if( res.time=="15:14:29")
-	{
-		res.amount=-totalAmount;
-		res.totalAmount=0;
-	}
-
-	if( res.time=="15:14:59")
-	{
-		res.amount=-totalAmount;
-		res.totalAmount=0;
-	}
-	if( res.time=="15:13:00")
-	{
-		res.amount=-totalAmount;
-		res.totalAmount=0;
-	}
-
-	if( res.time=="15:13:30")
-	{
-		res.amount=-totalAmount;
-		res.totalAmount=0;
-	}
-
-	if( res.time=="15:14:00")
-	{
-		res.amount=-totalAmount;
-		res.totalAmount=0;
-	}
-
-	if( res.time=="15:14:30")
-	{
-		res.amount=-totalAmount;
-		res.totalAmount=0;
-	}
-
 
 
 	if (amount>0)

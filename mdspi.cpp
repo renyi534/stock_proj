@@ -127,7 +127,7 @@ void CMdSpi::OnRspUnSubMarketData(CThostFtdcSpecificInstrumentField *pSpecificIn
 void CMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData)
 {
 	m_log<<" OnRtnDepthMarketData  "<<"Time:"<<pDepthMarketData->TradingDay<<" "
-		<<pDepthMarketData->UpdateTime<<" "<<pDepthMarketData->UpdateMillisec
+		<<pDepthMarketData->UpdateTime<<" "<<pDepthMarketData->UpdateMillisec<<" "<<pDepthMarketData->InstrumentID<<" "
 		<<"  Price:"<<pDepthMarketData->LastPrice<<endl;
     
 	MessageRouter::Router.sendData(* pDepthMarketData);
