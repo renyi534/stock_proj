@@ -116,11 +116,17 @@ void CTraderSpi::ReqQryInstrument(string instrument)
 
 void CTraderSpi::OnRspQryInstrument(CThostFtdcInstrumentField *pInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
+	if (pInstrument == NULL)
+	{
+		m_log << "--->>> " << "WARNING OnRspQryInstrument NULL response" << endl;
+		return;
+	}
+
 	m_log << "--->>> " << "OnRspQryInstrument" << endl;
 	if (bIsLast && !IsErrorRspInfo(pRspInfo))
 	{
 		///请求查询投资者持仓
-		if( pInstrument->IsTrading )
+		if( pInstrument!=NULL && pInstrument->IsTrading )
 			ReqQryInvestorPosition(pInstrument->InstrumentID);
 	}
 }
@@ -139,6 +145,13 @@ void CTraderSpi::OnRspQryTradingAccount(CThostFtdcTradingAccountField *pTradingA
 {
 	m_log << "--->>> " << "OnRspQryTradingAccount" << endl;
 	
+	if (pTradingAccount == NULL)
+	{
+		m_log << "--->>> " << "WARNING OnRspQryTradingAccount NULL response" << endl;
+		return;
+	}
+
+
     m_account = *pTradingAccount;
 	MessageRouter::Router.sendData(*pTradingAccount);
 
@@ -474,6 +487,11 @@ void CTraderSpi::OnRspOrderInsert(CThostFtdcInputOrderField *pInputOrder, CThost
 {
 	m_log << "--->>> " << "OnRspOrderInsert" << endl;
 	
+	if (pInputOrder == NULL)
+	{
+		return;
+	}
+
 	if (IsErrorRspInfo(pRspInfo))
     {
         if( bIsLast )
@@ -546,6 +564,11 @@ void CTraderSpi::OnRspOrderAction(CThostFtdcInputOrderActionField *pInputOrderAc
 void CTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder)
 {
 	m_log << "--->>> " << "OnRtnOrder"  << endl;
+	if (pOrder == NULL)
+	{
+		m_log << "--->>> " << "WARNING OnRtnOrder fail"  << endl;
+		return;
+	}
 	OrderInfo order_req;
 
 	string key = pOrder->OrderSysID;
@@ -608,6 +631,13 @@ void CTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder)
 void CTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade)
 {
 	m_log << "--->>> " << "OnRtnTrade"  << endl;
+
+	if (pTrade == NULL)
+	{
+		m_log << "--->>> " << "WARNING OnRtnTrade fail"  << endl;
+		return;
+	}
+
 	MessageRouter::Router.sendData(*pTrade);
 	//DbConn conn(dbAccessPool);
 	char* buffer= new char[2048];

@@ -68,7 +68,7 @@ void HsAlgorithm::OnMinuteData(const CMinuteData& data)
 	res.day= data.m_Day;
 	res.time = data.m_Time;
 	res.milliSec =0;
-	res.m_instrumentID = data.m_InstrumentID;
+	res.m_instrumentID = m_InstrumentID;
 
 /*	if (res.amount<0)
 		res.price = res.price+5;
@@ -76,7 +76,6 @@ void HsAlgorithm::OnMinuteData(const CMinuteData& data)
 		res.price = res.price-5;*/
 
 
-	totalAmount += res.amount;
 
 
 	if( res.time>"15:13:29")
@@ -95,6 +94,8 @@ void HsAlgorithm::OnMinuteData(const CMinuteData& data)
 	}
 
 	SendStrategy(res);
+
+	totalAmount += res.amount;
 }
 
 

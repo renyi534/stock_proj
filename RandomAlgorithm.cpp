@@ -85,8 +85,8 @@ void RandomAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 	double amount;
 	newopen.GetData(&(amount), 1);
 
-	res.amount = amount;
-	//mkk = -mkk;
+	res.amount = mkk;//amount;
+	mkk = -mkk;
 	res.day= data.m_Day;
 	res.time = data.m_Time;
 	res.milliSec =0;
@@ -97,8 +97,7 @@ void RandomAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 	else
 		res.price = res.price-5;*/
 
-	res.totalAmount = newrm;
-	totalAmount += amount;
+
 
 
 	if( res.time>"15:13:29")
@@ -108,7 +107,7 @@ void RandomAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 	}
 
 
-	if (amount>0)
+	if (amount>=0)
 	{
 		res.price=m_AskPrice;
 	}
@@ -118,6 +117,8 @@ void RandomAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 	}
 
 	SendStrategy(res);
+	res.totalAmount = newrm;
+	totalAmount += res.amount;
 }
 int	RandomAlgorithm::SendStrategy(const OrderInfoShort & res)
 {
