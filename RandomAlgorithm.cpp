@@ -86,7 +86,7 @@ void RandomAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 	newopen.GetData(&(amount), 1);
 
 	res.amount = mkk;//amount;
-	mkk = -mkk;
+	//mkk = -mkk;
 	res.day= data.m_Day;
 	res.time = data.m_Time;
 	res.milliSec =0;
@@ -97,10 +97,7 @@ void RandomAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 	else
 		res.price = res.price-5;*/
 
-
-
-
-	if( res.time>"15:13:29")
+	if( res.time>"15:10:29")
 	{
 		res.amount=-totalAmount;
 		res.totalAmount=0;
@@ -239,7 +236,7 @@ BOOL RandomAlgorithm::InitInstance()
 	inre.SetData(closePrice, size);
 	mwErrorCode.SetData(&val,1);
 
-
+/*
 	val = 120;
 	insp.SetData(&val,1);
 	val = 60;
@@ -257,6 +254,25 @@ BOOL RandomAlgorithm::InitInstance()
 	val =5;
 	inul.SetData(&val,1);
 	val =2;
+	indl.SetData(&val,1);
+*/	
+	val = 120;
+	insp.SetData(&val,1);
+	val = 60;
+	inp.SetData(&val,1);
+	val = 120;
+	inw.SetData(&val,1);
+	val = 240;
+	inwl.SetData(&val,1);
+	val = 1.8;
+	inkb.SetData(&val,1);
+	val = 60;
+	inks.SetData(&val,1);
+	val =5.7;
+	inkm.SetData(&val,1);
+	val =3;
+	inul.SetData(&val,1);
+	val =3;
 	indl.SetData(&val,1);
 	
 

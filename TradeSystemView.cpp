@@ -217,6 +217,10 @@ void CTradeSystemView::OnTimer(UINT nIDEvent)
 	m_Instruments.GetWindowText(instrument);
 	InvestorPosition pos;
 	memset(&pos, 0, sizeof(pos));
+
+	if( tradeConn == NULL )
+		return;
+
 	CTraderSpi::inv_pos_map::iterator pos_iter = 
 		tradeConn->m_TradeSpi->m_inv_pos.find((LPCSTR)instrument);
 	
@@ -329,4 +333,14 @@ void CTradeSystemView::OnTimer(UINT nIDEvent)
 		}
 	}
 	CFormView::OnTimer(nIDEvent);
+}
+
+CTradeSystemView* CTradeSystemView::GetCurrView()
+{
+	CFrameWnd* pWnd = (CFrameWnd*)AfxGetMainWnd();
+
+	if ( pWnd != NULL )
+		return (CTradeSystemView*)pWnd->GetActiveView();
+	else
+		return NULL;
 }

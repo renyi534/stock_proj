@@ -68,6 +68,7 @@ public:
 
 // Implementation
 public:
+	static CTradeSystemView* GetCurrView();
 	virtual ~CTradeSystemView();
 #ifdef _DEBUG
 	virtual void AssertValid() const;

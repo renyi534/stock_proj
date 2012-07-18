@@ -34,7 +34,7 @@ void CTraderSpi::OnFrontConnected()
 	///ÓÃ»§µÇÂ¼ÇëÇó
 	ReqUserLogin();
 	CString str;
-	CTradeSystemView* view = (CTradeSystemView*)((CFrameWnd*)AfxGetMainWnd())->GetActiveView();
+	CTradeSystemView* view = CTradeSystemView::GetCurrView();
 	if( view != NULL)
 	{
 		str.Format("Trade Server: %s", "ON");
@@ -693,7 +693,7 @@ void CTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade)
 	m_TradeCount++;
 
 	CString str;
-	CTradeSystemView* view = (CTradeSystemView*)((CFrameWnd*)AfxGetMainWnd())->GetActiveView();
+	CTradeSystemView* view = CTradeSystemView::GetCurrView();
 	if( view != NULL)
 	{
 		view->m_TradeDetail.SetSel(-1,-1);
@@ -759,7 +759,7 @@ void CTraderSpi::StoreOrder(const OrderInfo& initialData, bool isRej)
 	
 	//conn.m_db->execSql(buffer);
 	CString str;
-	CTradeSystemView* view = (CTradeSystemView*)((CFrameWnd*)AfxGetMainWnd())->GetActiveView();
+	CTradeSystemView* view = CTradeSystemView::GetCurrView();
 	if( view != NULL)
 	{
 		view->m_OrderDetail.SetSel(-1,-1);
@@ -780,7 +780,7 @@ void CTraderSpi::OnFrontDisconnected(int nReason)
 	m_log << "--->>> " << "OnFrontDisconnected" << endl;
 	m_log << "--->>> Reason = " << nReason << endl;
 	CString str;
-	CTradeSystemView* view = (CTradeSystemView*)((CFrameWnd*)AfxGetMainWnd())->GetActiveView();
+	CTradeSystemView* view = CTradeSystemView::GetCurrView();
 	if( view != NULL)
 	{
 		str.Format("Trade Server: %s", "OFF");
@@ -817,12 +817,18 @@ bool CTraderSpi::IsErrorRspInfo(CThostFtdcRspInfoField *pRspInfo)
 
 bool CTraderSpi::IsMyOrder(CThostFtdcOrderField *pOrder)
 {
+	if (pOrder==NULL)
+		return false;
+
 	return ((pOrder->FrontID == FRONT_ID) &&
 		(pOrder->SessionID == SESSION_ID) );
 }
 
 bool CTraderSpi::IsTradingOrder(CThostFtdcOrderField *pOrder)
 {
+	if (pOrder==NULL)
+		return false;
+
 	return ((pOrder->OrderStatus != THOST_FTDC_OST_PartTradedNotQueueing) &&
 		(pOrder->OrderStatus != THOST_FTDC_OST_Canceled) &&
 		(pOrder->OrderStatus != THOST_FTDC_OST_AllTraded));

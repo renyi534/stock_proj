@@ -78,7 +78,7 @@ void HsAlgorithm::OnMinuteData(const CMinuteData& data)
 
 
 
-	if( res.time>"15:13:29")
+	if( res.time>"14:55:29")
 	{
 		res.amount=-totalAmount;
 		res.totalAmount=0;

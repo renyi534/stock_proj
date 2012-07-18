@@ -44,7 +44,7 @@ void CMdSpi::OnFrontDisconnected(int nReason)
 	m_log << "--->>> " << __FUNCTION__ << endl;
 	m_log << "--->>> Reason = " << nReason << endl;
 	CString str;
-	CTradeSystemView* view = (CTradeSystemView*)((CFrameWnd*)AfxGetMainWnd())->GetActiveView();
+	CTradeSystemView* view = CTradeSystemView::GetCurrView();
 	if( view != NULL)
 	{
 	str.Format("Data Server: %s", "OFF");
@@ -64,7 +64,7 @@ void CMdSpi::OnFrontConnected()
 	///用户登录请求
 	ReqUserLogin();
 	CString str;
-	CTradeSystemView* view = (CTradeSystemView*)((CFrameWnd*)AfxGetMainWnd())->GetActiveView();
+	CTradeSystemView* view = CTradeSystemView::GetCurrView();
 	if( view != NULL)
 	{
 	str.Format("Data Server: %s", "ON");
@@ -87,6 +87,10 @@ void CMdSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
 		CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
 	m_log << "--->>> " << __FUNCTION__ << endl;
+
+	if ( pRspUserLogin== NULL || pRspInfo==NULL)
+		return;
+
 	if (bIsLast && !IsErrorRspInfo(pRspInfo))
 	{
 		///获取当前交易日
@@ -126,6 +130,9 @@ void CMdSpi::OnRspUnSubMarketData(CThostFtdcSpecificInstrumentField *pSpecificIn
 
 void CMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData)
 {
+	if (pDepthMarketData == NULL)
+		return;
+
 	m_log<<" OnRtnDepthMarketData  "<<"Time:"<<pDepthMarketData->TradingDay<<" "
 		<<pDepthMarketData->UpdateTime<<" "<<pDepthMarketData->UpdateMillisec<<" "<<pDepthMarketData->InstrumentID<<" "
 		<<"  Price:"<<pDepthMarketData->LastPrice<<endl;
@@ -148,7 +155,7 @@ void CMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketDa
 	}
 
 	CString str;
-	CTradeSystemView* view = (CTradeSystemView*)((CFrameWnd*)AfxGetMainWnd())->GetActiveView();
+	CTradeSystemView* view = CTradeSystemView::GetCurrView();
 	if( view != NULL && strcmp("沪深300",pDepthMarketData->InstrumentID) != 0)
 	{
 		view->m_AskPrice = pDepthMarketData->AskPrice1;
