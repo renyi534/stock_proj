@@ -1,8 +1,8 @@
 //
 // MATLAB Compiler: 4.3 (R14SP3)
-// Date: Mon Jul 02 21:30:23 2012
+// Date: Thu Jul 12 22:46:59 2012
 // Arguments: "-B" "macro_default" "-W" "cpplib:libMethod_1" "-T" "link:lib"
-// "MinKsymbProcess.m" "IniMethod.m" "TransPriAndVol.m" 
+// "MinKsymbProcess.m" "IniMethod.m" 
 //
 
 #ifndef __libMethod_1_h
@@ -74,9 +74,6 @@ void mlxMinKsymbProcess(int nlhs, mxArray *plhs[], int nrhs, mxArray *prhs[]);
 extern LIB_libMethod_1_C_API 
 void mlxIniMethod(int nlhs, mxArray *plhs[], int nrhs, mxArray *prhs[]);
 
-extern LIB_libMethod_1_C_API 
-void mlxTransPriAndVol(int nlhs, mxArray *plhs[], int nrhs, mxArray *prhs[]);
-
 #ifdef __cplusplus
 }
 #endif
@@ -108,28 +105,19 @@ void mlxTransPriAndVol(int nlhs, mxArray *plhs[], int nrhs, mxArray *prhs[]);
 
 extern LIB_libMethod_1_CPP_API void MinKsymbProcess(int nargout
                                                     , mwArray& newopen
-                                                    , mwArray& newm
-                                                    , mwArray& newe
-                                                    , mwArray& newrm
-                                                    , mwArray& newre
                                                     , mwArray& price
                                                     , const mwArray& to
                                                     , const mwArray& th
                                                     , const mwArray& tl
                                                     , const mwArray& tc
-                                                    , const mwArray& tv
-                                                    , const mwArray& trm
-                                                    , const mwArray& tre);
+                                                    , const mwArray& tv);
 
 extern LIB_libMethod_1_CPP_API void IniMethod(int nargout, mwArray& erroCode
                                               , const mwArray& inop
                                               , const mwArray& inhp
                                               , const mwArray& inlp
                                               , const mwArray& incp
-                                              , const mwArray& inm
-                                              , const mwArray& inrm
-                                              , const mwArray& ine
-                                              , const mwArray& inre
+                                              , const mwArray& intime
                                               , const mwArray& insp
                                               , const mwArray& inp
                                               , const mwArray& inw
@@ -139,12 +127,6 @@ extern LIB_libMethod_1_CPP_API void IniMethod(int nargout, mwArray& erroCode
                                               , const mwArray& inkm
                                               , const mwArray& inul
                                               , const mwArray& indl);
-
-extern LIB_libMethod_1_CPP_API void TransPriAndVol(int nargout, mwArray& flag
-                                                   , const mwArray& ia
-                                                   , const mwArray& ib
-                                                   , const mwArray& iav
-                                                   , const mwArray& ibv);
 
 #endif
 

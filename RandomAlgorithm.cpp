@@ -39,8 +39,16 @@ void RandomAlgorithm::OnMinuteData(const CMinuteData& data)
 }
 
 int mkk=1;
+int isIni=0;
 void RandomAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 {
+	if (isIni<1)
+	{
+		InitInstance();
+	
+		isIni++;
+	
+	}
 	double val = 0;
 	mwArray newopen(1,1, mxDOUBLE_CLASS);
 	mwArray newm(1,1, mxDOUBLE_CLASS);
@@ -74,48 +82,44 @@ void RandomAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 
 
 
-	MinKsymbProcess(6, newopen, newm, newe, newrm, newre
-                    , bidprice, to, th, tl, tc, tv, trm, tre);
+	MinKsymbProcess(2, newopen, bidprice, to, th, tl, tc, tv);
 
 
 
 	OrderInfoShort res;
 
 	bidprice.GetData(&(res.price), 1);
-	double amount;
-	newopen.GetData(&(amount), 1);
+	
+	newopen.GetData(&(res.amount), 1);
 
-	res.amount = amount;
-	//mkk = -mkk;
+	string strTime(data.m_Time, 1, 5);
+	if (strTime>"15:12")
+	{
+		isIni=0;
+		res.amount = -totalAmount;
+	}
+
+	if(res.amount>0)
+	{
+		res.price=m_AskPrice;
+	}
+	
+	if(res.amount<0)
+	{
+		res.price=m_BidPrice;
+	}
+
+	
 	res.day= data.m_Day;
 	res.time = data.m_Time;
 	res.milliSec =0;
 	res.m_instrumentID = data.m_InstrumentID;
 
-/*	if (res.amount<0)
-		res.price = res.price+5;
-	else
-		res.price = res.price-5;*/
+	totalAmount += res.amount;
+	res.totalAmount = totalAmount;
 
-	if( res.time>"15:10:29")
-	{
-		res.amount=-totalAmount;
-		res.totalAmount=0;
-	}
-
-
-	if (amount>=0)
-	{
-		res.price=m_AskPrice;
-	}
-	if(amount<0)
-	{
-		res.price=m_BidPrice;
-	}
 
 	SendStrategy(res);
-	res.totalAmount = newrm;
-	totalAmount += res.amount;
 }
 int	RandomAlgorithm::SendStrategy(const OrderInfoShort & res)
 {
@@ -133,27 +137,7 @@ void RandomAlgorithm::OnTickData(const CThostFtdcDepthMarketDataField& data)
 {
 	m_AskPrice = data.AskPrice1;
 	m_BidPrice = data.BidPrice1;
-	double val;
-	val = data.AskPrice1;
-	mwArray ia(1,1, mxDOUBLE_CLASS);
-	ia.SetData(&val,1);
 
-	val = data.BidPrice1;
-	mwArray ib(1,1, mxDOUBLE_CLASS);
-	ib.SetData(&val,1);
-
-	val = data.AskVolume1;
-	mwArray iav(1,1, mxDOUBLE_CLASS);
-	iav.SetData(&val,1);
-
-	val = data.BidVolume1;
-	mwArray ibv(1,1, mxDOUBLE_CLASS);
-	ibv.SetData(&val,1);
-
-	mwArray flag(1,1, mxDOUBLE_CLASS);
-
-
-	TransPriAndVol(1, flag,ia,ib,iav,ibv);
                                                   
 }
 void RandomAlgorithm::OnTradeData(const CThostFtdcTradeField& data)
@@ -188,17 +172,14 @@ BOOL RandomAlgorithm::InitInstance()
 
 	double val =10;
 
-	mwArray mwErrorCode(1,1, mxDOUBLE_CLASS);
+	mwArray mwErrorCode(1,1, mxDOUBLE_CLASS);	// 1，1表示矩阵的大小（所有maltab只有一种变量，就是矩阵，为了和Cpp变量接轨，设置成1*1的矩阵，mxDOUBLE_CLASS表示变量的精度）   
 	mwArray mwOpen( size, 1,mxDOUBLE_CLASS); 
 	mwArray mwHigh( size, 1,mxDOUBLE_CLASS); 
 	mwArray mwLow(size, 1, mxDOUBLE_CLASS); 
 	mwArray mwClose( size,1, mxDOUBLE_CLASS); 
-	// 1，1表示矩阵的大小（所有maltab只有一种变量，就是矩阵，为了和Cpp变量接轨，设置成1*1的矩阵，mxDOUBLE_CLASS表示变量的精度）   
+	mwArray intime(size,1, mxDOUBLE_CLASS);
 
-	mwArray inm(size,1, mxDOUBLE_CLASS);
-	mwArray inrm(size,1, mxDOUBLE_CLASS);
-	mwArray ine(size,1, mxDOUBLE_CLASS);
-	mwArray inre(size,1, mxDOUBLE_CLASS);
+	
 
 	mwArray insp(1,1, mxDOUBLE_CLASS);
 	mwArray inp(1,1, mxDOUBLE_CLASS);
@@ -214,27 +195,46 @@ BOOL RandomAlgorithm::InitInstance()
 	double* highPrice = new double[size];
 	double* lowPrice = new double[size];
 	double* closePrice = new double[size];
-	int * zaa=new int[size];
+	
+	
+	int * intimeA=new int[size];
+	intimeA[size-1]=0;
+	int iSameDay=1;
+
+	val=0;
 
 	// set data，不用我解释了吧，很简单的，调用类里面的SetData函数给类赋值   
-	for( int i=0; i< size; i++ )
+	for( int i=size-1; i>=0; i-- )
 	{
 		openPrice[i] = m_historyData[i].m_OpenPrice;
 		highPrice[i] = m_historyData[i].m_HighPrice;
 		lowPrice[i] = m_historyData[i].m_LowPrice;
 		closePrice[i] = m_historyData[i].m_ClosePrice;
-		zaa[i]=0;
+		
+		if(i!=size-1)
+		{
+			if(m_historyData[i].m_Day!=m_historyData[i+1].m_Day)
+			{
+				intimeA[i] = intimeA[i+1]-1;
+			}
+			else
+			{
+				intimeA[i] = intimeA[i+1];
+			}
+
+			
+
+		}
+		
 	}
+	
 
 	mwOpen.SetData(openPrice, size);
 	mwHigh.SetData(highPrice, size);
 	mwLow.SetData(lowPrice, size);
 	mwClose.SetData(closePrice, size);
-	inm.SetData(zaa, size);
-	inrm.SetData(zaa, size);
-	ine.SetData(closePrice, size);
-	inre.SetData(closePrice, size);
-	mwErrorCode.SetData(&val,1);
+	intime.SetData(intimeA, size);
+
 
 /*
 	val = 120;
@@ -256,6 +256,8 @@ BOOL RandomAlgorithm::InitInstance()
 	val =2;
 	indl.SetData(&val,1);
 */	
+
+
 	val = 120;
 	insp.SetData(&val,1);
 	val = 60;
@@ -274,35 +276,11 @@ BOOL RandomAlgorithm::InitInstance()
 	inul.SetData(&val,1);
 	val =3;
 	indl.SetData(&val,1);
-	
 
 
-/*	val = 120;
-	insp.SetData(&val,1);
-	val = 60;
-	inp.SetData(&val,1);
-	val = 120;
-	inw.SetData(&val,1);
-	val = 240;
-	inwl.SetData(&val,1);
-	val = 1.8;
-	inkb.SetData(&val,1);
-	val = 60;
-	inks.SetData(&val,1);
-	val =5.7;
-	inkm.SetData(&val,1);
-	val =5;
-	inul.SetData(&val,1);
-	val =3;
-	indl.SetData(&val,1);
-
-*/
 	IniMethod(1, mwErrorCode,
 		mwOpen, mwHigh, mwLow, mwClose,
-		 inm,
-		 inrm,
-		 ine,
-		 inre,
+		 intime,
 		 insp,
 		 inp,
 		 inw,
@@ -319,7 +297,7 @@ BOOL RandomAlgorithm::InitInstance()
 	delete []highPrice;
 	delete []lowPrice;
 	delete []closePrice;
-	delete []zaa;
+	delete []intimeA;
 
   
 
