@@ -320,7 +320,23 @@ void CMdSpi::genOneMinuteData(CThostFtdcDepthMarketDataField & tick_data)
 		if( m_one_minute_data.m_Day!="")
 		{
 			m_one_minute_data.m_Time+=":59";
+
 			//We have gotten one minute statistics data
+			CMinuteData prev_data;
+			memset(&prev_data, 0 ,sizeof(prev_data));
+			CMinuteDataMap::iterator iter = m_prev_one_minute_data_map.find(instrument_id);
+			if (iter == m_prev_one_minute_data_map.end())
+			{
+				m_prev_one_minute_data_map.insert(CMinuteDataPair(instrument_id, m_one_minute_data));
+			}
+			else
+			{
+				prev_data = iter->second;
+				m_prev_one_minute_data_map[instrument_id] = m_one_minute_data;
+			}
+			
+			m_one_minute_data.m_OpenInterest -= prev_data.m_OpenInterest;
+			m_one_minute_data.m_Volume -= prev_data.m_Volume;
 			MessageRouter::Router.sendData(m_one_minute_data);
 
 			char* buffer = new char[8196];
@@ -432,6 +448,22 @@ void CMdSpi::genHalfMinuteData(CThostFtdcDepthMarketDataField & tick_data)
 
 			half_minute_data.m_Time = half_minute_data.m_Time.substr(0,5)+":"+half_minute_data.m_Sec;
 			//We have gotten one minute statistics data
+			CHalfMinuteData prev_data;
+			memset(&prev_data, 0 ,sizeof(prev_data));
+			CHalfMinuteDataMap::iterator iter = m_prev_half_minute_data_map.find(instrument_id);
+			if (iter == m_prev_half_minute_data_map.end())
+			{
+				m_prev_half_minute_data_map.insert(CHalfMinuteDataPair(instrument_id, half_minute_data));
+			}
+			else
+			{
+				prev_data = iter->second;
+				m_prev_half_minute_data_map[instrument_id] = half_minute_data;
+			}
+			
+			half_minute_data.m_OpenInterest -= prev_data.m_OpenInterest;
+			half_minute_data.m_Volume -= prev_data.m_Volume;
+
 			MessageRouter::Router.sendData(half_minute_data);
 
 			char* buffer = new char[8196];

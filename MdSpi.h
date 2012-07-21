@@ -58,16 +58,26 @@ private:
 	// UserApi∂‘œÛ
 	CThostFtdcMdApi* m_pUserApi;
 
+
+
 	typedef map<string,CMinuteData> CMinuteDataMap;	
 	typedef pair<string,CMinuteData> CMinuteDataPair;	
 	CMinuteDataMap m_one_minute_data_map;
+
+
 	typedef map<string,CHalfMinuteData> CHalfMinuteDataMap;	
 	typedef pair<string,CHalfMinuteData> CHalfMinuteDataPair;	
 	CHalfMinuteDataMap m_half_minute_data_map;
+
+
 	typedef map<string,CThostFtdcDepthMarketDataField> CTickDataMap;	
 	typedef pair<string,CThostFtdcDepthMarketDataField> CTickDataPair;
 	CTickDataMap m_tick_data_map;
+
+
 	ofstream m_log;
 	int m_requestID;
 	friend class CTradeSystemView;
+	CHalfMinuteDataMap m_prev_half_minute_data_map;
+	CMinuteDataMap m_prev_one_minute_data_map;
 };

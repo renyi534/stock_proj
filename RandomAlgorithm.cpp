@@ -85,7 +85,7 @@ void RandomAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 	double amount;
 	newopen.GetData(&(amount), 1);
 
-	res.amount = mkk;//amount;
+	res.amount = amount;
 	//mkk = -mkk;
 	res.day= data.m_Day;
 	res.time = data.m_Time;
