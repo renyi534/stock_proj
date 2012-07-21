@@ -138,9 +138,14 @@ void CMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketDa
 		<<"  Price:"<<pDepthMarketData->LastPrice<<endl;
     
 	MessageRouter::Router.sendData(* pDepthMarketData);
+	
+	string time = pDepthMarketData->UpdateTime;
 
-	genOneMinuteData(*pDepthMarketData);
-	genHalfMinuteData(*pDepthMarketData);
+	if ( time > "08:59:59" && time < "15:16" )
+	{
+		genOneMinuteData(*pDepthMarketData);
+		genHalfMinuteData(*pDepthMarketData);
+	}
 	//CTradeSystemApp* app = (CTradeSystemApp*) AfxGetApp();
 
 	CTickDataMap::iterator iter = m_tick_data_map.find(pDepthMarketData->InstrumentID);
