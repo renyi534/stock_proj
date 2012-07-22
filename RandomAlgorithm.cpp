@@ -19,7 +19,7 @@ extern DbAccessorPool dbAccessPool;
 //////////////////////////////////////////////////////////////////////
 
 RandomAlgorithm::RandomAlgorithm(string instrument_id):
-	m_InstrumentID(instrument_id), m_Amount(0), m_log("c:\\random_algo_data.log")
+m_InstrumentID(instrument_id), m_Amount(0), m_log("c:\\random_algo_data.log", ios::app)
 {
 	lastVol=0;
 	totalAmount=0;

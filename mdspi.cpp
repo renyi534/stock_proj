@@ -141,7 +141,7 @@ void CMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketDa
 	
 	string time = pDepthMarketData->UpdateTime;
 
-	if ( time > "08:59:59" && time < "15:16" )
+	if ( time > "08:29:59" && time < "15:17" )
 	{
 		genOneMinuteData(*pDepthMarketData);
 		genHalfMinuteData(*pDepthMarketData);
@@ -330,6 +330,7 @@ void CMdSpi::genOneMinuteData(CThostFtdcDepthMarketDataField & tick_data)
 			CMinuteData prev_data;
 			memset(&prev_data, 0 ,sizeof(prev_data));
 			CMinuteDataMap::iterator iter = m_prev_one_minute_data_map.find(instrument_id);
+			bool send = false;
 			if (iter == m_prev_one_minute_data_map.end())
 			{
 				m_prev_one_minute_data_map.insert(CMinuteDataPair(instrument_id, m_one_minute_data));
@@ -338,32 +339,35 @@ void CMdSpi::genOneMinuteData(CThostFtdcDepthMarketDataField & tick_data)
 			{
 				prev_data = iter->second;
 				m_prev_one_minute_data_map[instrument_id] = m_one_minute_data;
+				send = true;
 			}
-			
-			m_one_minute_data.m_OpenInterest -= prev_data.m_OpenInterest;
-			m_one_minute_data.m_Volume -= prev_data.m_Volume;
-			MessageRouter::Router.sendData(m_one_minute_data);
-
-			char* buffer = new char[8196];
-			int index=0;
-
-			const char* format_str="insert into stock_data.\"OneMinuteData\" values('%s','%s',%lf,%lf,%lf,%lf,%lf,%lf,'%s')";
-
-
-			sprintf(buffer,format_str,
-				m_one_minute_data.m_Day.c_str(),
-				(m_one_minute_data.m_Time).c_str(),
-				m_one_minute_data.m_OpenPrice,
-				m_one_minute_data.m_ClosePrice,
-				m_one_minute_data.m_HighPrice,
-				m_one_minute_data.m_LowPrice,
-				m_one_minute_data.m_Volume,
-				m_one_minute_data.m_OpenInterest,
-				instrument_id.c_str()
-			);
-		//DbConn conn(dbAccessPool);
-		//conn.m_db->execSql(buffer);
-			gThreadPool.Run(ExecSQL, (void*) buffer);
+			if (send)
+			{
+				m_one_minute_data.m_OpenInterest -= prev_data.m_OpenInterest;
+				m_one_minute_data.m_Volume -= prev_data.m_Volume;
+				MessageRouter::Router.sendData(m_one_minute_data);
+				
+				char* buffer = new char[8196];
+				int index=0;
+				
+				const char* format_str="insert into stock_data.\"OneMinuteData\" values('%s','%s',%lf,%lf,%lf,%lf,%lf,%lf,'%s')";
+				
+				
+				sprintf(buffer,format_str,
+					m_one_minute_data.m_Day.c_str(),
+					(m_one_minute_data.m_Time).c_str(),
+					m_one_minute_data.m_OpenPrice,
+					m_one_minute_data.m_ClosePrice,
+					m_one_minute_data.m_HighPrice,
+					m_one_minute_data.m_LowPrice,
+					m_one_minute_data.m_Volume,
+					m_one_minute_data.m_OpenInterest,
+					instrument_id.c_str()
+					);
+				//DbConn conn(dbAccessPool);
+				//conn.m_db->execSql(buffer);
+				gThreadPool.Run(ExecSQL, (void*) buffer);
+			}
 		}
 		resetOneMinuteData(m_one_minute_data, instrument_id);
 		m_one_minute_data.m_Day=tradingDay;
@@ -456,6 +460,7 @@ void CMdSpi::genHalfMinuteData(CThostFtdcDepthMarketDataField & tick_data)
 			CHalfMinuteData prev_data;
 			memset(&prev_data, 0 ,sizeof(prev_data));
 			CHalfMinuteDataMap::iterator iter = m_prev_half_minute_data_map.find(instrument_id);
+			bool send = false;
 			if (iter == m_prev_half_minute_data_map.end())
 			{
 				m_prev_half_minute_data_map.insert(CHalfMinuteDataPair(instrument_id, half_minute_data));
@@ -464,33 +469,36 @@ void CMdSpi::genHalfMinuteData(CThostFtdcDepthMarketDataField & tick_data)
 			{
 				prev_data = iter->second;
 				m_prev_half_minute_data_map[instrument_id] = half_minute_data;
+				send = true;
 			}
-			
-			half_minute_data.m_OpenInterest -= prev_data.m_OpenInterest;
-			half_minute_data.m_Volume -= prev_data.m_Volume;
-
-			MessageRouter::Router.sendData(half_minute_data);
-
-			char* buffer = new char[8196];
-			int index=0;
-
-			const char* format_str="insert into stock_data.\"HalfMinuteData\" values('%s','%s',%lf,%lf,%lf,%lf,%lf,%lf,'%s')";
-
-
-			sprintf(buffer,format_str,
-				half_minute_data.m_Day.c_str(),
-				(half_minute_data.m_Time).c_str(),
-				half_minute_data.m_OpenPrice,
-				half_minute_data.m_ClosePrice,
-				half_minute_data.m_HighPrice,
-				half_minute_data.m_LowPrice,
-				half_minute_data.m_Volume,
-				half_minute_data.m_OpenInterest,
-				instrument_id.c_str()
-			);
-		//DbConn conn(dbAccessPool);
-		//conn.m_db->execSql(buffer);
-			gThreadPool.Run(ExecSQL, (void*) buffer);
+			if( send )
+			{
+				half_minute_data.m_OpenInterest -= prev_data.m_OpenInterest;
+				half_minute_data.m_Volume -= prev_data.m_Volume;
+				
+				MessageRouter::Router.sendData(half_minute_data);
+				
+				char* buffer = new char[8196];
+				int index=0;
+				
+				const char* format_str="insert into stock_data.\"HalfMinuteData\" values('%s','%s',%lf,%lf,%lf,%lf,%lf,%lf,'%s')";
+				
+				
+				sprintf(buffer,format_str,
+					half_minute_data.m_Day.c_str(),
+					(half_minute_data.m_Time).c_str(),
+					half_minute_data.m_OpenPrice,
+					half_minute_data.m_ClosePrice,
+					half_minute_data.m_HighPrice,
+					half_minute_data.m_LowPrice,
+					half_minute_data.m_Volume,
+					half_minute_data.m_OpenInterest,
+					instrument_id.c_str()
+					);
+				//DbConn conn(dbAccessPool);
+				//conn.m_db->execSql(buffer);
+				gThreadPool.Run(ExecSQL, (void*) buffer);
+			}
 		}
 		
 		half_minute_data.m_Day=tradingDay;
