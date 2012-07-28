@@ -141,7 +141,7 @@ void CMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketDa
 	
 	string time = pDepthMarketData->UpdateTime;
 
-	if ( time > "08:29:59" && time < "15:17" )
+	if ( time > "09:14:59" && time < "15:17" )
 	{
 		genOneMinuteData(*pDepthMarketData);
 		genHalfMinuteData(*pDepthMarketData);

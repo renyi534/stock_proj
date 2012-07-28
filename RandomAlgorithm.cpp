@@ -19,7 +19,7 @@ extern DbAccessorPool dbAccessPool;
 //////////////////////////////////////////////////////////////////////
 
 RandomAlgorithm::RandomAlgorithm(string instrument_id):
-m_InstrumentID(instrument_id), m_Amount(0), m_log("c:\\random_algo_data.log", ios::app)
+m_InstrumentID(instrument_id), m_Amount(0), m_log("c:\\random_algo_data.log", ios::app),m_state_log("c:\\random_algo_state.log")
 {
 	lastVol=0;
 	totalAmount=0;
@@ -31,6 +31,7 @@ m_InstrumentID(instrument_id), m_Amount(0), m_log("c:\\random_algo_data.log", io
 RandomAlgorithm::~RandomAlgorithm()
 {
 	m_log.close();
+	m_state_log.close();
 }
 
 void RandomAlgorithm::OnMinuteData(const CMinuteData& data)
@@ -38,16 +39,26 @@ void RandomAlgorithm::OnMinuteData(const CMinuteData& data)
 	return;
 }
 
+
+
 int mkk=1;
 int isIni=0;
+int ininow=0;
 void RandomAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 {
-	if (isIni<1)
+	if (isIni<3)
 	{
-		InitInstance();
-	
-		isIni++;
-	
+		if(isIni==2)
+		{
+			ininow=1;
+			InitInstance();
+			isIni++;
+		}
+		else
+		{
+			isIni++;
+			return;
+		}
 	}
 	double val = 0;
 	mwArray newopen(1,1, mxDOUBLE_CLASS);
@@ -73,9 +84,7 @@ void RandomAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 	tl.SetData(&val,1);
 	val = data.m_ClosePrice;
 	tc.SetData(&val,1);
-	val = data.m_Volume-lastVol;
-//	val = data.m_Volume;
-	lastVol = data.m_Volume;
+	val = data.m_Volume;
 	tv.SetData(&val,1);
 	trm.SetData(&val,1);
 	tre.SetData(&val,1);
@@ -93,7 +102,7 @@ void RandomAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 	newopen.GetData(&(res.amount), 1);
 
 	string strTime(data.m_Time, 1, 5);
-	if (strTime>"15:12")
+	if (data.m_Time > "15:10")
 	{
 		isIni=0;
 		res.amount = -totalAmount;
@@ -120,9 +129,42 @@ void RandomAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 
 
 	SendStrategy(res);
+
+	
+	mwArray s_m(1,1, mxDOUBLE_CLASS);
+	mwArray s_e(1,1, mxDOUBLE_CLASS);
+	mwArray s_atr(1,1, mxDOUBLE_CLASS);
+	mwArray s_stop(1,1, mxDOUBLE_CLASS);
+	mwArray s_trend(1,1, mxDOUBLE_CLASS);
+
+	GetInnerState(5, s_m, s_e, s_atr, s_stop, s_trend);
+
+	double im=0;
+	s_m.GetData(&im,1);
+	
+	double ie=0;
+	s_e.GetData(&ie,1);
+
+	double iatr=0;
+	s_atr.GetData(&iatr,1);
+
+	double istop=0;
+	s_stop.GetData(&istop,1);
+
+	double itrend=0;
+	s_trend.GetData(&itrend,1);
+
+	m_state_log<<res.m_instrumentID+", "+res.day+" "+res.time<<", price:"<<res.price<<", m:"<<im<<", e:"<<ie<<", atr:"<<iatr<<", stop:"<<istop<<", trend:"<<itrend<<endl;
+
+	
 }
+
+
+
+
 int	RandomAlgorithm::SendStrategy(const OrderInfoShort & res)
 {
+
 	//第一行就是真实的发送指令，第二行是本地模拟写log
 	if( res.amount != 0 )
 	{
@@ -152,7 +194,13 @@ void RandomAlgorithm::OnPositionData(const CThostFtdcInvestorPositionField& data
 
 BOOL RandomAlgorithm::InitInstance()
 {
+
 	this->RegisterInstrument(m_InstrumentID);
+	if (ininow==0)
+	{
+		return TRUE;
+	}
+	
 	try{
 		DbConn conn(dbAccessPool);
 		//conn.m_db->getData(m_InstrumentID, startDayBuffer, startTimeBuffer,
@@ -235,27 +283,6 @@ BOOL RandomAlgorithm::InitInstance()
 	mwClose.SetData(closePrice, size);
 	intime.SetData(intimeA, size);
 
-
-/*
-	val = 120;
-	insp.SetData(&val,1);
-	val = 60;
-	inp.SetData(&val,1);
-	val = 120;
-	inw.SetData(&val,1);
-	val = 240;
-	inwl.SetData(&val,1);
-	val = 0.01;
-	inkb.SetData(&val,1);
-	val = 5;
-	inks.SetData(&val,1);
-	val =0.01;
-	inkm.SetData(&val,1);
-	val =5;
-	inul.SetData(&val,1);
-	val =2;
-	indl.SetData(&val,1);
-*/	
 
 
 	val = 120;

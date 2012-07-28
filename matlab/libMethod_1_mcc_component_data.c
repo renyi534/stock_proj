@@ -1,8 +1,8 @@
 //
 // MATLAB Compiler: 4.3 (R14SP3)
-// Date: Sun Jun 10 17:29:33 2012
-// Arguments: "-B" "macro_default" "-G" "-W" "cpplib:libMethod_1" "-T"
-// "link:lib" "MinKsymbProcess.m" "IniMethod.m" "GetK.m" "MyFigure.m" 
+// Date: Sun Jul 22 17:33:35 2012
+// Arguments: "-B" "macro_default" "-W" "cpplib:libMethod_1" "-T" "link:lib"
+// "MinKsymbProcess.m" "IniMethod.m" "GetInnerState.m" 
 //
 
 #include "mclmcr.h"
@@ -11,25 +11,25 @@
 extern "C" {
 #endif
 extern const unsigned char __MCC_libMethod_1_session_key[] = {
-        '7', 'D', '7', '4', '9', 'A', 'C', '4', 'B', 'A', '3', '7', '6', '1',
-        '2', '5', '6', 'D', 'C', '7', '1', '8', '9', 'B', '9', 'F', '7', '3',
-        '8', '6', 'D', '7', '3', '6', 'E', 'F', '7', '5', 'F', 'C', '4', 'D',
-        'E', '3', '3', '1', '2', '2', '5', '1', 'B', '2', 'F', '9', '8', '3',
-        '5', '6', '0', 'C', 'F', '6', 'C', 'F', '3', '5', '9', '7', '5', '7',
-        '9', '2', 'C', '0', '0', '9', '3', 'B', 'A', '1', '9', '1', '1', 'C',
-        '7', '3', '0', '2', '6', '3', '2', '0', '7', '6', 'D', '4', '2', '4',
-        'D', '8', '9', 'F', 'C', '0', '3', 'A', 'C', '0', '1', '0', '2', 'F',
-        'D', '4', '6', '1', '5', '9', 'A', 'D', '3', 'A', '3', 'A', 'F', '7',
-        'B', '3', '9', '3', '5', '5', '6', 'C', 'B', '1', 'D', '4', '4', '1',
-        '1', 'C', 'C', '6', '9', '4', 'C', '1', '7', '3', 'F', 'E', '3', '7',
-        '1', 'A', '1', '7', '5', '7', '5', '6', '0', '3', '3', '1', '0', '6',
-        'C', '6', '3', '0', '4', '1', 'E', '4', '3', 'B', 'D', 'A', '5', '0',
-        '6', '8', '3', 'A', 'F', '7', '2', 'D', '8', '9', '9', '0', '7', 'C',
-        'C', '3', 'E', '0', '7', 'F', 'D', '9', 'A', 'E', 'F', '8', '3', '1',
-        'C', '3', 'B', '8', '1', 'A', '7', '9', 'E', '2', 'C', 'A', '6', 'E',
-        '0', '7', '7', '5', 'A', '6', 'A', 'F', '8', '8', '2', '5', 'A', '0',
-        '1', '1', '1', '3', '3', '3', 'C', '2', '6', '6', '2', 'D', 'E', '3',
-        '8', '8', '5', '6', '\0'};
+        '9', 'E', 'C', 'B', '6', '2', '1', '6', 'A', '5', '9', '2', '5', '8',
+        '2', '3', 'A', '4', 'E', '6', '0', '0', '9', '2', '2', 'B', 'E', '7',
+        '2', '4', '0', '7', 'D', '8', 'A', '2', '2', '4', '2', '1', 'E', 'E',
+        '3', 'F', '7', 'A', '0', '7', '5', 'F', 'A', '9', '5', '7', 'E', 'F',
+        '6', 'C', '5', 'B', 'A', '4', '3', '2', '8', 'B', '4', '9', '1', '7',
+        '7', '3', '4', '6', 'E', 'D', '1', '3', '2', 'D', '1', 'B', '6', '0',
+        '1', 'A', '9', '4', 'B', 'D', 'F', '8', 'F', 'E', 'B', '5', '8', '9',
+        '1', '5', '3', '6', 'C', '4', '0', '9', 'B', '0', '6', '3', '1', '9',
+        'A', '1', '0', '2', '8', '7', '1', '7', '3', '2', '0', 'A', '7', 'E',
+        '4', 'A', 'E', '1', 'F', 'C', '1', 'B', '0', 'E', '8', 'F', 'F', '8',
+        'D', '2', '1', '8', 'A', '6', '1', '1', 'A', '4', 'F', '1', '2', '8',
+        'B', 'B', 'A', 'E', '9', '0', '4', '2', '5', 'A', '2', '9', '2', '3',
+        'A', '4', 'A', '3', '8', '5', 'E', '1', '0', 'B', '3', '7', '2', '0',
+        '4', '0', '1', '2', 'B', '2', '6', 'A', '3', '3', '7', '5', '3', '3',
+        '4', '7', '6', '3', 'B', 'F', 'B', '4', 'D', '5', '0', 'B', '9', '3',
+        '6', '8', '8', '1', 'D', '9', 'C', '2', '4', 'E', '0', '5', '3', '8',
+        '5', '7', '3', '9', '4', '3', 'F', 'E', '9', 'D', '4', '6', '8', '6',
+        '7', '6', '0', '3', '1', '4', 'D', 'A', '1', '4', '5', 'B', '5', '5',
+        '3', '8', 'E', 'C', '\0'};
 
 extern const unsigned char __MCC_libMethod_1_public_key[] = {
         '3', '0', '8', '1', '9', 'D', '3', '0', '0', 'D', '0', '6', '0', '9',
@@ -73,11 +73,10 @@ static const char * MCC_libMethod_1_matlabpath_data[] =
       "$TOOLBOXMATLABDIR/codetools/", "$TOOLBOXMATLABDIR/helptools/",
       "$TOOLBOXMATLABDIR/winfun/", "$TOOLBOXMATLABDIR/demos/",
       "$TOOLBOXMATLABDIR/timeseries/", "$TOOLBOXMATLABDIR/hds/",
-      "toolbox/local/", "toolbox/compiler/",
-      "toolbox/database/database/", "toolbox/optim/", "toolbox/stats/" };
+      "toolbox/local/", "toolbox/compiler/" };
 
 static const char * MCC_libMethod_1_classpath_data[] = 
-    { "java/jar/toolbox/database.jar" };
+    { "" };
 
 static const char * MCC_libMethod_1_libpath_data[] = 
     { "" };
@@ -110,12 +109,12 @@ mclComponentData __MCC_libMethod_1_component_data = {
     MCC_libMethod_1_matlabpath_data,
 
     /* Number of directories in the MATLAB Path */
-    38,
+    35,
 
     /* Component's Java class path */
     MCC_libMethod_1_classpath_data,
     /* Number of directories in the Java class path */
-    1,
+    0,
 
     /* Component's load library path (for extra shared libraries) */
     MCC_libMethod_1_libpath_data,
@@ -133,7 +132,7 @@ mclComponentData __MCC_libMethod_1_component_data = {
     0,
     
     /* Component preferences directory */
-    "libMethod_1_DEFFBEAFD736716601015F89E4F0BFE8",
+    "libMethod_1_4F0CBC14A02E27198FBD3281E43FD9F9",
 
     /* MCR warning status data */
     MCC_libMethod_1_warning_state_data,

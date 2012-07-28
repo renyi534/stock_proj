@@ -3,5 +3,4 @@ libMethod_1InitializeWithHandlers
 libMethod_1Terminate
 mlxMinKsymbProcess
 mlxIniMethod
-mlxGetK
-mlxMyFigure
+mlxGetInnerState
