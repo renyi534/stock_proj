@@ -1,9 +1,9 @@
-// RandomAlgorithm.h: interface for the RandomAlgorithm class.
+// WeightedAlgorithm.h: interface for the WeightedAlgorithm class.
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(AFX_RANDOMALGORITHM_H__2EA7E4BA_C2CD_4FDD_978B_C3B4E42FEF93__INCLUDED_)
-#define AFX_RANDOMALGORITHM_H__2EA7E4BA_C2CD_4FDD_978B_C3B4E42FEF93__INCLUDED_
+#if !defined(AFX_WEIGHTEDALGORITHM_H__2EA7E4BA_C2CD_4FDD_978B_C3B4E42FEF93__INCLUDED_)
+#define AFX_WEIGHTEDALGORITHM_H__2EA7E4BA_C2CD_4FDD_978B_C3B4E42FEF93__INCLUDED_
 
 #if _MSC_VER > 1000
 #pragma once
@@ -11,11 +11,11 @@
 
 #include "Algorithm.h"
 class COneMinuteData;
-class RandomAlgorithm : public Algorithm  
+class WeightedAlgorithm : public Algorithm  
 {
 public:
-	RandomAlgorithm(string instrument_id);
-	virtual ~RandomAlgorithm();
+	WeightedAlgorithm(string instrument_id);
+	virtual ~WeightedAlgorithm();
     virtual void OnMinuteData(const CMinuteData& data);
 	virtual void OnHalfMinuteData(const CHalfMinuteData& data);
     virtual void OnTickData(const CThostFtdcDepthMarketDataField&);
@@ -39,4 +39,4 @@ private:
 	int ininow;
 };
 
-#endif // !defined(AFX_RANDOMALGORITHM_H__2EA7E4BA_C2CD_4FDD_978B_C3B4E42FEF93__INCLUDED_)
+#endif // !defined(AFX_WEIGHTEDALGORITHM_H__2EA7E4BA_C2CD_4FDD_978B_C3B4E42FEF93__INCLUDED_)

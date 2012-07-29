@@ -14,6 +14,7 @@
 #include "MessageRouter.h"
 #include "matlab\\libMethod_1.h"
 #include "matlab\\libMethod_2.h"
+#include "matlab\\libMethod_3.h"
 #include "Markup.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -198,6 +199,11 @@ BOOL CTradeSystemApp::InitInstance()
 		return -1;   
 	}   // 为变量分配内存空间，可以查帮助*/
 
+	if( !libMethod_3Initialize())   
+	{   
+		AfxMessageBox("Could not initialize libMethod_3Initialize!");   
+		return -1;   
+	}   // 为变量分配内存空间，可以查帮助*/
 
 	// then init algorithm
 	MessageRouter::Router.InitAlgorithm();
@@ -268,6 +274,9 @@ int CTradeSystemApp::ExitInstance()
 	// TODO: Add your specialized code here and/or call the base class
 	// terminate the lib   
 	libMethod_1Terminate();   // terminate MCR   
+	libMethod_2Terminate();   // terminate MCR   
+	libMethod_3Terminate();   // terminate MCR   
+
 	mclTerminateApplication(); 
 	for( int i=0 ; i< iInstrumentID; i++)
 	{

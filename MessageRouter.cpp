@@ -7,6 +7,7 @@
 #include "MessageRouter.h"
 #include "RandomAlgorithm.h"
 #include "HsAlgorithm.h"
+#include "WeightedAlgorithm.h"
 #include "TradeHandlingThread.h"
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -44,6 +45,11 @@ void MessageRouter::InitAlgorithm()
 	m_algorithms.push_back(algo);
 
 	algo= new HsAlgorithm(ppInstrumentID[0]);
+	algo->CreateThread(CREATE_SUSPENDED);
+	algo->ResumeThread();
+	m_algorithms.push_back(algo);
+
+	algo= new WeightedAlgorithm(ppInstrumentID[0]);
 	algo->CreateThread(CREATE_SUSPENDED);
 	algo->ResumeThread();
 	m_algorithms.push_back(algo);

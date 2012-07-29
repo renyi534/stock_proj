@@ -82,6 +82,7 @@ void DbAccessor::getData(string sql, CRecordset* rsCustSet)
 	}
 	
 }
+
 void DbAccessor::execSql(string sql)
 {
 	try{
@@ -90,10 +91,11 @@ void DbAccessor::execSql(string sql)
 	catch(CDBException* pe)
 	{
 		// The error code is in pe->m_nRetCode
-		pe->ReportError();
+		//pe->ReportError();
 		pe->Delete();
 	}
 }
+
 void DbAccessor::getData(string sql, vector<CThostFtdcDepthMarketDataField>& result)
 {
 	result.clear();

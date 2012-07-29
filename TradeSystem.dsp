@@ -171,6 +171,10 @@ SOURCE=.\TradeSystemDoc.cpp
 
 SOURCE=.\TradeSystemView.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\WeightedAlgorithm.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -206,6 +210,10 @@ SOURCE=.\matlab\libMethod_1.h
 # Begin Source File
 
 SOURCE=.\matlab\libMethod_2.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\matlab\libMethod_3.h
 # End Source File
 # Begin Source File
 
@@ -295,6 +303,10 @@ SOURCE=.\TradeSystemView.h
 
 SOURCE=.\utility.h
 # End Source File
+# Begin Source File
+
+SOURCE=.\WeightedAlgorithm.h
+# End Source File
 # End Group
 # Begin Group "Resource Files"
 
@@ -335,6 +347,10 @@ SOURCE=.\matlab\libMethod_2.dll
 # End Source File
 # Begin Source File
 
+SOURCE=.\matlab\libMethod_3.dll
+# End Source File
+# Begin Source File
+
 SOURCE=.\ReadMe.txt
 # End Source File
 # Begin Source File
@@ -360,6 +376,10 @@ SOURCE=.\matlab\libMethod_1.lib
 # Begin Source File
 
 SOURCE=.\matlab\libMethod_2.lib
+# End Source File
+# Begin Source File
+
+SOURCE=.\matlab\libMethod_3.lib
 # End Source File
 # End Target
 # End Project

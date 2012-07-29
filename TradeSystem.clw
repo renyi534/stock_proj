@@ -53,7 +53,7 @@ HeaderFile=TradeSystemView.h
 ImplementationFile=TradeSystemView.cpp
 Filter=D
 VirtualFilter=VWC
-LastObject=IDC_CLOSE_PROFIT
+LastObject=CTradeSystemView
 
 [DLG:IDD_ABOUTBOX]
 Type=1

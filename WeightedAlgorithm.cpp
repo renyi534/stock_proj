@@ -1,13 +1,14 @@
-// RandomAlgorithm.cpp: implementation of the RandomAlgorithm class.
+// WeightedAlgorithm.cpp: implementation of the WeightedAlgorithm class.
 //
 //////////////////////////////////////////////////////////////////////
 
+
 #include "stdafx.h"
 #include "TradeSystem.h"
-#include "RandomAlgorithm.h"
+#include "WeightedAlgorithm.h"
 #include <math.h>
 #include "DbConn.h"
-#include "matlab\\libMethod_1.h"
+#include "matlab\\libMethod_3.h"
 #ifdef _DEBUG
 #undef THIS_FILE
 static char THIS_FILE[]=__FILE__;
@@ -18,8 +19,9 @@ extern DbAccessorPool dbAccessPool;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-RandomAlgorithm::RandomAlgorithm(string instrument_id):
-m_InstrumentID(instrument_id), m_Amount(0), m_log("c:\\random_algo_data.log", ios::app),m_state_log("c:\\random_algo_state.log")
+WeightedAlgorithm::WeightedAlgorithm(string instrument_id):
+m_InstrumentID(instrument_id), m_Amount(0), m_log("c:\\weighted_algo_data.log", ios::app),
+m_state_log("c:\\weighted_algo_state.log", ios::app)
 {
 	lastVol=0;
 	totalAmount=0;
@@ -30,22 +32,22 @@ m_InstrumentID(instrument_id), m_Amount(0), m_log("c:\\random_algo_data.log", io
 	ininow=0;
 }
 
-RandomAlgorithm::~RandomAlgorithm()
+WeightedAlgorithm::~WeightedAlgorithm()
 {
 	m_log.close();
 	m_state_log.close();
 }
 
-void RandomAlgorithm::OnMinuteData(const CMinuteData& data)
+void WeightedAlgorithm::OnMinuteData(const CMinuteData& data)
 {
 	return;
 }
 
 
 
-int mkk=1;
+/*int mkk=1;*/
 
-void RandomAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
+void WeightedAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 {
 	if (isIni<3)
 	{
@@ -92,7 +94,7 @@ void RandomAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 
 
 
-	MinKsymbProcess(2, newopen, bidprice, to, th, tl, tc, tv);
+	MinKsymbProcess3(2, newopen, bidprice, to, th, tl, tc, tv);
 
 
 
@@ -140,8 +142,9 @@ void RandomAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 	mwArray s_atr(1,1, mxDOUBLE_CLASS);
 	mwArray s_stop(1,1, mxDOUBLE_CLASS);
 	mwArray s_trend(1,1, mxDOUBLE_CLASS);
+	mwArray s_last_maxe(1,1, mxDOUBLE_CLASS);
 
-	GetInnerState(5, s_m, s_e, s_atr, s_stop, s_trend);
+	GetInnerState3(5, s_m, s_e, s_atr, s_stop, s_trend, s_last_maxe);
 
 	double im=0;
 	s_m.GetData(&im,1);
@@ -158,7 +161,11 @@ void RandomAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 	double itrend=0;
 	s_trend.GetData(&itrend,1);
 
-	m_state_log<<res.m_instrumentID+", "+res.day+" "+res.time<<", price:"<<res.price<<", m:"<<im<<", e:"<<ie<<", atr:"<<iatr<<", stop:"<<istop<<", trend:"<<itrend<<endl;
+	double last_maxe=0;
+	s_last_maxe.GetData(&last_maxe,1);
+
+	m_state_log<<res.m_instrumentID+", "+res.day+" "+res.time<<", price:"<<res.price<<", m:"<<im<<", e:"
+		<<ie<<", atr:"<<iatr<<", stop:"<<istop<<", trend:"<<itrend<<", last_maxe:"<<last_maxe<<endl;
 
 	
 }
@@ -166,7 +173,7 @@ void RandomAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 
 
 
-int	RandomAlgorithm::SendStrategy(const OrderInfoShort & res)
+int	WeightedAlgorithm::SendStrategy(const OrderInfoShort & res)
 {
 
 	//第一行就是真实的发送指令，第二行是本地模拟写log
@@ -179,24 +186,24 @@ int	RandomAlgorithm::SendStrategy(const OrderInfoShort & res)
 	return 0;
 }
 
-void RandomAlgorithm::OnTickData(const CThostFtdcDepthMarketDataField& data)
+void WeightedAlgorithm::OnTickData(const CThostFtdcDepthMarketDataField& data)
 {
 	m_AskPrice = data.AskPrice1;
 	m_BidPrice = data.BidPrice1;
 
                                                   
 }
-void RandomAlgorithm::OnTradeData(const CThostFtdcTradeField& data)
+void WeightedAlgorithm::OnTradeData(const CThostFtdcTradeField& data)
 {
 }
-void RandomAlgorithm::OnAccountData(const CThostFtdcTradingAccountField& data)
+void WeightedAlgorithm::OnAccountData(const CThostFtdcTradingAccountField& data)
 {
 }
-void RandomAlgorithm::OnPositionData(const CThostFtdcInvestorPositionField& data)
+void WeightedAlgorithm::OnPositionData(const CThostFtdcInvestorPositionField& data)
 {
 }
 
-BOOL RandomAlgorithm::InitInstance()
+BOOL WeightedAlgorithm::InitInstance()
 {
 
 	this->RegisterInstrument(m_InstrumentID);
@@ -309,7 +316,7 @@ BOOL RandomAlgorithm::InitInstance()
 	indl.SetData(&val,1);
 
 
-	IniMethod(1, mwErrorCode,
+	IniMethod3(1, mwErrorCode,
 		mwOpen, mwHigh, mwLow, mwClose,
 		 intime,
 		 insp,
