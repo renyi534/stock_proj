@@ -37,5 +37,13 @@ ALTER TABLE stock_data."OneMinuteData"
 
 truncate stock_data."OneMinuteData";
 insert into stock_data."OneMinuteData" select substring(trans_time::text from 1 for 10), substring(trans_time::text from 12 for 8), open, close, high,
-low, volume, open_interest, 'IF1207' from stock_data.history_minute_data;
+low, volume, open_interest, 'IF1208' from stock_data.history_minute_data;
 
+truncate stock_data."HalfMinuteData";
+insert into stock_data."HalfMinuteData" select substring(trans_time::text from 1 for 10), substring(trans_time::text from 12 for 8), open, close, high,
+low, volume, open_interest, 'IF1208' from stock_data.history_minute_data;
+
+
+
+insert into stock_data."OneMinuteData" select substring(trans_time::text from 1 for 10), substring(trans_time::text from 12 for 8), open, close, high,
+low, volume, open_interest, 'ª¶…Ó300' from stock_data.history_minute_data;

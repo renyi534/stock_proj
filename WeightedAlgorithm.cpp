@@ -236,6 +236,7 @@ BOOL WeightedAlgorithm::InitInstance()
 	mwArray mwHigh( size, 1,mxDOUBLE_CLASS); 
 	mwArray mwLow(size, 1, mxDOUBLE_CLASS); 
 	mwArray mwClose( size,1, mxDOUBLE_CLASS); 
+	mwArray mwVolume( size,1, mxDOUBLE_CLASS);
 	mwArray intime(size,1, mxDOUBLE_CLASS);
 
 	
@@ -254,6 +255,7 @@ BOOL WeightedAlgorithm::InitInstance()
 	double* highPrice = new double[size];
 	double* lowPrice = new double[size];
 	double* closePrice = new double[size];
+	double* vol = new double[size];
 	
 	
 	int * intimeA=new int[size];
@@ -269,7 +271,7 @@ BOOL WeightedAlgorithm::InitInstance()
 		highPrice[i] = m_historyData[i].m_HighPrice;
 		lowPrice[i] = m_historyData[i].m_LowPrice;
 		closePrice[i] = m_historyData[i].m_ClosePrice;
-		
+		vol[i] = m_historyData[i].m_Volume;
 		if(i!=size-1)
 		{
 			if(m_historyData[i].m_Day!=m_historyData[i+1].m_Day)
@@ -293,6 +295,7 @@ BOOL WeightedAlgorithm::InitInstance()
 	mwLow.SetData(lowPrice, size);
 	mwClose.SetData(closePrice, size);
 	intime.SetData(intimeA, size);
+	mwVolume.SetData(vol,size);
 
 
 
@@ -317,7 +320,7 @@ BOOL WeightedAlgorithm::InitInstance()
 
 
 	IniMethod3(1, mwErrorCode,
-		mwOpen, mwHigh, mwLow, mwClose,
+		mwOpen, mwHigh, mwLow, mwClose, mwVolume,
 		 intime,
 		 insp,
 		 inp,

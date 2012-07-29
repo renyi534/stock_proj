@@ -1,6 +1,6 @@
 //
 // MATLAB Compiler: 4.3 (R14SP3)
-// Date: Sun Jul 29 18:44:46 2012
+// Date: Sun Jul 29 20:34:18 2012
 // Arguments: "-B" "macro_default" "-W" "cpplib:libMethod_3" "-T" "link:lib"
 // "MinKsymbProcess3.m" "IniMethod3.m" "GetInnerState3.m" 
 //
@@ -133,15 +133,16 @@ void MinKsymbProcess3(int nargout, mwArray& newopen
 LIB_libMethod_3_CPP_API 
 void IniMethod3(int nargout, mwArray& erroCode, const mwArray& inop
                 , const mwArray& inhp, const mwArray& inlp
-                , const mwArray& incp, const mwArray& intime
-                , const mwArray& insp, const mwArray& inp, const mwArray& inw
+                , const mwArray& incp, const mwArray& invol
+                , const mwArray& intime, const mwArray& insp
+                , const mwArray& inp, const mwArray& inw
                 , const mwArray& inwl, const mwArray& inkb
                 , const mwArray& inks, const mwArray& inkm
                 , const mwArray& inul, const mwArray& indl)
 {
-    mclcppMlfFeval(_mcr_inst, "IniMethod3", nargout, 1, 14, &erroCode,
-                   &inop, &inhp, &inlp, &incp, &intime, &insp, &inp,
-                   &inw, &inwl, &inkb, &inks, &inkm, &inul, &indl);
+    mclcppMlfFeval(_mcr_inst, "IniMethod3", nargout, 1, 15, &erroCode,
+                   &inop, &inhp, &inlp, &incp, &invol, &intime, &insp,
+                   &inp, &inw, &inwl, &inkb, &inks, &inkm, &inul, &indl);
 }
 
 LIB_libMethod_3_CPP_API 
