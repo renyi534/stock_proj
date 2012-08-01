@@ -219,8 +219,7 @@ BOOL RandomAlgorithm::InitInstance()
 	}
 
 	int size = m_historyData.size();
-	if (size == 0)
-		return TRUE;
+
 	//size=1;/////////////////////////////////////////////////////
 
 
@@ -252,7 +251,10 @@ BOOL RandomAlgorithm::InitInstance()
 	
 	
 	int * intimeA=new int[size];
-	intimeA[size-1]=0;
+
+	if ( size >0)
+		intimeA[size-1]=0;
+
 	int iSameDay=1;
 
 	val=0;
