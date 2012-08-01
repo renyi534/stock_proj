@@ -219,6 +219,8 @@ BOOL RandomAlgorithm::InitInstance()
 	}
 
 	int size = m_historyData.size();
+	if (size == 0)
+		return TRUE;
 	//size=1;/////////////////////////////////////////////////////
 
 

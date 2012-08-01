@@ -6,6 +6,7 @@
 #include "DbAccessor.h"
 #include "DbConn.h"
 #include "MessageRouter.h"
+#include "utility.h"
 using namespace std;
 #define __FUNCTION__  "function name"
 #pragma warning(disable : 4996)
@@ -30,6 +31,9 @@ extern DbAccessorPool dbAccessPool;
 CMdSpi::~CMdSpi()
 {
 	m_log.close();
+
+	::DeleteCriticalSection(&m_half_minute_critsec);
+	::DeleteCriticalSection(&m_minute_critsec);
 }
 
 void CMdSpi::OnRspError(CThostFtdcRspInfoField *pRspInfo,
@@ -284,6 +288,7 @@ bool CMdSpi::IsErrorRspInfo(CThostFtdcRspInfoField *pRspInfo)
 
 void CMdSpi::genOneMinuteData(CThostFtdcDepthMarketDataField & tick_data)
 {
+	CLock lock(&m_minute_critsec);
 	string tradingDay=tick_data.TradingDay;
 	string updateTime=tick_data.UpdateTime;
 	updateTime=updateTime.substr(0,5);
@@ -352,7 +357,7 @@ void CMdSpi::genOneMinuteData(CThostFtdcDepthMarketDataField & tick_data)
 				
 				const char* format_str="insert into stock_data.\"OneMinuteData\" values('%s','%s',%lf,%lf,%lf,%lf,%lf,%lf,'%s')";
 				
-				
+
 				sprintf(buffer,format_str,
 					m_one_minute_data.m_Day.c_str(),
 					(m_one_minute_data.m_Time).c_str(),
@@ -364,6 +369,7 @@ void CMdSpi::genOneMinuteData(CThostFtdcDepthMarketDataField & tick_data)
 					m_one_minute_data.m_OpenInterest,
 					instrument_id.c_str()
 					);
+				m_log<< buffer<<endl;
 				//DbConn conn(dbAccessPool);
 				//conn.m_db->execSql(buffer);
 				gThreadPool.Run(ExecSQL, (void*) buffer);
@@ -398,6 +404,7 @@ void CMdSpi::resetOneMinuteData(CMinuteData& m_one_minute_data, string instrumen
 
 void CMdSpi::genHalfMinuteData(CThostFtdcDepthMarketDataField & tick_data)
 {
+	CLock lock(&m_half_minute_critsec);
 	string tradingDay=tick_data.TradingDay;
 	string updateTime=tick_data.UpdateTime;
 	string second = updateTime.substr(6, 2);
@@ -495,6 +502,7 @@ void CMdSpi::genHalfMinuteData(CThostFtdcDepthMarketDataField & tick_data)
 					half_minute_data.m_OpenInterest,
 					instrument_id.c_str()
 					);
+				m_log<< buffer<<endl;
 				//DbConn conn(dbAccessPool);
 				//conn.m_db->execSql(buffer);
 				gThreadPool.Run(ExecSQL, (void*) buffer);

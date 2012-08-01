@@ -12,7 +12,11 @@ class DbConn;
 class CMdSpi : public CThostFtdcMdSpi
 {
 public:
-	CMdSpi(CThostFtdcMdApi* api):m_pUserApi(api),m_requestID(0),m_log("c:\\marketdata.log",ios::app){}
+	CMdSpi(CThostFtdcMdApi* api):m_pUserApi(api),m_requestID(0),m_log("c:\\marketdata.log",ios::app)
+	{
+		::InitializeCriticalSection(&m_half_minute_critsec);
+		::InitializeCriticalSection(&m_minute_critsec);
+	}
 	~CMdSpi();
 	///´íÎóÓ¦´ð
 	virtual void OnRspError(CThostFtdcRspInfoField *pRspInfo,
@@ -80,4 +84,7 @@ private:
 	friend class CTradeSystemView;
 	CHalfMinuteDataMap m_prev_half_minute_data_map;
 	CMinuteDataMap m_prev_one_minute_data_map;
+
+	CRITICAL_SECTION		m_minute_critsec;
+	CRITICAL_SECTION		m_half_minute_critsec;
 };
