@@ -32,8 +32,8 @@ CMdSpi::~CMdSpi()
 {
 	m_log.close();
 
-	::DeleteCriticalSection(&m_half_minute_critsec);
-	::DeleteCriticalSection(&m_minute_critsec);
+	::DeleteCriticalSection(&m_data_critsec);
+	//::DeleteCriticalSection(&m_minute_critsec);
 }
 
 void CMdSpi::OnRspError(CThostFtdcRspInfoField *pRspInfo,
@@ -134,12 +134,15 @@ void CMdSpi::OnRspUnSubMarketData(CThostFtdcSpecificInstrumentField *pSpecificIn
 
 void CMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData)
 {
+	CLock lock(&m_data_critsec);
+
+	DWORD thread_id = GetCurrentThreadId();
 	if (pDepthMarketData == NULL)
 		return;
 
 	m_log<<" OnRtnDepthMarketData  "<<"Time:"<<pDepthMarketData->TradingDay<<" "
 		<<pDepthMarketData->UpdateTime<<" "<<pDepthMarketData->UpdateMillisec<<" "<<pDepthMarketData->InstrumentID<<" "
-		<<"  Price:"<<pDepthMarketData->LastPrice<<endl;
+		<<"  Price:"<<pDepthMarketData->LastPrice<<" threadid: "<<thread_id<<endl;
     
 	MessageRouter::Router.sendData(* pDepthMarketData);
 	
@@ -288,7 +291,6 @@ bool CMdSpi::IsErrorRspInfo(CThostFtdcRspInfoField *pRspInfo)
 
 void CMdSpi::genOneMinuteData(CThostFtdcDepthMarketDataField & tick_data)
 {
-	CLock lock(&m_minute_critsec);
 	string tradingDay=tick_data.TradingDay;
 	string updateTime=tick_data.UpdateTime;
 	updateTime=updateTime.substr(0,5);
@@ -404,7 +406,7 @@ void CMdSpi::resetOneMinuteData(CMinuteData& m_one_minute_data, string instrumen
 
 void CMdSpi::genHalfMinuteData(CThostFtdcDepthMarketDataField & tick_data)
 {
-	CLock lock(&m_half_minute_critsec);
+
 	string tradingDay=tick_data.TradingDay;
 	string updateTime=tick_data.UpdateTime;
 	string second = updateTime.substr(6, 2);

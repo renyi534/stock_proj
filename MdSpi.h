@@ -14,8 +14,7 @@ class CMdSpi : public CThostFtdcMdSpi
 public:
 	CMdSpi(CThostFtdcMdApi* api):m_pUserApi(api),m_requestID(0),m_log("c:\\marketdata.log",ios::app)
 	{
-		::InitializeCriticalSection(&m_half_minute_critsec);
-		::InitializeCriticalSection(&m_minute_critsec);
+		::InitializeCriticalSection(&m_data_critsec);
 	}
 	~CMdSpi();
 	///´íÎóÓ¦´ð
@@ -85,6 +84,6 @@ private:
 	CHalfMinuteDataMap m_prev_half_minute_data_map;
 	CMinuteDataMap m_prev_one_minute_data_map;
 
-	CRITICAL_SECTION		m_minute_critsec;
-	CRITICAL_SECTION		m_half_minute_critsec;
+	CRITICAL_SECTION		m_data_critsec;
+	
 };
