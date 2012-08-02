@@ -19,7 +19,7 @@ extern DbAccessorPool dbAccessPool;
 //////////////////////////////////////////////////////////////////////
 
 RandomAlgorithm::RandomAlgorithm(string instrument_id):
-m_InstrumentID(instrument_id), m_Amount(0), m_log("c:\\random_algo_data.log", ios::app),m_state_log("c:\\random_algo_state.log")
+m_InstrumentID(instrument_id), m_Amount(0), m_log("c:\\random_algo_data.log", ios::app),m_state_log("c:\\random_algo_state.log", ios::app)
 {
 	lastVol=0;
 	totalAmount=0;
@@ -108,7 +108,7 @@ void RandomAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 	string strTime(data.m_Time, 1, 5);
 	if (data.m_Time > "15:10")
 	{
-		isIni=0;
+		//isIni=0;
 		res.amount = -totalAmount;
 	}
 

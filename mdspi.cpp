@@ -335,7 +335,7 @@ void CMdSpi::genOneMinuteData(CThostFtdcDepthMarketDataField & tick_data)
 
 			//We have gotten one minute statistics data
 			CMinuteData prev_data;
-			memset(&prev_data, 0 ,sizeof(prev_data));
+			//memset(&prev_data, 0 ,sizeof(prev_data));
 			CMinuteDataMap::iterator iter = m_prev_one_minute_data_map.find(instrument_id);
 			bool send = false;
 			if (iter == m_prev_one_minute_data_map.end())
@@ -467,7 +467,7 @@ void CMdSpi::genHalfMinuteData(CThostFtdcDepthMarketDataField & tick_data)
 			half_minute_data.m_Time = half_minute_data.m_Time.substr(0,5)+":"+half_minute_data.m_Sec;
 			//We have gotten one minute statistics data
 			CHalfMinuteData prev_data;
-			memset(&prev_data, 0 ,sizeof(prev_data));
+			//memset(&prev_data, 0 ,sizeof(prev_data));
 			CHalfMinuteDataMap::iterator iter = m_prev_half_minute_data_map.find(instrument_id);
 			bool send = false;
 			if (iter == m_prev_half_minute_data_map.end())

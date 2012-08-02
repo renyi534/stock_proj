@@ -110,7 +110,7 @@ void WeightedAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 	string strTime(data.m_Time, 1, 5);
 	if (data.m_Time > "15:10")
 	{
-		isIni=0;
+		//isIni=0;
 		res.amount = -totalAmount;
 	}
 
@@ -340,6 +340,7 @@ BOOL WeightedAlgorithm::InitInstance()
 	delete []highPrice;
 	delete []lowPrice;
 	delete []closePrice;
+	delete []vol;
 	delete []intimeA;
 
   
