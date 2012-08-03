@@ -289,7 +289,7 @@ bool CMdSpi::IsErrorRspInfo(CThostFtdcRspInfoField *pRspInfo)
 	return bResult;
 }
 
-void CMdSpi::genOneMinuteData(CThostFtdcDepthMarketDataField & tick_data)
+void CMdSpi::genOneMinuteData(const CThostFtdcDepthMarketDataField & tick_data)
 {
 	string tradingDay=tick_data.TradingDay;
 	string updateTime=tick_data.UpdateTime;
@@ -329,14 +329,14 @@ void CMdSpi::genOneMinuteData(CThostFtdcDepthMarketDataField & tick_data)
 	}
 	else
 	{
-		if( m_one_minute_data.m_Day!="")
+		if( m_one_minute_data.m_Day!="" && m_one_minute_data.m_Time!="")
 		{
 			m_one_minute_data.m_Time+=":59";
 
 			//We have gotten one minute statistics data
 			CMinuteData prev_data;
 			//memset(&prev_data, 0 ,sizeof(prev_data));
-			CMinuteDataMap::iterator iter = m_prev_one_minute_data_map.find(instrument_id);
+			iter = m_prev_one_minute_data_map.find(instrument_id);
 			bool send = false;
 			if (iter == m_prev_one_minute_data_map.end())
 			{
@@ -391,7 +391,7 @@ void CMdSpi::genOneMinuteData(CThostFtdcDepthMarketDataField & tick_data)
 	m_one_minute_data_map[instrument_id]=m_one_minute_data ;
 }
 
-void CMdSpi::resetOneMinuteData(CMinuteData& m_one_minute_data, string instrument_id)
+void CMdSpi::resetOneMinuteData(CMinuteData& m_one_minute_data, const string& instrument_id)
 {
 	m_one_minute_data.m_Day= "";
 	m_one_minute_data.m_Time= "";
@@ -404,7 +404,7 @@ void CMdSpi::resetOneMinuteData(CMinuteData& m_one_minute_data, string instrumen
 	m_one_minute_data.m_InstrumentID= instrument_id;
 }
 
-void CMdSpi::genHalfMinuteData(CThostFtdcDepthMarketDataField & tick_data)
+void CMdSpi::genHalfMinuteData(const CThostFtdcDepthMarketDataField & tick_data)
 {
 
 	string tradingDay=tick_data.TradingDay;
@@ -457,7 +457,7 @@ void CMdSpi::genHalfMinuteData(CThostFtdcDepthMarketDataField & tick_data)
 	}
 	else
 	{
-		if( half_minute_data.m_Day!="")
+		if( half_minute_data.m_Day!="" && half_minute_data.m_Time!="")
 		{
 			if ( half_minute_data.m_Sec < "30" )
 				half_minute_data.m_Sec = "29";
@@ -468,7 +468,7 @@ void CMdSpi::genHalfMinuteData(CThostFtdcDepthMarketDataField & tick_data)
 			//We have gotten one minute statistics data
 			CHalfMinuteData prev_data;
 			//memset(&prev_data, 0 ,sizeof(prev_data));
-			CHalfMinuteDataMap::iterator iter = m_prev_half_minute_data_map.find(instrument_id);
+			iter = m_prev_half_minute_data_map.find(instrument_id);
 			bool send = false;
 			if (iter == m_prev_half_minute_data_map.end())
 			{

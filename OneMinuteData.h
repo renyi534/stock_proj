@@ -24,9 +24,6 @@ public:
 	double m_LowPrice;
 	double m_Volume;
 	double m_OpenInterest;
-	CMinuteData();
-	virtual ~CMinuteData();
-
 };
 
 

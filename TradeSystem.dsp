@@ -132,10 +132,6 @@ SOURCE=.\MessageRouter.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\OneMinuteData.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\RandomAlgorithm.cpp
 # End Source File
 # Begin Source File

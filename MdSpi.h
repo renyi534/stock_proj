@@ -51,9 +51,9 @@ public:
 
 
 private:
-	void genOneMinuteData(CThostFtdcDepthMarketDataField&);
-	void genHalfMinuteData(CThostFtdcDepthMarketDataField&);
-	void resetOneMinuteData(CMinuteData& , string instrument_id);
+	void genOneMinuteData(const CThostFtdcDepthMarketDataField&);
+	void genHalfMinuteData(const CThostFtdcDepthMarketDataField&);
+	void resetOneMinuteData(CMinuteData& , const string& instrument_id);
 	void ReqUserLogin();
 	void SubscribeMarketData();
 	// 
@@ -66,11 +66,12 @@ private:
 	typedef map<string,CMinuteData> CMinuteDataMap;	
 	typedef pair<string,CMinuteData> CMinuteDataPair;	
 	CMinuteDataMap m_one_minute_data_map;
-
+	CMinuteDataMap m_prev_one_minute_data_map;
 
 	typedef map<string,CHalfMinuteData> CHalfMinuteDataMap;	
 	typedef pair<string,CHalfMinuteData> CHalfMinuteDataPair;	
 	CHalfMinuteDataMap m_half_minute_data_map;
+	CHalfMinuteDataMap m_prev_half_minute_data_map;
 
 
 	typedef map<string,CThostFtdcDepthMarketDataField> CTickDataMap;	
@@ -81,8 +82,7 @@ private:
 	ofstream m_log;
 	int m_requestID;
 	friend class CTradeSystemView;
-	CHalfMinuteDataMap m_prev_half_minute_data_map;
-	CMinuteDataMap m_prev_one_minute_data_map;
+
 
 	CRITICAL_SECTION		m_data_critsec;
 	
