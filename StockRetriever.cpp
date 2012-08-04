@@ -38,8 +38,9 @@ CString  StockRetriever::GetStockInfo(CString url)
 		file = NULL;  
 		m_pException->m_dwError;  
 		m_pException->Delete();  
-		inter_session.Close();  
-		AfxMessageBox("CInternetException");  
+		inter_session.Close();
+		return "";
+		//AfxMessageBox("CInternetException");  
 	}  
 	CString strLine;  
 	if(file != NULL){  
@@ -47,7 +48,8 @@ CString  StockRetriever::GetStockInfo(CString url)
 			strHtml += strLine;  
 		}  
 	}else{  
-		AfxMessageBox("fail");  
+		return "";
+		//AfxMessageBox("fail");  
 	}  
 	inter_session.Close();  
 	file->Close();  
@@ -67,6 +69,10 @@ CString  StockRetriever::GetStockInfo(CString url)
 void StockRetriever::GetStockData(CString url, CThostFtdcDepthMarketDataField& data)
 {
 	CString str = GetStockInfo(url);
+
+	if( str.GetLength() == 0)
+		return;
+
 	string  stl_str = (LPCSTR)str;
 
 	char* delimiters = ",";

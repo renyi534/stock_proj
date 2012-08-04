@@ -53,6 +53,9 @@
 #include "mclmcr.h"
 #include "matrix.h"
 #include "mclcppclass.h"
+/*#include "string"
+typedef std::basic_string<unsigned char> MyString;
+#define string MyString*/
 /*#define _CRTDBG_MAP_ALLOC 
 #include<stdlib.h> 
 #include<crtdbg.h> */

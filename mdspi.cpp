@@ -136,6 +136,7 @@ void CMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketDa
 {
 	CLock lock(&m_data_critsec);
 
+	{
 	DWORD thread_id = GetCurrentThreadId();
 	if (pDepthMarketData == NULL)
 		return;
@@ -278,6 +279,7 @@ void CMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketDa
 	//m_log<<buffer<<endl;
 
 	gThreadPool.Run(ExecSQL, (void*) buffer);
+	}
 }
 
 bool CMdSpi::IsErrorRspInfo(CThostFtdcRspInfoField *pRspInfo)
