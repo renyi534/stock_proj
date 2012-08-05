@@ -21,13 +21,7 @@ using namespace std;
 class CTraderSpi : public CThostFtdcTraderSpi
 {
 public:
-	CTraderSpi(CThostFtdcTraderApi* api):m_pTradeApi(api),m_requestID(0),m_log("c:\\trade.log", ios::app)
-	{
-		m_TradeCount =0;
-		m_OrderCount =0;
-		m_AlgoPos =0;
-		memset(&m_account, 0 ,sizeof(m_account));
-	}
+	CTraderSpi(CThostFtdcTraderApi* api);
 	CTraderSpi::~CTraderSpi();
 	///当客户端与交易后台建立起通信连接时（还未登录前），该方法被调用。
 	virtual void OnFrontConnected();

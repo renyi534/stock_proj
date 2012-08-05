@@ -36,6 +36,18 @@ CMdSpi::~CMdSpi()
 	//::DeleteCriticalSection(&m_minute_critsec);
 }
 
+
+CMdSpi::CMdSpi(CThostFtdcMdApi* api):m_pUserApi(api),m_requestID(0),m_log("c:\\marketdata.log",ios::app)
+{
+	::InitializeCriticalSection(&m_data_critsec);
+	// stl library can be buggy with empty maps. Insert some rubbish data here.
+	m_tick_data_map.insert(CTickDataPair("", CThostFtdcDepthMarketDataField() ));
+	m_one_minute_data_map.insert(CMinuteDataPair("", CMinuteData() ));
+	m_prev_one_minute_data_map.insert(CMinuteDataPair("", CMinuteData() ));
+	m_half_minute_data_map.insert(CHalfMinuteDataPair("", CHalfMinuteData() ));
+	m_prev_half_minute_data_map.insert(CHalfMinuteDataPair("", CHalfMinuteData() ));
+}
+
 void CMdSpi::OnRspError(CThostFtdcRspInfoField *pRspInfo,
 		int nRequestID, bool bIsLast)
 {

@@ -15,7 +15,7 @@
 class StockRetriever  
 {
 public:
-	void GetStockData(CString url, CThostFtdcDepthMarketDataField& data);
+	bool GetStockData(CString url, CThostFtdcDepthMarketDataField& data);
 	StockRetriever();
 	virtual ~StockRetriever();
 	CString  GetStockInfo(CString url);

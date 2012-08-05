@@ -322,14 +322,17 @@ void CTradeSystemView::OnTimer(UINT nIDEvent)
 		StockRetriever ret;
 		CThostFtdcDepthMarketDataField data;
 		memset(&data, 0, sizeof(data));
-		ret.GetStockData(HS300_URL, data);
-		/*if( !(
+		bool isOk = ret.GetStockData(HS300_URL, data);
+		if (isOk)
+		{
+			if( !(
 				strcmp(data.TradingDay, old_data.TradingDay ) == 0 &&
 				strcmp(data.UpdateTime, old_data.UpdateTime ) == 0
-			 ) )*/
-		{
-			old_data = data;
-			tradeConn->m_UserSpi->OnRtnDepthMarketData(&data);
+				) )
+			{
+				old_data = data;
+				tradeConn->m_UserSpi->OnRtnDepthMarketData(&data);
+			}
 		}
 	}
 	CFormView::OnTimer(nIDEvent);

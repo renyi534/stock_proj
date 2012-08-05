@@ -66,12 +66,12 @@ CString  StockRetriever::GetStockInfo(CString url)
 	return ret;
 }
 
-void StockRetriever::GetStockData(CString url, CThostFtdcDepthMarketDataField& data)
+bool StockRetriever::GetStockData(CString url, CThostFtdcDepthMarketDataField& data)
 {
 	CString str = GetStockInfo(url);
 
 	if( str.GetLength() == 0)
-		return;
+		return false;
 
 	string  stl_str = (LPCSTR)str;
 
@@ -169,6 +169,8 @@ void StockRetriever::GetStockData(CString url, CThostFtdcDepthMarketDataField& d
 
 	char * time = strtok(NULL, delimiters);
 	strcpy( data.UpdateTime, (LPCSTR)convertTime(time));
+
+	return true;
 }
 
 CString   StockRetriever::convertTime(CString str)

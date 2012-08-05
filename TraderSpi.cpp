@@ -47,6 +47,17 @@ CTraderSpi::~CTraderSpi()
 	m_log.close();
 }
 
+CTraderSpi::CTraderSpi(CThostFtdcTraderApi* api):m_pTradeApi(api),m_requestID(0),m_log("c:\\trade.log", ios::app)
+{
+	m_TradeCount =0;
+	m_OrderCount =0;
+	m_AlgoPos =0;
+	memset(&m_account, 0 ,sizeof(m_account));
+	// stl library can be buggy with empty maps. Insert some rubbish data here.
+	m_inv_pos.insert(inv_pos_pair("", InvestorPosition() ));
+	m_order_state.insert(order_state_pair("", CThostFtdcOrderField() ));
+}
+
 void CTraderSpi::ReqUserLogin()
 {
 	CThostFtdcReqUserLoginField req;
