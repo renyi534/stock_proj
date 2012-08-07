@@ -203,6 +203,7 @@ void WeightedAlgorithm::OnPositionData(const CThostFtdcInvestorPositionField& da
 {
 }
 
+
 BOOL WeightedAlgorithm::InitInstance()
 {
 
@@ -303,17 +304,17 @@ BOOL WeightedAlgorithm::InitInstance()
 
 	val = 120;
 	insp.SetData(&val,1);
-	val = 60;
+	val = 320;
 	inp.SetData(&val,1);
-	val = 120;
+	val = 160;
 	inw.SetData(&val,1);
 	val = 240;
 	inwl.SetData(&val,1);
-	val = 1.8;
+	val = 1.6;
 	inkb.SetData(&val,1);
 	val = 60;
 	inks.SetData(&val,1);
-	val =5.7;
+	val =6;
 	inkm.SetData(&val,1);
 	val =3;
 	inul.SetData(&val,1);
