@@ -101,7 +101,7 @@ void RandomAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 	bidprice.GetData(&(res.price), 1);
 	
 	newopen.GetData(&(res.amount), 1);
-
+	res.amount /=3;
 	/*res.amount = mkk;
 	mkk = -mkk;*/
 
