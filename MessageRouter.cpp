@@ -7,6 +7,7 @@
 #include "MessageRouter.h"
 #include "RandomAlgorithm.h"
 #include "HsAlgorithm.h"
+#include "DtAlgorithm.h"
 #include "WeightedAlgorithm.h"
 #include "TradeHandlingThread.h"
 #ifdef _DEBUG
@@ -53,6 +54,11 @@ void MessageRouter::InitAlgorithm()
 	algo->CreateThread(CREATE_SUSPENDED);
 	algo->ResumeThread();
 	m_algorithms.push_back(algo);
+
+/*	algo= new DtAlgorithm(ppInstrumentID[0]);
+	algo->CreateThread(CREATE_SUSPENDED);
+	algo->ResumeThread();
+	m_algorithms.push_back(algo);*/
 }
 
 void MessageRouter::sendData(const CMinuteData& data)
