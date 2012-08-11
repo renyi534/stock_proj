@@ -360,10 +360,6 @@ SOURCE=.\matlab\libMethod_3.dll
 # End Source File
 # Begin Source File
 
-SOURCE=.\matlab\libMethod_4.ctf
-# End Source File
-# Begin Source File
-
 SOURCE=.\matlab\libMethod_4.dll
 # End Source File
 # Begin Source File

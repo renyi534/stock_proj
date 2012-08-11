@@ -55,10 +55,10 @@ void MessageRouter::InitAlgorithm()
 	algo->ResumeThread();
 	m_algorithms.push_back(algo);
 
-/*	algo= new DtAlgorithm(ppInstrumentID[0]);
+	algo= new DtAlgorithm(ppInstrumentID[0]);
 	algo->CreateThread(CREATE_SUSPENDED);
 	algo->ResumeThread();
-	m_algorithms.push_back(algo);*/
+	m_algorithms.push_back(algo);
 }
 
 void MessageRouter::sendData(const CMinuteData& data)

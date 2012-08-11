@@ -39,20 +39,7 @@ DtAlgorithm::~DtAlgorithm()
 
 void DtAlgorithm::OnMinuteData(const CMinuteData& data)
 {
-	if (isIni<3)
-	{
-		if(isIni==2)
-		{
-			ininow=1;
-			InitInstance();
-			isIni++;
-		}
-		else
-		{
-			isIni++;
-			return;
-		}
-	}
+
 	double val = 0;
 	mwArray newopen(1,1, mxDOUBLE_CLASS);
 	mwArray newm(1,1, mxDOUBLE_CLASS);
@@ -79,12 +66,13 @@ void DtAlgorithm::OnMinuteData(const CMinuteData& data)
 	tc.SetData(&val,1);
 	val = data.m_Volume;
 	tv.SetData(&val,1);
-	trm.SetData(&val,1);
-	tre.SetData(&val,1);
+
 
 
 
 	MinKsymbProcess4(2, newopen, bidprice, to, th, tl, tc);
+
+
 
 
 
@@ -93,9 +81,7 @@ void DtAlgorithm::OnMinuteData(const CMinuteData& data)
 	bidprice.GetData(&(res.price), 1);
 	
 	newopen.GetData(&(res.amount), 1);
-	res.amount /=3;
-	/*res.amount = mkk;
-	mkk = -mkk;*/
+
 
 	string strTime(data.m_Time, 1, 5);
 	if (data.m_Time > "15:10")
@@ -129,12 +115,14 @@ void DtAlgorithm::OnMinuteData(const CMinuteData& data)
 	
 	mwArray s_m(1,1, mxDOUBLE_CLASS);
 	mwArray s_e(1,1, mxDOUBLE_CLASS);
-	mwArray s_atr(1,1, mxDOUBLE_CLASS);
-	mwArray s_stop(1,1, mxDOUBLE_CLASS);
-	mwArray s_trend(1,1, mxDOUBLE_CLASS);
-	mwArray s_last_maxe(1,1, mxDOUBLE_CLASS);
+	mwArray s_ud(1,1, mxDOUBLE_CLASS);
+	mwArray s_pacounter(1,1, mxDOUBLE_CLASS);
+	mwArray s_nacounter(1,1, mxDOUBLE_CLASS);
+	mwArray s_pisstart(1,1, mxDOUBLE_CLASS);
+	mwArray s_nisstart(1,1, mxDOUBLE_CLASS);
 
-	GetInnerState4(5, s_m, s_e, s_atr, s_stop, s_trend, s_last_maxe, s_last_maxe);
+
+	GetInnerState4(7, s_m, s_e, s_ud, s_pacounter, s_nacounter, s_pisstart, s_nisstart);
 
 	double im=0;
 	s_m.GetData(&im,1);
@@ -142,20 +130,23 @@ void DtAlgorithm::OnMinuteData(const CMinuteData& data)
 	double ie=0;
 	s_e.GetData(&ie,1);
 
-	double iatr=0;
-	s_atr.GetData(&iatr,1);
+	double iud=0;
+	s_ud.GetData(&iud,1);
 
-	double istop=0;
-	s_stop.GetData(&istop,1);
+	double ipa=0;
+	s_pacounter.GetData(&ipa,1);
 
-	double itrend=0;
-	s_trend.GetData(&itrend,1);
+	double ina=0;
+	s_nacounter.GetData(&ina,1);
 
-	double last_maxe=0;
-	s_last_maxe.GetData(&last_maxe,1);
+	double ips=0;
+	s_pisstart.GetData(&ips,1);
+
+	double ins=0;
+	s_nisstart.GetData(&ins,1);
 
 	m_state_log<<res.m_instrumentID+", "+res.day+" "+res.time<<", price:"<<res.price<<", m:"<<im<<", e:"
-		<<ie<<", atr:"<<iatr<<", stop:"<<istop<<", trend:"<<itrend<<", last_maxe:"<<last_maxe<<endl;
+		<<ie<<", ud:"<<iud<<", P_action_con:"<<ipa<<",  N_action_con:"<<ina<<", P_is_start:"<<ips<<", N_is_start:"<<ins<<endl;
 
 }
 
@@ -207,16 +198,13 @@ BOOL DtAlgorithm::InitInstance()
 {
 
 	this->RegisterInstrument(m_InstrumentID);
-	if (ininow==0)
-	{
-		return TRUE;
-	}
+
 	
 	try{
 		DbConn conn(dbAccessPool);
 		//conn.m_db->getData(m_InstrumentID, startDayBuffer, startTimeBuffer,
 		//	currDayBuffer, currTimeBuffer, m_historyData);
-		conn.m_db->getData(m_InstrumentID, 1000, m_historyData);
+		conn.m_db->getData(m_InstrumentID, 2000, m_historyData);
 	}
 	catch(CDBException* pe)
 	{
@@ -242,15 +230,11 @@ BOOL DtAlgorithm::InitInstance()
 
 	
 
-	mwArray insp(1,1, mxDOUBLE_CLASS);
-	mwArray inp(1,1, mxDOUBLE_CLASS);
-	mwArray inw(1,1, mxDOUBLE_CLASS);
-	mwArray inwl(1,1, mxDOUBLE_CLASS);
+
+	mwArray inn1(1,1, mxDOUBLE_CLASS);
 	mwArray inkb(1,1, mxDOUBLE_CLASS);
-	mwArray inks(1,1, mxDOUBLE_CLASS);
 	mwArray inkm(1,1, mxDOUBLE_CLASS);
-	mwArray inul(1,1, mxDOUBLE_CLASS);
-	mwArray indl(1,1, mxDOUBLE_CLASS);
+
 
 	double* openPrice = new double[size];
 	double* highPrice = new double[size];
@@ -301,30 +285,17 @@ BOOL DtAlgorithm::InitInstance()
 
 
 
-	val = 120;
-	insp.SetData(&val,1);
-	val = 320;
-	inp.SetData(&val,1);
-	val = 160;
-	inw.SetData(&val,1);
-	val = 240;
-	inwl.SetData(&val,1);
-	val = 1.6;
+	val = 5;
+	inn1.SetData(&val,1);
+	val = 3;
 	inkb.SetData(&val,1);
-	val = 60;
-	inks.SetData(&val,1);
-	val =6;
+	val = 5;
 	inkm.SetData(&val,1);
-	val =3;
-	inul.SetData(&val,1);
-	val =3;
-	indl.SetData(&val,1);
+	
 
 
 	IniMethod4(1, mwErrorCode,
-		mwOpen, mwHigh, mwLow, mwClose, mwVolume,
-		 intime,
-		 insp);
+		mwOpen, mwHigh, mwLow, mwClose, inn1, inkb, inkm);
 
 	mwErrorCode.GetData(&val,1);
                                      
