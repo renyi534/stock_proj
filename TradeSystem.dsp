@@ -222,6 +222,10 @@ SOURCE=.\matlab\libMethod_3.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\matlab\libMethod_4.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\MainFrm.h
 # End Source File
 # Begin Source File
@@ -356,6 +360,14 @@ SOURCE=.\matlab\libMethod_3.dll
 # End Source File
 # Begin Source File
 
+SOURCE=.\matlab\libMethod_4.ctf
+# End Source File
+# Begin Source File
+
+SOURCE=.\matlab\libMethod_4.dll
+# End Source File
+# Begin Source File
+
 SOURCE=.\ReadMe.txt
 # End Source File
 # Begin Source File
@@ -385,6 +397,10 @@ SOURCE=.\matlab\libMethod_2.lib
 # Begin Source File
 
 SOURCE=.\matlab\libMethod_3.lib
+# End Source File
+# Begin Source File
+
+SOURCE=.\matlab\libMethod_4.lib
 # End Source File
 # End Target
 # End Project

@@ -7,7 +7,7 @@
 #include "DtAlgorithm.h"
 #include <math.h>
 #include "DbConn.h"
-#include "matlab\\libMethod_3.h"
+#include "matlab\\libMethod_4.h"
 #ifdef _DEBUG
 #undef THIS_FILE
 static char THIS_FILE[]=__FILE__;
@@ -84,7 +84,7 @@ void DtAlgorithm::OnMinuteData(const CMinuteData& data)
 
 
 
-	MinKsymbProcess3(2, newopen, bidprice, to, th, tl, tc, tv);
+	MinKsymbProcess4(2, newopen, bidprice, to, th, tl, tc);
 
 
 
@@ -134,7 +134,7 @@ void DtAlgorithm::OnMinuteData(const CMinuteData& data)
 	mwArray s_trend(1,1, mxDOUBLE_CLASS);
 	mwArray s_last_maxe(1,1, mxDOUBLE_CLASS);
 
-	GetInnerState3(5, s_m, s_e, s_atr, s_stop, s_trend, s_last_maxe);
+	GetInnerState4(5, s_m, s_e, s_atr, s_stop, s_trend, s_last_maxe, s_last_maxe);
 
 	double im=0;
 	s_m.GetData(&im,1);
@@ -321,18 +321,10 @@ BOOL DtAlgorithm::InitInstance()
 	indl.SetData(&val,1);
 
 
-	IniMethod3(1, mwErrorCode,
+	IniMethod4(1, mwErrorCode,
 		mwOpen, mwHigh, mwLow, mwClose, mwVolume,
 		 intime,
-		 insp,
-		 inp,
-		 inw,
-		 inwl,
-		 inkb,
-		 inks,
-		 inkm,
-		 inul,
-		 indl);
+		 insp);
 
 	mwErrorCode.GetData(&val,1);
                                      
