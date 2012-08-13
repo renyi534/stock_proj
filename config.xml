@@ -9,4 +9,10 @@
     </INSTRUMENT>        
     <DB_CONN>DSN=PostgreSQL35W;UID=postgres;PWD=123</DB_CONN>
     <HS300_URL>http://hq.sinajs.cn/list=sz399300</HS300_URL>
+    <ALGORITHM>
+        <ITEM>RandomAlgorithm</ITEM>
+	<ITEM>HsAlgorithm</ITEM>
+	<ITEM>WeightedAlgorithm</ITEM>
+	<ITEM>DtAlgorithm</ITEM>
+    </ALGORITHM>
 </PARAMETER>

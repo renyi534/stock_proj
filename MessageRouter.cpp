@@ -17,6 +17,7 @@ static char THIS_FILE[]=__FILE__;
 #endif
 
 extern char * ppInstrumentID[30];
+extern set<string> activeAlgorithm;
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -40,25 +41,38 @@ MessageRouter::~MessageRouter()
 void MessageRouter::InitAlgorithm()
 {
 	Algorithm * algo ;
-	algo= new RandomAlgorithm(ppInstrumentID[0]);
-	algo->CreateThread(CREATE_SUSPENDED);
-	algo->ResumeThread();
-	m_algorithms.push_back(algo);
 
-	algo= new HsAlgorithm(ppInstrumentID[0]);
-	algo->CreateThread(CREATE_SUSPENDED);
-	algo->ResumeThread();
-	m_algorithms.push_back(algo);
-
-	algo= new WeightedAlgorithm(ppInstrumentID[0]);
-	algo->CreateThread(CREATE_SUSPENDED);
-	algo->ResumeThread();
-	m_algorithms.push_back(algo);
-
-	algo= new DtAlgorithm(ppInstrumentID[0]);
-	algo->CreateThread(CREATE_SUSPENDED);
-	algo->ResumeThread();
-	m_algorithms.push_back(algo);
+	if (activeAlgorithm.find("RandomAlgorithm") != activeAlgorithm.end() )
+	{
+		algo= new RandomAlgorithm(ppInstrumentID[0]);
+		algo->CreateThread(CREATE_SUSPENDED);
+		algo->ResumeThread();
+		m_algorithms.push_back(algo);
+	}
+	
+	if (activeAlgorithm.find("HsAlgorithm") != activeAlgorithm.end() )
+	{
+		algo= new HsAlgorithm(ppInstrumentID[0]);
+		algo->CreateThread(CREATE_SUSPENDED);
+		algo->ResumeThread();
+		m_algorithms.push_back(algo);
+	}
+	
+	if (activeAlgorithm.find("WeightedAlgorithm") != activeAlgorithm.end() )
+	{
+		algo= new WeightedAlgorithm(ppInstrumentID[0]);
+		algo->CreateThread(CREATE_SUSPENDED);
+		algo->ResumeThread();
+		m_algorithms.push_back(algo);
+	}
+	
+	if (activeAlgorithm.find("DtAlgorithm") != activeAlgorithm.end() )
+	{
+		algo= new DtAlgorithm(ppInstrumentID[0]);
+		algo->CreateThread(CREATE_SUSPENDED);
+		algo->ResumeThread();
+		m_algorithms.push_back(algo);
+	}
 }
 
 void MessageRouter::sendData(const CMinuteData& data)
