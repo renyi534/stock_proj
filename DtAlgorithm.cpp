@@ -180,7 +180,7 @@ void DtAlgorithm::OnTickData(const CThostFtdcDepthMarketDataField& data)
 {
 	m_AskPrice = data.AskPrice1;
 	m_BidPrice = data.BidPrice1;
-
+/*
 	string strTime(data.UpdateTime, 0, 5);
 	if (strTime > "15:10")
 	{
@@ -242,7 +242,7 @@ void DtAlgorithm::OnTickData(const CThostFtdcDepthMarketDataField& data)
 
 	SendStrategy(res);
 	return;
-
+*/
 
 
                                                   
