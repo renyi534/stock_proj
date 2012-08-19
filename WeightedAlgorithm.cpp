@@ -107,11 +107,10 @@ void WeightedAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 	/*res.amount = mkk;
 	mkk = -mkk;*/
 
-	string strTime(data.m_Time, 1, 5);
-	if (strTime > "15:10")
+	if (data.m_Time > "15:10")
 	{
 		//isIni=0;
-		//res.amount = -totalAmount;
+		res.amount = -totalAmount;
 	}
 
 	if(res.amount>0)

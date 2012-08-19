@@ -109,7 +109,7 @@ void RandomAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 	if (data.m_Time > "15:10")
 	{
 		//isIni=0;
-		//res.amount = -totalAmount;
+		res.amount = -totalAmount;
 	}
 
 	if(res.amount>0)
