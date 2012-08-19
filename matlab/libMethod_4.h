@@ -1,6 +1,6 @@
 //
 // MATLAB Compiler: 4.3 (R14SP3)
-// Date: Sun Aug 19 12:23:12 2012
+// Date: Sun Aug 19 21:07:02 2012
 // Arguments: "-B" "macro_default" "-W" "cpplib:libMethod_4" "-T" "link:lib"
 // "MinKsymbProcess4.m" "IniMethod4.m" "TickStopLoss4.m" "GetInnerState4.m" 
 //

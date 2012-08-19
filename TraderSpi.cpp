@@ -86,6 +86,10 @@ void CTraderSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
 		///投资者结算结果确认
 		ReqSettlementInfoConfirm();
 	}
+	else if (bIsLast && IsErrorRspInfo(pRspInfo))
+	{
+		ReqUserLogin();
+	}
 }
 
 void CTraderSpi::ReqSettlementInfoConfirm()
