@@ -70,10 +70,7 @@ void HsAlgorithm::OnMinuteData(const CMinuteData& data)
 	res.milliSec =0;
 	res.m_instrumentID = m_InstrumentID;
 
-/*	if (res.amount<0)
-		res.price = res.price+5;
-	else
-		res.price = res.price-5;*/
+
 
 
 
@@ -109,9 +106,10 @@ int	HsAlgorithm::SendStrategy(const OrderInfoShort & res)
 	if( res.amount != 0 )
 	{
 		Algorithm::SendStrategy(res);	
-	}
-	m_log<<res.m_instrumentID+",  "+res.day+" "+res.time<<",  Amount, "<< res.amount <<", Price, "<<res.price<<endl;
+		m_log<<res.m_instrumentID+",  "+res.day+" "+res.time<<",  Amount, "<< res.amount <<", Price, "<<res.price<<endl;
 
+	}
+	
 	return 0;
 }
 

@@ -105,11 +105,11 @@ void RandomAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 	/*res.amount = mkk;
 	mkk = -mkk;*/
 
-	string strTime(data.m_Time, 1, 5);
+//	string strTime(data.m_Time, 0, 5);
 	if (data.m_Time > "15:10")
 	{
 		//isIni=0;
-		res.amount = -totalAmount;
+		//res.amount = -totalAmount;
 	}
 
 	if(res.amount>0)
@@ -140,8 +140,11 @@ void RandomAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 	mwArray s_atr(1,1, mxDOUBLE_CLASS);
 	mwArray s_stop(1,1, mxDOUBLE_CLASS);
 	mwArray s_trend(1,1, mxDOUBLE_CLASS);
+	mwArray s_lastme(1,1, mxDOUBLE_CLASS);
 
-	GetInnerState(5, s_m, s_e, s_atr, s_stop, s_trend);
+	GetInnerState(6, s_m, s_e, s_atr, s_stop, s_trend, s_lastme);
+
+
 
 	double im=0;
 	s_m.GetData(&im,1);
@@ -158,7 +161,10 @@ void RandomAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 	double itrend=0;
 	s_trend.GetData(&itrend,1);
 
-	m_state_log<<res.m_instrumentID+", "+res.day+" "+res.time<<", price:"<<res.price<<", m:"<<im<<", e:"<<ie<<", atr:"<<iatr<<", stop:"<<istop<<", trend:"<<itrend<<endl;
+	double iLastme=0;
+	s_lastme.GetData(&iLastme,1);
+
+	m_state_log<<res.m_instrumentID+", "+res.day+" "+res.time<<", price:"<<res.price<<", m:"<<im<<", e:"<<ie<<", atr:"<<iatr<<", stop:"<<istop<<", trend:"<<itrend<<", LastMaxe:"<<iLastme<<endl;
 
 	
 }
@@ -173,8 +179,9 @@ int	RandomAlgorithm::SendStrategy(const OrderInfoShort & res)
 	if( res.amount != 0 )
 	{
 		Algorithm::SendStrategy(res);	
+		m_log<<res.m_instrumentID+",  "+res.day+" "+res.time<<",  Amount, "<< res.amount <<", Price, "<<res.price<<endl;
 	}
-	m_log<<res.m_instrumentID+",  "+res.day+" "+res.time<<",  Amount, "<< res.amount <<", Price, "<<res.price<<endl;
+	
 
 	return 0;
 }

@@ -1,6 +1,6 @@
 //
 // MATLAB Compiler: 4.3 (R14SP3)
-// Date: Sun Jul 22 17:33:34 2012
+// Date: Sat Aug 18 18:50:21 2012
 // Arguments: "-B" "macro_default" "-W" "cpplib:libMethod_1" "-T" "link:lib"
 // "MinKsymbProcess.m" "IniMethod.m" "GetInnerState.m" 
 //
@@ -135,7 +135,8 @@ extern LIB_libMethod_1_CPP_API void GetInnerState(int nargout, mwArray& s_m
                                                   , mwArray& s_e
                                                   , mwArray& s_atr
                                                   , mwArray& s_stop
-                                                  , mwArray& s_trend);
+                                                  , mwArray& s_trend
+                                                  , mwArray& s_lastmaxe);
 
 #endif
 

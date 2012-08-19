@@ -108,10 +108,10 @@ void WeightedAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 	mkk = -mkk;*/
 
 	string strTime(data.m_Time, 1, 5);
-	if (data.m_Time > "15:10")
+	if (strTime > "15:10")
 	{
 		//isIni=0;
-		res.amount = -totalAmount;
+		//res.amount = -totalAmount;
 	}
 
 	if(res.amount>0)
@@ -144,7 +144,7 @@ void WeightedAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 	mwArray s_trend(1,1, mxDOUBLE_CLASS);
 	mwArray s_last_maxe(1,1, mxDOUBLE_CLASS);
 
-	GetInnerState3(5, s_m, s_e, s_atr, s_stop, s_trend, s_last_maxe);
+	GetInnerState3(6, s_m, s_e, s_atr, s_stop, s_trend, s_last_maxe);
 
 	double im=0;
 	s_m.GetData(&im,1);
@@ -180,9 +180,10 @@ int	WeightedAlgorithm::SendStrategy(const OrderInfoShort & res)
 	if( res.amount != 0 )
 	{
 		Algorithm::SendStrategy(res);	
-	}
-	m_log<<res.m_instrumentID+",  "+res.day+" "+res.time<<",  Amount, "<< res.amount <<", Price, "<<res.price<<endl;
+		m_log<<res.m_instrumentID+",  "+res.day+" "+res.time<<",  Amount, "<< res.amount <<", Price, "<<res.price<<endl;
 
+	}
+	
 	return 0;
 }
 

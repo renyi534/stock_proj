@@ -72,22 +72,22 @@ void DtAlgorithm::OnMinuteData(const CMinuteData& data)
 
 	MinKsymbProcess4(2, newopen, bidprice, to, th, tl, tc);
 
-
-
-
-
 	OrderInfoShort res;
 
 	bidprice.GetData(&(res.price), 1);
 	
 	newopen.GetData(&(res.amount), 1);
 
+	if ( totalAmount >=2 && res.amount > 0)
+		res.amount =0;
+	else if ( totalAmount <=-2 && res.amount < 0 )
+		res.amount =0;
 
-	string strTime(data.m_Time, 1, 5);
-	if (data.m_Time > "15:10")
+	string strTime(data.m_Time, 0, 5);
+	if (strTime > "15:10")
 	{
 		//isIni=0;
-		res.amount = -totalAmount;
+	//	res.amount = -totalAmount;
 	}
 
 	if(res.amount>0)
@@ -169,10 +169,11 @@ int	DtAlgorithm::SendStrategy(const OrderInfoShort & res)
 	//第一行就是真实的发送指令，第二行是本地模拟写log
 	if( res.amount != 0 )
 	{
-		Algorithm::SendStrategy(res);	
-	}
-	m_log<<res.m_instrumentID+",  "+res.day+" "+res.time<<",  Amount, "<< res.amount <<", Price, "<<res.price<<endl;
+		Algorithm::SendStrategy(res);
+		m_log<<res.m_instrumentID+",  "+res.day+" "+res.time<<",  Amount, "<< res.amount <<", Price, "<<res.price<<endl;
 
+	}
+	
 	return 0;
 }
 
@@ -180,6 +181,70 @@ void DtAlgorithm::OnTickData(const CThostFtdcDepthMarketDataField& data)
 {
 	m_AskPrice = data.AskPrice1;
 	m_BidPrice = data.BidPrice1;
+
+	string strTime(data.UpdateTime, 0, 5);
+	if (strTime > "15:10")
+	{
+	//	return;
+	}
+
+	mwArray stopopen(1,1, mxDOUBLE_CLASS);
+	mwArray ia(1,1, mxDOUBLE_CLASS);
+	mwArray ib(1,1, mxDOUBLE_CLASS);
+
+	double val;
+	val = m_AskPrice;
+	ia.SetData(&val,1);
+	val = m_BidPrice;
+	ib.SetData(&val,1);
+
+	TickStopLoss4(1, stopopen, ia, ib);
+
+	stopopen.GetData(&val,1);
+
+	if(val==0)
+	{
+		return;
+	}
+
+
+	OrderInfoShort res;
+	
+	//res.price=-1;
+	
+	res.amount=val;
+
+	if ( totalAmount >=2 && res.amount > 0)
+		res.amount =0;
+	else if ( totalAmount <=-2 && res.amount < 0 )
+		res.amount =0;
+
+
+
+	if(res.amount>0)
+	{
+		res.price=m_AskPrice;
+	}
+	
+	if(res.amount<0)
+	{
+		res.price=m_BidPrice;
+	}
+
+	
+	res.day= data.TradingDay;
+	res.time = data.UpdateTime;
+	res.milliSec =0;
+	res.m_instrumentID = data.InstrumentID;
+
+	totalAmount += res.amount;
+	res.totalAmount = totalAmount;
+
+
+	SendStrategy(res);
+	return;
+
+
 
                                                   
 }
@@ -204,7 +269,7 @@ BOOL DtAlgorithm::InitInstance()
 		DbConn conn(dbAccessPool);
 		//conn.m_db->getData(m_InstrumentID, startDayBuffer, startTimeBuffer,
 		//	currDayBuffer, currTimeBuffer, m_historyData);
-		conn.m_db->getData(m_InstrumentID, 2000, m_historyData);
+		conn.m_db->getData(m_InstrumentID, 100, m_historyData);
 	}
 	catch(CDBException* pe)
 	{
@@ -235,6 +300,9 @@ BOOL DtAlgorithm::InitInstance()
 	mwArray inkb(1,1, mxDOUBLE_CLASS);
 	mwArray inkm(1,1, mxDOUBLE_CLASS);
 
+	mwArray inw(1,1, mxDOUBLE_CLASS);
+	mwArray inwl(1,1, mxDOUBLE_CLASS);
+	mwArray inks(1,1, mxDOUBLE_CLASS);
 
 	double* openPrice = new double[size];
 	double* highPrice = new double[size];
@@ -287,15 +355,20 @@ BOOL DtAlgorithm::InitInstance()
 
 	val = 5;
 	inn1.SetData(&val,1);
-	val = 3;
+	val = 2;
 	inkb.SetData(&val,1);
 	val = 5;
 	inkm.SetData(&val,1);
-	
+	val = 40;
+	inks.SetData(&val,1);
+	val = 30;
+	inwl.SetData(&val,1);
+	val = 15;
+	inw.SetData(&val,1);
 
 
 	IniMethod4(1, mwErrorCode,
-		mwOpen, mwHigh, mwLow, mwClose, inn1, inkb, inkm);
+		mwOpen, mwHigh, mwLow, mwClose, inn1, inkb, inkm, inw, inwl, inks);
 
 	mwErrorCode.GetData(&val,1);
                                      
