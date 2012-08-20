@@ -377,12 +377,26 @@ void CTraderSpi::ReqOrderInsert(OrderInfo& order_req)
 	
 	///组合投机套保标志
 	req.CombHedgeFlag[0] = THOST_FTDC_HF_Speculation;
+	
 	///价格
-	req.LimitPrice = order_req.price;
+	if (order_req.price<0) {
+		req.LimitPrice = 0;
+	}
+	else
+	{
+		req.LimitPrice = order_req.price;
+	}
+
 	///数量: 1
 	req.VolumeTotalOriginal = fabs(order_req.amount);
 	///有效期类型: 当日有效
-	req.TimeCondition = THOST_FTDC_TC_GFD;
+	if (order_req.price<0) {
+		req.TimeCondition = THOST_FTDC_TC_IOC;
+	}
+	else
+	{
+		req.TimeCondition = THOST_FTDC_TC_GFD;
+	}
 	///GTD日期
 	//	TThostFtdcDateType	GTDDate;
 	///成交量类型: 任何数量
