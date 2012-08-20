@@ -60,7 +60,10 @@ CString  StockRetriever::GetStockInfo(CString url)
 
 	int end = strHtml.Find('"', start+1);
 
-	ASSERT( end > start+1 );
+	//ASSERT( end > start+1 );
+
+	if ( ! (end > start+1 && start >0 ))
+		return "";
 
 	CString ret = strHtml.Mid(start+1, end-start-1);
 	return ret;
