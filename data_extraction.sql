@@ -582,3 +582,11 @@ $$ LANGUAGE PLPGSQL;
 
 create view day_data_stat_view as select row_number() over (order by time) as id, time, week_close, week_high, week_low, week_gain, prev_week_gain, prev2_week_gain, week_volume, pre_week_volume, week4_volume, class from day_stat_data;
 
+create view day_data_stat_view_hs300 as select row_number() over (order by time) as id, time, week_close, week_high, week_low, week_gain, prev_week_gain, prev2_week_gain, week_volume, pre_week_volume, week4_volume, class from day_stat_data_hs300;
+
+select time, gain, sum(gain) over (order by time) from (
+select v.time, CASE WHEN (c.result=1) THEN abs(d.open-d.close) ELSE -abs(d.open-d.close) END as gain from day_data_classify c, day_data_stat_view v, day_data d where c.id=v.id and d.time::text=v.time) l;
+
+create table hs300_gain as
+select time, gain, sum(gain) over (order by time) from (
+select v.time, CASE WHEN (c.result=1) THEN abs(d.open-d.close) ELSE -abs(d.open-d.close) END as gain from day_data_classify c, day_data_stat_view_hs300 v, day_data_hs300 d where c.id=v.id and d.time::text=v.time) l;
