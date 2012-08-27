@@ -531,3 +531,54 @@ BEGIN
     EXECUTE 'ALTER TABLE '||train_table||' DROP column trans_time;';
 END
 $$ LANGUAGE PLPGSQL;
+
+CREATE OR REPLACE FUNCTION generate_history_stat_data
+    ( 
+    original_table_name     TEXT,
+    target_table_name       TEXT
+    ) 
+RETURNS VOID AS $$
+DECLARE
+    index   BIGINT;
+    result  BIGINT;
+    stmt    TEXT;
+BEGIN
+    EXECUTE 'DROP TABLE IF EXISTS '||target_table_name||';';
+    stmt= 
+    'CREATE TABLE '||target_table_name||' AS 
+     SELECT time::text, week_close as week_close, week_high, week_low, week_close/week_open as week_gain,
+	week_open/prev_week_open as prev_week_gain, prev_week_open/prev2_week_open as prev2_week_gain,
+	week_volume, pre_week_volume, week4_volume,
+	CASE WHEN(close>open) THEN
+		1
+	ELSE
+		0
+	END::TEXT AS class
+     FROM (
+        SELECT time, close, open, lag(close) over (order by time) as week_close,
+    	max(high) over 
+        	(ORDER BY time ROWS BETWEEN 6 PRECEDING AND 1 PRECEDING) as week_high,
+    	min(low) over 
+        	(ORDER BY time ROWS BETWEEN 6 PRECEDING AND 1 PRECEDING) as week_low,
+    	avg(open) over 
+        	(ORDER BY time ROWS BETWEEN 6 PRECEDING AND 6 PRECEDING) as week_open,
+    	avg(open) over 
+        	(ORDER BY time ROWS BETWEEN 11 PRECEDING AND 11 PRECEDING) as prev_week_open,	
+   	avg(open) over 
+        	(ORDER BY time ROWS BETWEEN 16 PRECEDING AND 16 PRECEDING) as prev2_week_open,		
+    	avg(volume) over 
+        	(ORDER BY time ROWS BETWEEN 6 PRECEDING AND 1 PRECEDING) as week_volume,
+    	avg(volume) over 
+        	(ORDER BY time ROWS BETWEEN 11 PRECEDING AND 7 PRECEDING) as pre_week_volume,
+    	avg(volume) over 
+        	(ORDER BY time ROWS BETWEEN 21 PRECEDING AND 1 PRECEDING) as week4_volume	
+    	from '||original_table_name||') l
+     WHERE prev2_week_open IS NOT NULL;';
+    
+    RAISE INFO '%',stmt;
+    EXECUTE stmt;
+END
+$$ LANGUAGE PLPGSQL;
+
+create view day_data_stat_view as select row_number() over (order by time) as id, time, week_close, week_high, week_low, week_gain, prev_week_gain, prev2_week_gain, week_volume, pre_week_volume, week4_volume, class from day_stat_data;
+
