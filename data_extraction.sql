@@ -590,3 +590,243 @@ select v.time, CASE WHEN (c.result=1) THEN abs(d.open-d.close) ELSE -abs(d.open-
 create table hs300_gain as
 select time, gain, sum(gain) over (order by time) from (
 select v.time, CASE WHEN (c.result=1) THEN abs(d.open-d.close) ELSE -abs(d.open-d.close) END as gain from day_data_classify c, day_data_stat_view_hs300 v, day_data_hs300 d where c.id=v.id and d.time::text=v.time) l;
+
+create view day_data_stat_view as select row_number() over (order by time) as id, time, week_close, week_high, week_low, week_gain, prev_week_gain, prev2_week_gain, week_volume, pre_week_volume, week4_volume, class from day_stat_data;
+ 
+create view day_data_stat_view_hs300 as select row_number() over (order by time) as id, time, week_close, week_high, week_low, week_gain, prev_week_gain, prev2_week_gain, week_volume, pre_week_volume, week4_volume, class from day_stat_data_hs300;
+
+create view day_data_stat_regress_view_hs300 as select row_number() over (order by time) as id, time, week_close, week_high, week_low, week_gain, prev_week_gain, prev2_week_gain, week_volume, pre_week_volume, week4_volume, class from day_data_stat_regress_hs300;
+
+create table day_data_gain as
+select time, gain, sum(gain) over (order by time),close from (
+select v.time, CASE WHEN (c.result=1) THEN abs(d.open-d.close) ELSE -abs(d.open-d.close) END as gain, close from day_data_classify c, day_data_stat_view v, day_data d where c.id=v.id and d.time::text=v.time) l;
+ 
+create table hs300_gain as
+select time, gain, sum(gain) over (order by time), close from (
+select v.time, CASE WHEN (c.result=1) THEN abs(d.open-d.close) ELSE -abs(d.open-d.close) END as gain, close from day_data_classify c, day_data_stat_view_hs300 v, day_data_hs300 d where c.id=v.id and d.time::text=v.time) l;
+
+
+create table hs300_regress_gain as
+select time, gain,gain2, sum(CASE when (gain<-80) then -80 ELSE gain END) over (order by time) as acc_gain, 
+sum(CASE when (gain<-120) then -120 ELSE gain END) over (order by time) as acc_gain_2,
+sum(CASE when (gain2<-80) then -80 ELSE gain2 END) over (order by time) as acc_gain2, close from (
+    select v.time, 
+    CASE WHEN (c.pred>0) THEN 
+        d.close-d.open 
+    ELSE 
+        CASE WHEN (c.pred<-0) THEN
+            d.open-d.close
+        ELSE
+            0
+        END
+    END as gain,
+    CASE WHEN (c.pred>2) THEN 
+        c.actual 
+    ELSE 
+        CASE WHEN (c.pred<-2) THEN
+            -c.actual    
+        ELSE
+            0
+        END
+    END as gain2,
+    d.close 
+    from pred_hs300 c, day_data_stat_regress_view_hs300 v, day_data_hs300 d where c.id=v.id and d.time::text=v.time) l;
+
+create table hs300_regress_gain as
+select time, gain,gain2, sum(CASE when (gain<-open*0.03) then -open*0.03 ELSE gain END) over (order by time) as acc_gain, 
+sum(CASE when (gain2<-open*0.03) then -open*0.03 ELSE gain2 END) over (order by time) as acc_gain2, close from (
+    select v.time, 
+    CASE WHEN (c.pred>0) THEN 
+        d.close-d.open 
+    ELSE 
+        CASE WHEN (c.pred<-0) THEN
+            d.open-d.close
+        ELSE
+            0
+        END
+    END as gain,
+    CASE WHEN (c.pred>2) THEN 
+        c.actual 
+    ELSE 
+        CASE WHEN (c.pred<-2) THEN
+            -c.actual    
+        ELSE
+            0
+        END
+    END as gain2,
+    d.close, d.open 
+    from pred_hs300 c, day_data_stat_regress_view_hs300 v, day_data_hs300 d where c.id=v.id and d.time::text=v.time) l;
+
+
+CREATE OR REPLACE FUNCTION slide_window_test
+    ( 
+    original_table_name     TEXT,
+    window_size             INT,
+    confidence              INT,
+    max_depth               INT,
+    out_table               TEXT
+    ) 
+RETURNS FLOAT8 AS $$
+DECLARE
+    index   BIGINT;
+    size    BIGINT;
+    stmt    TEXT;
+    train_table   TEXT := 'temp_train';
+    test_table    TEXT := 'temp_test';
+    score   FLOAT8;
+    num     INT := 0;
+    acc_score   FLOAT8 :=0;
+BEGIN
+    EXECUTE 'SELECT max(id) from '||original_table_name INTO size;
+
+    EXECUTE 'DROP TABLE IF EXISTS '||out_table||';';
+
+    EXECUTE 'CREATE TABLE '||out_table||' (
+                id  INT,
+                result INT
+                )';
+
+    FOR index IN window_size..size LOOP
+        
+        EXECUTE 'DROP TABLE IF EXISTS '||train_table||';';
+        stmt= 'CREATE TEMP TABLE '||train_table||' AS 
+            SELECT * FROM 
+            '||original_table_name||' WHERE id<'||index||' AND id>='||index-window_size;
+        RAISE INFO '%',stmt;
+        EXECUTE stmt;
+    
+        EXECUTE 'DROP TABLE IF EXISTS '||test_table||';';
+        stmt= 'CREATE TEMP TABLE '||test_table||' AS 
+            SELECT * FROM 
+            '||original_table_name||' WHERE id='||index;
+        RAISE INFO '%',stmt;
+        EXECUTE stmt;
+        
+        PERFORM madlib.c45_train('infogain', train_table, 'madlib.temp_result', NULL,
+            'week_close, week_high, week_low, week_gain, prev_week_gain, prev2_week_gain, week_volume, pre_week_volume,week4_volume',
+            'week_close, week_high, week_low, week_gain, prev_week_gain, prev2_week_gain, week_volume, pre_week_volume,week4_volume', 
+            'id', 'class', confidence, 'explicit', max_depth, 0.001, 0.01, 0);
+        score = madlib.c45_score('madlib.temp_result', test_table, 0);
+        
+        IF (score > 0.0001) THEN
+            EXECUTE 'INSERT INTO '||out_table||' values('||index||', 1)';
+        ELSE
+            EXECUTE 'INSERT INTO '||out_table||' values('||index||', 0)';
+        END IF;
+
+        acc_score = acc_score + score;
+        num = num+1;
+        RAISE INFO 'index: %, acc_score:%, num:%, ratio;%', index, acc_score, num, acc_score/num;
+        PERFORM madlib.c45_clean('madlib.temp_result');
+    END LOOP;
+    RETURN acc_score/num;
+END
+$$ LANGUAGE PLPGSQL;
+
+CREATE OR REPLACE FUNCTION slide_window_test_rf
+    ( 
+    original_table_name     TEXT,
+    window_size             INT,
+    tree_num                INT,
+    max_depth               INT,
+    out_table               TEXT
+    ) 
+RETURNS FLOAT8 AS $$
+DECLARE
+    index   BIGINT;
+    size    BIGINT;
+    stmt    TEXT;
+    train_table   TEXT := 'temp_train';
+    test_table    TEXT := 'temp_test';
+    score   FLOAT8;
+    num     INT := 0;
+    acc_score   FLOAT8 :=0;
+BEGIN
+    EXECUTE 'SELECT max(id) from '||original_table_name INTO size;
+
+    EXECUTE 'DROP TABLE IF EXISTS '||out_table||';';
+
+    EXECUTE 'CREATE TABLE '||out_table||' (
+                id  INT,
+                result INT
+                )';
+    FOR index IN window_size..size LOOP
+        
+        EXECUTE 'DROP TABLE IF EXISTS '||train_table||';';
+        stmt= 'CREATE TEMP TABLE '||train_table||' AS 
+            SELECT * FROM 
+            '||original_table_name||' WHERE id<'||index||' AND id>='||index-window_size;
+        RAISE INFO '%',stmt;
+        EXECUTE stmt;
+    
+        EXECUTE 'DROP TABLE IF EXISTS '||test_table||';';
+        stmt= 'CREATE TEMP TABLE '||test_table||' AS 
+            SELECT * FROM 
+            '||original_table_name||' WHERE id='||index;
+        RAISE INFO '%',stmt;
+        EXECUTE stmt;
+        
+        PERFORM madlib.rf_train('infogain', train_table, 'madlib.temp_result', tree_num, NULL, 1, 
+            'week_close, week_high, week_low, week_gain, prev_week_gain, prev2_week_gain, week_volume, pre_week_volume,week4_volume',
+            'week_close, week_high, week_low, week_gain, prev_week_gain, prev2_week_gain, week_volume, pre_week_volume,week4_volume',
+            'id', 'class', 'explicit', max_depth, 0.001, 0.01, 0);
+        score = madlib.rf_score('madlib.temp_result', test_table, 0);
+
+        acc_score = acc_score + score;
+        num = num+1;
+        IF (score > 0.0001) THEN
+            EXECUTE 'INSERT INTO '||out_table||' values('||index||', 1)';
+        ELSE
+            EXECUTE 'INSERT INTO '||out_table||' values('||index||', 0)';
+        END IF;
+        RAISE INFO 'index: %, acc_score:%, num:%, ratio;%', index, acc_score, num, acc_score/num;
+        PERFORM madlib.rf_clean('madlib.temp_result');
+    END LOOP;
+    RETURN acc_score/num;
+END
+$$ LANGUAGE PLPGSQL;
+
+CREATE OR REPLACE FUNCTION generate_regress_stat_data
+    (
+    original_table_name     TEXT,
+    target_table_name       TEXT
+    )
+RETURNS VOID AS $$
+DECLARE
+    index   BIGINT;
+    result  BIGINT;
+    stmt    TEXT;
+BEGIN
+    EXECUTE 'DROP TABLE IF EXISTS '||target_table_name||';';
+    stmt=
+    'CREATE TABLE '||target_table_name||' AS
+     SELECT time::text, week_close as week_close, week_high, week_low, week_close/week_open as week_gain,
+         week_open/prev_week_open as prev_week_gain, prev_week_open/prev2_week_open as prev2_week_gain,
+         week_volume, pre_week_volume, week4_volume,
+         close-open AS class
+     FROM (
+        SELECT time, close, open, lag(close) over (order by time) as week_close,
+             max(high) over
+                 (ORDER BY time ROWS BETWEEN 6 PRECEDING AND 1 PRECEDING) as week_high,
+             min(low) over
+                 (ORDER BY time ROWS BETWEEN 6 PRECEDING AND 1 PRECEDING) as week_low,
+             avg(open) over
+                 (ORDER BY time ROWS BETWEEN 6 PRECEDING AND 6 PRECEDING) as week_open,
+             avg(open) over
+                 (ORDER BY time ROWS BETWEEN 11 PRECEDING AND 11 PRECEDING) as prev_week_open,   
+     avg(open) over
+                 (ORDER BY time ROWS BETWEEN 16 PRECEDING AND 16 PRECEDING) as prev2_week_open,          
+             avg(volume) over
+                 (ORDER BY time ROWS BETWEEN 6 PRECEDING AND 1 PRECEDING) as week_volume,
+             avg(volume) over
+                 (ORDER BY time ROWS BETWEEN 11 PRECEDING AND 7 PRECEDING) as pre_week_volume,
+             avg(volume) over
+                 (ORDER BY time ROWS BETWEEN 21 PRECEDING AND 1 PRECEDING) as week4_volume  
+             from '||original_table_name||') l
+     WHERE prev2_week_open IS NOT NULL;';
+   
+    RAISE INFO '%',stmt;
+    EXECUTE stmt;
+END
+$$ LANGUAGE PLPGSQL;
+
