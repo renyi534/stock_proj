@@ -18,9 +18,6 @@
 #define IDC_ORDER_DETAIL                1009
 #define IDC_TRADE_DETAIL                1010
 #define IDC_CASH                        1011
-#define IDC_BALANCE                     1012
-#define IDC_POS_PROFIT                  1013
-#define IDC_CLOSE_PROFIT                1014
 #define IDC_DATETIME_START              1015
 #define IDC_DATETIME_END                1016
 #define IDC_SIMU_START                  1017
@@ -32,6 +29,9 @@
 #define IDC_CLEAR_LONG                  1022
 #define IDC_ALGO_POS                    1023
 #define IDC_YDSHORT_POS                 1024
+#define IDC_ACCOUNT_LIST                1026
+#define IDC_INSTRUMENT_LIST             1027
+#define IDC_POSITION_LIST               1028
 
 // Next default values for new objects
 // 
@@ -40,7 +40,7 @@
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        130
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1024
+#define _APS_NEXT_CONTROL_VALUE         1029
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

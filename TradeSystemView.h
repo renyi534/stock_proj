@@ -19,9 +19,9 @@ protected: // create from serialization only
 public:
 	//{{AFX_DATA(CTradeSystemView)
 	enum { IDD = IDD_TRADESYSTEM_FORM };
-	CStatic	m_CloseProfit;
-	CStatic	m_PositionProfit;
-	CStatic	m_Balance;
+	CListCtrl	m_PositionList;
+	CListCtrl	m_InstrumentList;
+	CListCtrl	m_AccountList;
 	CStatic	m_YdShortPos;
 	CStatic	m_YdLongPos;
 	CStatic	m_AlgoPos;
@@ -29,17 +29,12 @@ public:
 	CStatic	m_LongPos;
 	CDateTimeCtrl	m_DateEnd;
 	CDateTimeCtrl	m_DateStart;
-	CStatic	m_Volume;
 	CStatic	m_TradeTotal;
 	CStatic	m_TradeStatus;
 	CEdit	m_TradeDetail;
-	CStatic	m_Price;
 	CStatic	m_OrderTotal;
 	CEdit	m_OrderDetail;
-	CStatic	m_OpenInterest;
 	CStatic	m_MDStatus;
-	CStatic	m_Cash;
-	CComboBox	m_Instruments;
 	//}}AFX_DATA
 
 	double m_BidPrice;
@@ -89,6 +84,10 @@ protected:
 	afx_msg void OnTimer(UINT nIDEvent);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
+private:
+	void InitListCtrl();
+	void RefreshForm();
+	CString GetActiveInstrument();
 };
 
 #ifndef _DEBUG  // debug version in TradeSystemView.cpp

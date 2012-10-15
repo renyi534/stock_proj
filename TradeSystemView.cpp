@@ -44,7 +44,6 @@ CTradeSystemView::CTradeSystemView()
 	: CFormView(CTradeSystemView::IDD)
 {
 	//{{AFX_DATA_INIT(CTradeSystemView)
-		// NOTE: the ClassWizard will add member initialization here
 	//}}AFX_DATA_INIT
 	// TODO: add construction code here
 
@@ -58,9 +57,9 @@ void CTradeSystemView::DoDataExchange(CDataExchange* pDX)
 {
 	CFormView::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CTradeSystemView)
-	DDX_Control(pDX, IDC_CLOSE_PROFIT, m_CloseProfit);
-	DDX_Control(pDX, IDC_POS_PROFIT, m_PositionProfit);
-	DDX_Control(pDX, IDC_BALANCE, m_Balance);
+	DDX_Control(pDX, IDC_POSITION_LIST, m_PositionList);
+	DDX_Control(pDX, IDC_INSTRUMENT_LIST, m_InstrumentList);
+	DDX_Control(pDX, IDC_ACCOUNT_LIST, m_AccountList);
 	DDX_Control(pDX, IDC_YDSHORT_POS, m_YdShortPos);
 	DDX_Control(pDX, IDC_YDLONG_POS, m_YdLongPos);
 	DDX_Control(pDX, IDC_ALGO_POS, m_AlgoPos);
@@ -68,17 +67,12 @@ void CTradeSystemView::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_LONG_POS, m_LongPos);
 	DDX_Control(pDX, IDC_DATETIME_END, m_DateEnd);
 	DDX_Control(pDX, IDC_DATETIME_START, m_DateStart);
-	DDX_Control(pDX, IDC_VOLUME, m_Volume);
 	DDX_Control(pDX, IDC_TRADE_TOTAL, m_TradeTotal);
 	DDX_Control(pDX, IDC_TRADE_STATUS, m_TradeStatus);
 	DDX_Control(pDX, IDC_TRADE_DETAIL, m_TradeDetail);
-	DDX_Control(pDX, IDC_PRICE, m_Price);
 	DDX_Control(pDX, IDC_ORDER_TOTAL, m_OrderTotal);
 	DDX_Control(pDX, IDC_ORDER_DETAIL, m_OrderDetail);
-	DDX_Control(pDX, IDC_OPEN_INTEREST, m_OpenInterest);
 	DDX_Control(pDX, IDC_MD_STATUS, m_MDStatus);
-	DDX_Control(pDX, IDC_CASH, m_Cash);
-	DDX_Control(pDX, IDC_INSTRUMENT_COMBO, m_Instruments);
 	//}}AFX_DATA_MAP
 }
 
@@ -94,12 +88,10 @@ void CTradeSystemView::OnInitialUpdate()
 {
 	CFormView::OnInitialUpdate();
 	GetParentFrame()->RecalcLayout();
-	ResizeParentToFit();
-	for ( int i =0 ; i< iInstrumentID; i++)
-		this->m_Instruments.AddString(ppInstrumentID[i]);
-	
-	m_Instruments.AddString("沪深300");
-	m_Instruments.SetCurSel(0);
+	ResizeParentToFit(FALSE);
+
+	InitListCtrl();
+
 	m_RefreshFormTimer = SetTimer(1, 1000, 0);	
 	m_RefreshPosTimer  = SetTimer(2, 10000, 0);	
 	m_CorrectionPosTimer  = SetTimer(3, 20000, 0);
@@ -173,8 +165,10 @@ void CTradeSystemView::OnSimuStart()
 
 	sprintf(endDayBuffer, "%d%02d%02d", year, month, day);
 	
-	CString str;
-	m_Instruments.GetWindowText(str);
+
+
+
+	CString str = GetActiveInstrument();
 	DataSimulator simu((LPCSTR)str);
 	simu.SetRange(startDayBuffer, endDayBuffer);
 	simu.Start();
@@ -185,8 +179,7 @@ void CTradeSystemView::OnClearShort()
 	// TODO: Add your control notification handler code here
 
 
-	CString instrument;
-	m_Instruments.GetWindowText(instrument);
+	CString instrument =GetActiveInstrument();
 	tradeConn->m_TradeSpi->CancelAllOrders((LPCSTR)instrument);
 	tradeConn->m_TradeSpi->ClearShortPos((LPCSTR)instrument, m_AskPrice);
 }
@@ -194,8 +187,7 @@ void CTradeSystemView::OnClearShort()
 void CTradeSystemView::OnClearLong() 
 {
 	// TODO: Add your control notification handler code here
-	CString instrument;
-	m_Instruments.GetWindowText(instrument);
+	CString instrument =GetActiveInstrument();;
 	tradeConn->m_TradeSpi->CancelAllOrders((LPCSTR)instrument);
 	tradeConn->m_TradeSpi->ClearLongPos((LPCSTR)instrument, m_BidPrice);	
 }
@@ -213,8 +205,8 @@ BOOL CTradeSystemView::DestroyWindow()
 void CTradeSystemView::OnTimer(UINT nIDEvent) 
 {
 	// TODO: Add your message handler code here and/or call default
-	CString instrument ;
-	m_Instruments.GetWindowText(instrument);
+	CString instrument=GetActiveInstrument();
+
 	InvestorPosition pos;
 	memset(&pos, 0, sizeof(pos));
 
@@ -229,59 +221,13 @@ void CTradeSystemView::OnTimer(UINT nIDEvent)
 		pos = pos_iter->second;
 	}
 
-	CThostFtdcDepthMarketDataField tick_data;
-	memset(&tick_data, 0, sizeof(tick_data));
-
-	CMdSpi::CTickDataMap::iterator tick_iter = 
-		tradeConn->m_UserSpi->m_tick_data_map.find((LPCSTR)instrument);
-
-	if ( tick_iter != tradeConn->m_UserSpi->m_tick_data_map.end() )
-	{
-		tick_data = tick_iter->second;
-	}
-
 	if( nIDEvent == m_RefreshPosTimer )
 	{
 		tradeConn->m_TradeSpi->ReqQryTradingAccount();
 	}
 	else if (nIDEvent == m_RefreshFormTimer)
 	{
-		CString str;
-		str.Format("Algorithm Position:%d", tradeConn->m_TradeSpi->m_AlgoPos);
-		this->m_AlgoPos.SetWindowText(str);
-
-		str.Format("Long Position:%d", pos.Long);
-		this->m_LongPos.SetWindowText(str);
-		
-		str.Format("Short Position:%d", pos.Short);
-		this->m_ShortPos.SetWindowText(str);
-		
-		str.Format("Yd Short Position:%d", pos.YdShort);
-		this->m_YdShortPos.SetWindowText(str);
-		
-		str.Format("Yd Long Position:%d", pos.YdLong);
-		this->m_YdLongPos.SetWindowText(str);
-
-		str.Format("Cash:%f", tradeConn->m_TradeSpi->m_account.Available);
-		m_Cash.SetWindowText(str);
-
-		str.Format("Balance:%f", tradeConn->m_TradeSpi->m_account.Balance);
-		m_Balance.SetWindowText(str);
-
-		str.Format("Position_Profit:%f", 
-			tradeConn->m_TradeSpi->m_account.PositionProfit);
-		m_PositionProfit.SetWindowText(str);
-
-		str.Format("Close_Profit:%f", 
-			tradeConn->m_TradeSpi->m_account.CloseProfit);
-		m_CloseProfit.SetWindowText(str);
-
-		str.Format("Curr Price: %f", tick_data.LastPrice);
-		m_Price.SetWindowText( str);
-		str.Format("Curr Volume: %d", tick_data.Volume);
-		m_Volume.SetWindowText( str);
-		str.Format("Open Interest: %f", tick_data.OpenInterest);
-		m_OpenInterest.SetWindowText( str);
+		RefreshForm();
 	}
 	else if (m_CorrectionPosTimer == nIDEvent)
 	{
@@ -346,4 +292,183 @@ CTradeSystemView* CTradeSystemView::GetCurrView()
 		return (CTradeSystemView*)pWnd->GetActiveView();
 	else
 		return NULL;
+}
+
+CString CTradeSystemView::GetActiveInstrument()
+{
+    POSITION pos = m_InstrumentList.GetFirstSelectedItemPosition();
+	if (pos == NULL)
+		TRACE0("No items were selected!\n");
+
+	int nItem = m_InstrumentList.GetNextSelectedItem(pos);
+
+	return m_InstrumentList.GetItemText(nItem, 0);
+}
+
+void CTradeSystemView::RefreshForm()
+{
+	CString instrument=GetActiveInstrument();
+
+	InvestorPosition pos;
+	memset(&pos, 0, sizeof(pos));
+
+	if( tradeConn == NULL )
+		return;
+
+	CTraderSpi::inv_pos_map::iterator pos_iter = 
+		tradeConn->m_TradeSpi->m_inv_pos.find((LPCSTR)instrument);
+	
+	if ( pos_iter != tradeConn->m_TradeSpi->m_inv_pos.end() )
+	{
+		pos = pos_iter->second;
+	}
+
+	CString str;
+	str.Format("Algorithm Position:%d", tradeConn->m_TradeSpi->m_AlgoPos);
+	this->m_AlgoPos.SetWindowText(str);
+	
+	str.Format("Long Position:%d", pos.Long);
+	this->m_LongPos.SetWindowText(str);
+	
+	str.Format("Short Position:%d", pos.Short);
+	this->m_ShortPos.SetWindowText(str);
+	
+	str.Format("Yd Short Position:%d", pos.YdShort);
+	this->m_YdShortPos.SetWindowText(str);
+	
+	str.Format("Yd Long Position:%d", pos.YdLong);
+	this->m_YdLongPos.SetWindowText(str);
+	
+	m_AccountList.SetItemText(0,0,tradeConn->m_TradeSpi->m_account.BrokerID);
+	m_AccountList.SetItemText(0,1,tradeConn->m_TradeSpi->m_account.AccountID);
+	
+	str.Format("%f", tradeConn->m_TradeSpi->m_account.Balance);
+	m_AccountList.SetItemText(0,2,str);
+	
+	str.Format("%f", tradeConn->m_TradeSpi->m_account.Available);
+	m_AccountList.SetItemText(0,3,str);
+	
+	str.Format("%f", tradeConn->m_TradeSpi->m_account.WithdrawQuota);
+	m_AccountList.SetItemText(0,4,str);
+	
+	str.Format("%f", tradeConn->m_TradeSpi->m_account.FrozenCash);
+	m_AccountList.SetItemText(0,5,str);
+	
+	str.Format("%f", tradeConn->m_TradeSpi->m_account.CloseProfit);
+	m_AccountList.SetItemText(0,6,str);
+	
+	str.Format("%f", tradeConn->m_TradeSpi->m_account.PositionProfit);
+	m_AccountList.SetItemText(0,7,str);
+	
+	str.Format("%f", tradeConn->m_TradeSpi->m_account.CurrMargin);
+	m_AccountList.SetItemText(0,8,str);
+	
+	int instrument_count = m_InstrumentList.GetItemCount();
+	
+	for ( int i=0; i< instrument_count; i++)
+	{
+		CString curr_ins = m_InstrumentList.GetItemText(i, 0);
+		CThostFtdcDepthMarketDataField tick_data;
+		memset(&tick_data, 0, sizeof(tick_data));
+		
+		CMdSpi::CTickDataMap::iterator tick_iter = 
+			tradeConn->m_UserSpi->m_tick_data_map.find((LPCSTR)curr_ins);
+		
+		if ( tick_iter != tradeConn->m_UserSpi->m_tick_data_map.end() )
+		{
+			tick_data = tick_iter->second;
+		}
+		
+		m_InstrumentList.SetItemText(i, 1, tick_data.UpdateTime );
+		str.Format("%f", tick_data.LastPrice);
+		m_InstrumentList.SetItemText(i, 2, str );
+		str.Format("%f", tick_data.BidPrice1);
+		m_InstrumentList.SetItemText(i, 3, str );
+		str.Format("%u", tick_data.BidVolume1);
+		m_InstrumentList.SetItemText(i, 4, str );
+		str.Format("%f", tick_data.AskPrice1);
+		m_InstrumentList.SetItemText(i, 5, str );
+		str.Format("%u", tick_data.AskVolume1);
+		m_InstrumentList.SetItemText(i, 6, str );
+		str.Format("%u", tick_data.Volume);
+		m_InstrumentList.SetItemText(i, 7, str );
+		str.Format("%f", tick_data.OpenInterest);
+		m_InstrumentList.SetItemText(i, 8, str );
+		str.Format("%f", tick_data.OpenPrice);
+		m_InstrumentList.SetItemText(i, 9, str );
+		str.Format("%f", tick_data.PreSettlementPrice);
+		m_InstrumentList.SetItemText(i, 10, str );
+		str.Format("%f", tick_data.HighestPrice);
+		m_InstrumentList.SetItemText(i, 11, str );
+		str.Format("%f", tick_data.LowestPrice);
+		m_InstrumentList.SetItemText(i, 12, str );
+		str.Format("%f", tick_data.PreClosePrice);
+		m_InstrumentList.SetItemText(i, 13, str );
+		str.Format("%f", tick_data.Turnover);
+		m_InstrumentList.SetItemText(i, 14, str );
+	}
+}
+
+void CTradeSystemView::InitListCtrl()
+{
+	DWORD exstyle = m_AccountList.GetExtendedStyle();
+	m_AccountList.SetExtendedStyle(exstyle | LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES | WS_EX_STATICEDGE );
+	CRect rect;
+	m_AccountList.GetClientRect(&rect);
+	int nColInterval = rect.Width()/9;
+	m_AccountList.InsertColumn(0, _T("经纪代码"), LVCFMT_LEFT, nColInterval);
+	m_AccountList.InsertColumn(1, _T("帐号"), LVCFMT_LEFT, nColInterval);
+	m_AccountList.InsertColumn(2, _T("动态权益"), LVCFMT_LEFT, nColInterval);
+	m_AccountList.InsertColumn(3, _T("可用资金"), LVCFMT_LEFT, nColInterval);
+	m_AccountList.InsertColumn(4, _T("可取资金"), LVCFMT_LEFT, nColInterval);
+	m_AccountList.InsertColumn(5, _T("冻结资金"), LVCFMT_LEFT, nColInterval);
+	m_AccountList.InsertColumn(6, _T("平仓盈亏"), LVCFMT_LEFT, nColInterval);
+	m_AccountList.InsertColumn(7, _T("持仓盈亏"), LVCFMT_LEFT, nColInterval);
+	m_AccountList.InsertColumn(8, _T("保证金"), LVCFMT_LEFT, rect.Width()-8*nColInterval);
+
+	m_AccountList.InsertItem(0,"");
+
+	exstyle = m_InstrumentList.GetExtendedStyle();
+	m_InstrumentList.SetExtendedStyle(exstyle | LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES | WS_EX_STATICEDGE );
+	m_InstrumentList.GetClientRect(&rect);
+    nColInterval = rect.Width()/15;
+	m_InstrumentList.InsertColumn(0, _T("合约"), LVCFMT_LEFT, nColInterval);
+	m_InstrumentList.InsertColumn(1, _T("更新时间"), LVCFMT_LEFT, nColInterval);
+	m_InstrumentList.InsertColumn(2, _T("最新价"), LVCFMT_LEFT, nColInterval);
+	m_InstrumentList.InsertColumn(3, _T("买一价"), LVCFMT_LEFT, nColInterval);
+	m_InstrumentList.InsertColumn(4, _T("买一量"), LVCFMT_LEFT, nColInterval);
+	m_InstrumentList.InsertColumn(5, _T("卖一价"), LVCFMT_LEFT, nColInterval);
+	m_InstrumentList.InsertColumn(6, _T("卖一量"), LVCFMT_LEFT, nColInterval);
+	m_InstrumentList.InsertColumn(7, _T("成交量"), LVCFMT_LEFT, nColInterval);
+	m_InstrumentList.InsertColumn(8, _T("持仓量"), LVCFMT_LEFT, nColInterval);
+	m_InstrumentList.InsertColumn(9, _T("今开盘"), LVCFMT_LEFT, nColInterval);
+	m_InstrumentList.InsertColumn(10, _T("昨结算"), LVCFMT_LEFT, nColInterval);
+	m_InstrumentList.InsertColumn(11, _T("最高价"), LVCFMT_LEFT, nColInterval);
+	m_InstrumentList.InsertColumn(12, _T("最低价"), LVCFMT_LEFT, nColInterval);
+	m_InstrumentList.InsertColumn(13, _T("昨收盘"), LVCFMT_LEFT, nColInterval);
+	m_InstrumentList.InsertColumn(14, _T("成交额"), LVCFMT_LEFT, rect.Width()-14*nColInterval);
+
+	exstyle = m_PositionList.GetExtendedStyle();
+	m_PositionList.SetExtendedStyle(exstyle | LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES | WS_EX_STATICEDGE );
+	m_PositionList.GetClientRect(&rect);
+    nColInterval = rect.Width()/10;
+	m_PositionList.InsertColumn(0, _T("合约"), LVCFMT_LEFT, nColInterval);
+	m_PositionList.InsertColumn(1, _T("买卖"), LVCFMT_LEFT, nColInterval);
+	m_PositionList.InsertColumn(2, _T("总持仓"), LVCFMT_LEFT, nColInterval);
+	m_PositionList.InsertColumn(3, _T("昨仓"), LVCFMT_LEFT, nColInterval);
+	m_PositionList.InsertColumn(4, _T("今仓"), LVCFMT_LEFT, nColInterval);
+	m_PositionList.InsertColumn(5, _T("可平量"), LVCFMT_LEFT, nColInterval);
+	m_PositionList.InsertColumn(6, _T("持仓均价"), LVCFMT_LEFT, nColInterval);
+	m_PositionList.InsertColumn(7, _T("持仓盈亏"), LVCFMT_LEFT, nColInterval);
+	m_PositionList.InsertColumn(8, _T("占用保证金"), LVCFMT_LEFT, nColInterval);
+	m_PositionList.InsertColumn(9, _T("今开盘"), LVCFMT_LEFT, rect.Width()-9*nColInterval);
+
+	int i =0;
+	for (  i =0 ; i< iInstrumentID; i++)
+	{
+		m_InstrumentList.InsertItem(i, ppInstrumentID[i]);
+		m_PositionList.InsertItem(i, ppInstrumentID[i]);
+	}
+
+	m_InstrumentList.InsertItem(i+1, "沪深300");
 }
