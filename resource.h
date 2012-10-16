@@ -24,14 +24,13 @@
 #define IDC_LONG_POS                    1018
 #define IDC_SHORT_POS                   1019
 #define IDC_BUTTON1                     1020
-#define IDC_YDLONG_POS                  1020
 #define IDC_CLEAR_SHORT                 1021
 #define IDC_CLEAR_LONG                  1022
-#define IDC_ALGO_POS                    1023
-#define IDC_YDSHORT_POS                 1024
 #define IDC_ACCOUNT_LIST                1026
 #define IDC_INSTRUMENT_LIST             1027
 #define IDC_POSITION_LIST               1028
+#define IDC_ORDER_LIST                  1029
+#define IDC_TRADE_LIST                  1030
 
 // Next default values for new objects
 // 
@@ -40,7 +39,7 @@
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        130
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1029
+#define _APS_NEXT_CONTROL_VALUE         1031
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

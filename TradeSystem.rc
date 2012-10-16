@@ -168,43 +168,32 @@ BEGIN
     DEFPUSHBUTTON   "确定",IDOK,178,7,50,14,WS_GROUP
 END
 
-IDD_TRADESYSTEM_FORM DIALOGEX 0, 0, 831, 435
+IDD_TRADESYSTEM_FORM DIALOGEX 0, 0, 873, 507
 STYLE WS_CHILD
 FONT 9, "宋体"
 BEGIN
-    LTEXT           "Data Server: OFF ",IDC_MD_STATUS,749,19,75,8
-    LTEXT           "Trade Server: OFF",IDC_TRADE_STATUS,749,7,75,8
-    LTEXT           "ORDER COUNT:",IDC_ORDER_TOTAL,670,285,118,8
-    LTEXT           "Trade Count:",IDC_TRADE_TOTAL,666,259,126,8
-    LTEXT           "Order Details:",IDC_STATIC,27,229,57,8
-    EDITTEXT        IDC_ORDER_DETAIL,29,248,607,26,ES_MULTILINE | 
-                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | 
-                    WS_VSCROLL | WS_HSCROLL
-    EDITTEXT        IDC_TRADE_DETAIL,29,300,613,26,ES_MULTILINE | 
-                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | 
-                    WS_VSCROLL | WS_HSCROLL
-    LTEXT           "Trade Details:",IDC_STATIC,29,281,57,8
-    GROUPBOX        "Simulation Panel",IDC_STATIC,30,379,547,43
-    LTEXT           "Start Date:",IDC_STATIC,41,401,45,8
+    LTEXT           "Data Server: OFF ",IDC_MD_STATUS,791,19,75,8
+    LTEXT           "Trade Server: OFF",IDC_TRADE_STATUS,791,7,75,8
+    GROUPBOX        "Simulation Panel",IDC_STATIC,30,451,811,43
+    LTEXT           "Start Date:",IDC_STATIC,39,472,45,8
     CONTROL         "DateTimePicker2",IDC_DATETIME_START,"SysDateTimePick32",
-                    DTS_RIGHTALIGN | WS_TABSTOP,97,399,100,15
-    LTEXT           "End Date:",IDC_STATIC,231,402,37,8
+                    DTS_RIGHTALIGN | WS_TABSTOP,91,468,100,15
+    LTEXT           "End Date:",IDC_STATIC,361,471,37,8
     CONTROL         "DateTimePicker3",IDC_DATETIME_END,"SysDateTimePick32",
-                    DTS_RIGHTALIGN | WS_TABSTOP,285,397,100,15
-    PUSHBUTTON      "Start",IDC_SIMU_START,424,397,50,14
-    LTEXT           "Long Position:",IDC_LONG_POS,31,337,134,8
-    LTEXT           "Short Position:",IDC_SHORT_POS,231,335,137,8
-    PUSHBUTTON      "Clear Short",IDC_CLEAR_SHORT,409,358,50,14
-    PUSHBUTTON      "Clear Long",IDC_CLEAR_LONG,484,357,50,14
-    LTEXT           "Algorithm Position:",IDC_ALGO_POS,409,335,112,8
-    LTEXT           "Yd Long Position:",IDC_YDLONG_POS,32,358,134,8
-    LTEXT           "Yd Short Position:",IDC_YDSHORT_POS,229,360,134,8
+                    DTS_RIGHTALIGN | WS_TABSTOP,407,468,100,15
+    PUSHBUTTON      "开始模拟",IDC_SIMU_START,735,468,50,14
+    PUSHBUTTON      "清空仓",IDC_CLEAR_SHORT,205,197,50,14
+    PUSHBUTTON      "清多仓",IDC_CLEAR_LONG,581,198,50,14
     CONTROL         "List2",IDC_ACCOUNT_LIST,"SysListView32",LVS_REPORT | 
-                    LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,7,731,27
+                    LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,7,764,27
     CONTROL         "List3",IDC_INSTRUMENT_LIST,"SysListView32",LVS_REPORT | 
-                    WS_BORDER | WS_TABSTOP,7,55,817,50,WS_EX_STATICEDGE
+                    WS_BORDER | WS_TABSTOP,7,49,859,70,WS_EX_STATICEDGE
     CONTROL         "List4",IDC_POSITION_LIST,"SysListView32",LVS_REPORT | 
-                    WS_BORDER | WS_TABSTOP,7,122,817,50,WS_EX_STATICEDGE
+                    WS_BORDER | WS_TABSTOP,7,126,859,66,WS_EX_STATICEDGE
+    CONTROL         "List1",IDC_ORDER_LIST,"SysListView32",LVS_REPORT | 
+                    WS_BORDER | WS_TABSTOP,7,220,859,111
+    CONTROL         "List2",IDC_TRADE_LIST,"SysListView32",LVS_REPORT | 
+                    WS_BORDER | WS_TABSTOP,7,343,859,106
 END
 
 
@@ -270,9 +259,9 @@ BEGIN
     IDD_TRADESYSTEM_FORM, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 824
+        RIGHTMARGIN, 866
         TOPMARGIN, 7
-        BOTTOMMARGIN, 428
+        BOTTOMMARGIN, 494
     END
 END
 #endif    // APSTUDIO_INVOKED

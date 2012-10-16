@@ -209,20 +209,20 @@ void CTraderSpi::OnRspQryInvestorPosition(CThostFtdcInvestorPositionField *pInve
 		InvestorPosition pos;
 		
 		memset(&pos, 0, sizeof(pos));
-		
+		pos.Instrument = pInvestorPosition->InstrumentID;
 		if ( m_inv_pos.find(key) != m_inv_pos.end() )
 		{
 			pos = m_inv_pos[key];
 		}		
-		static bool is_of_today_state = false;
+		//static bool is_of_today_state = false;
 
 		if (pInvestorPosition->PositionDate == THOST_FTDC_PSD_Today)
 		{
-			if( is_of_today_state == false )
+			/*if( is_of_today_state == false )
 			{
 				is_of_today_state = true;
 				pos.YdLong = pos.YdShort =0;
-			}
+			}*/
 
 			if (pInvestorPosition->PosiDirection == THOST_FTDC_PD_Net)
 			{
@@ -233,27 +233,39 @@ void CTraderSpi::OnRspQryInvestorPosition(CThostFtdcInvestorPositionField *pInve
 			else if (pInvestorPosition->PosiDirection == THOST_FTDC_PD_Long)
 			{
 				pos.Long = pInvestorPosition->TodayPosition;
-				pos.YdLong = pInvestorPosition->Position-pInvestorPosition->TodayPosition;
+				//pos.YdLong = pInvestorPosition->Position-pInvestorPosition->TodayPosition;
+				pos.LongPositionCost = pInvestorPosition->PositionCost;
+				pos.LongPositionProfit = pInvestorPosition->PositionProfit;
+				pos.LongUseMargin = pInvestorPosition->UseMargin;
 			}
 			else
 			{
 				pos.Short = pInvestorPosition->TodayPosition;
-				pos.YdShort = pInvestorPosition->Position-pInvestorPosition->TodayPosition;
+				//pos.YdShort = pInvestorPosition->Position-pInvestorPosition->TodayPosition;
+				pos.ShortPositionCost = pInvestorPosition->PositionCost;
+				pos.ShortPositionProfit = pInvestorPosition->PositionProfit;
+				pos.ShortUseMargin = pInvestorPosition->UseMargin;
 			}
 		}
-		else if( !is_of_today_state )
+		else //if( !is_of_today_state )
 		{
 			if (pInvestorPosition->PosiDirection == THOST_FTDC_PD_Net)
 			{
-					pos.YdNet = pInvestorPosition->YdPosition;
+				pos.YdNet = pInvestorPosition->YdPosition;
 			}
 			else if (pInvestorPosition->PosiDirection == THOST_FTDC_PD_Long)
 			{
-					pos.YdLong = pInvestorPosition->YdPosition;
+				pos.YdLong = pInvestorPosition->YdPosition-pInvestorPosition->CloseVolume;
+				pos.YdLongPositionCost = pInvestorPosition->PositionCost;
+				pos.YdLongPositionProfit = pInvestorPosition->PositionProfit;
+				pos.YdLongUseMargin = pInvestorPosition->UseMargin;
 			}
 			else
 			{
-					pos.YdShort = pInvestorPosition->YdPosition;
+				pos.YdShort = pInvestorPosition->YdPosition-pInvestorPosition->CloseVolume;
+				pos.YdShortPositionCost = pInvestorPosition->PositionCost;
+				pos.YdShortPositionProfit = pInvestorPosition->PositionProfit;
+				pos.YdShortUseMargin = pInvestorPosition->UseMargin;
 			}
 		}
 
@@ -598,6 +610,52 @@ void CTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder)
 		m_log << "--->>> " << "WARNING OnRtnOrder fail"  << endl;
 		return;
 	}
+	else if (strlen(pOrder->OrderSysID) == 0)
+	{
+		return;
+	}
+	CString str;
+	CTradeSystemView* view = CTradeSystemView::GetCurrView();
+	if( view != NULL)
+	{
+		LVFINDINFO info;
+		int n;
+		
+		info.flags = LVFI_PARTIAL|LVFI_STRING;
+		info.psz = pOrder->OrderSysID;
+				
+		n = view->m_OrderList.FindItem(&info);
+		if( n == -1)
+		{
+			n = view->m_OrderList.GetItemCount();
+			view->m_OrderList.InsertItem(n, pOrder->OrderSysID);
+		}
+
+		view->m_OrderList.SetItemText(n, 1, pOrder->InstrumentID);
+
+		view->m_OrderList.SetItemText(n, 2, 
+			pOrder->Direction == THOST_FTDC_D_Sell? "卖" : "买");
+
+		str = GetTradeFlag(pOrder->CombOffsetFlag[0]);
+		view->m_OrderList.SetItemText(n, 3, str);	
+
+		str.Format("%u", pOrder->VolumeTotalOriginal);
+		view->m_OrderList.SetItemText(n, 4, str);	
+
+		str.Format("%u", pOrder->VolumeTotal);
+		view->m_OrderList.SetItemText(n, 5, str);	
+
+		str.Format("%u", pOrder->VolumeTraded);
+		view->m_OrderList.SetItemText(n, 6, str);
+
+		str.Format("%f", pOrder->LimitPrice);
+		view->m_OrderList.SetItemText(n, 7, str);	
+
+		view->m_OrderList.SetItemText(n, 8, pOrder->InsertTime);	
+
+		str = GetOrderPriceType(pOrder->OrderPriceType);
+		view->m_OrderList.SetItemText(n, 9, str);
+	}
 	OrderInfo order_req;
 
 	string key = pOrder->OrderSysID;
@@ -618,7 +676,9 @@ void CTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder)
         else
             return;*/
 	}
-    
+
+
+	
     ReqQryInstrument(pOrder->InstrumentID);
 
 	order_req.amount = pOrder->VolumeTotalOriginal;
@@ -692,45 +752,26 @@ void CTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade)
         amount,
 		is_buy,
 		is_open);
-	
-	
-	string display_str = pTrade->InstrumentID;
-	display_str+=", ";
-	display_str+=pTrade->TradeDate;
-	display_str+=" ";
-	display_str+=pTrade->TradeTime;
-	
-	if ( is_buy )
-		display_str += ", buy";
-	else
-		display_str += ", sell";
-
-	if (is_open )
-		display_str += ", open, ";
-	else
-		display_str += ", close, ";
-
-	char temp_buf[30];
-	sprintf(temp_buf, "price: %f, ", pTrade->Price);
-
-	display_str += temp_buf;
-
-	sprintf(temp_buf, "amount: %d", amount);
-
-	display_str += temp_buf;
-
-	m_TradeCount++;
 
 	CString str;
 	CTradeSystemView* view = CTradeSystemView::GetCurrView();
 	if( view != NULL)
 	{
-		view->m_TradeDetail.SetSel(-1,-1);
-		view->m_TradeDetail.ReplaceSel(display_str.c_str());
-		view->m_TradeDetail.SetSel(-1,-1);
-		view->m_TradeDetail.ReplaceSel("\r\n");
-		str.Format("Trade Count: %d", m_TradeCount);
-		view->m_TradeTotal.SetWindowText(str);
+		int n = view->m_TradeList.GetItemCount();
+		view->m_TradeList.InsertItem(n, pTrade->TradeID);
+		view->m_TradeList.SetItemText(n, 1, pTrade->OrderSysID);
+		view->m_TradeList.SetItemText(n, 2, pTrade->InstrumentID);	
+		view->m_TradeList.SetItemText(n, 3, 
+			pTrade->Direction == THOST_FTDC_D_Sell? "卖" : "买");
+		str = GetTradeFlag(pTrade->OffsetFlag);
+		view->m_TradeList.SetItemText(n, 4, str);	
+		str.Format("%f", pTrade->Price);
+		view->m_TradeList.SetItemText(n, 5, str);	
+		str.Format("%u", pTrade->Volume);
+		view->m_TradeList.SetItemText(n, 6, str);	
+		view->m_TradeList.SetItemText(n, 7, pTrade->TradeTime);	
+		str = GetTradeType( pTrade->TradeType );
+		view->m_TradeList.SetItemText(n, 8, str);	
 	}
 	
 	gThreadPool.Run(ExecSQL, (void*) buffer);
@@ -751,8 +792,7 @@ void CTraderSpi::StoreOrder(const OrderInfo& initialData, bool isRej)
 	{
 		insert_sql+= " Rejected Order";
 	}
-	else
-		m_OrderCount++;
+
 
 	sprintf(buffer, insert_sql.c_str(), 
 		initialData.m_instrumentID.c_str(),
@@ -764,40 +804,7 @@ void CTraderSpi::StoreOrder(const OrderInfo& initialData, bool isRej)
 		initialData.is_open
         );
 	
-	string display_str = initialData.m_instrumentID;
-	display_str+=", "+initialData.day+" "+initialData.time;
-	
-	if ( initialData.is_buy )
-		display_str += ", buy";
-	else
-		display_str += ", sell";
-
-	if (initialData.is_open )
-		display_str += ", open, ";
-	else
-		display_str += ", close, ";
-
-	char temp_buf[30];
-	sprintf(temp_buf, "price: %f, ", initialData.price);
-
-	display_str += temp_buf;
-
-	sprintf(temp_buf, "amount: %d", initialData.amount);
-
-	display_str += temp_buf;
-	
 	//conn.m_db->execSql(buffer);
-	CString str;
-	CTradeSystemView* view = CTradeSystemView::GetCurrView();
-	if( view != NULL)
-	{
-		view->m_OrderDetail.SetSel(-1,-1);
-		view->m_OrderDetail.ReplaceSel(display_str.c_str());
-		view->m_OrderDetail.SetSel(-1,-1);
-		view->m_OrderDetail.ReplaceSel("\r\n");
-		str.Format("Order Count: %d", m_OrderCount);
-		view->m_OrderTotal.SetWindowText(str);
-	}
 	
 	if (!isRej)
 		gThreadPool.Run(ExecSQL, (void*) buffer);
@@ -903,11 +910,23 @@ void CTraderSpi::ClearLongPos(string instrument, double price)
 	
 	///组合投机套保标志
 	req.CombHedgeFlag[0] = THOST_FTDC_HF_Speculation;
-	///价格
-	req.LimitPrice = price;
+	if (price<0) {
+		req.LimitPrice = 0;
+	}
+	else
+	{
+		req.LimitPrice = price;
+	}
+
 
 	///有效期类型: 当日有效
-	req.TimeCondition = THOST_FTDC_TC_GFD;
+	if (price<0) {
+		req.TimeCondition = THOST_FTDC_TC_IOC;
+	}
+	else
+	{
+		req.TimeCondition = THOST_FTDC_TC_GFD;
+	}
 	///GTD日期
 	//	TThostFtdcDateType	GTDDate;
 	///成交量类型: 任何数量
@@ -1001,11 +1020,23 @@ void CTraderSpi::ClearShortPos(string instrument, double price)
 	
 	///组合投机套保标志
 	req.CombHedgeFlag[0] = THOST_FTDC_HF_Speculation;
-	///价格
-	req.LimitPrice = price;
+	if (price<0) {
+		req.LimitPrice = 0;
+	}
+	else
+	{
+		req.LimitPrice = price;
+	}
+
 
 	///有效期类型: 当日有效
-	req.TimeCondition = THOST_FTDC_TC_GFD;
+	if (price<0) {
+		req.TimeCondition = THOST_FTDC_TC_IOC;
+	}
+	else
+	{
+		req.TimeCondition = THOST_FTDC_TC_GFD;
+	}
 	///GTD日期
 	//	TThostFtdcDateType	GTDDate;
 	///成交量类型: 任何数量
@@ -1074,4 +1105,140 @@ void CTraderSpi::CancelAllOrders(string instrument)
 		}
 		iter++;
 	}
+}
+
+CString CTraderSpi::GetTradeFlag(TThostFtdcOffsetFlagType flag)
+{
+/*
+///开仓
+#define THOST_FTDC_OF_Open '0'
+///平仓
+#define THOST_FTDC_OF_Close '1'
+///强平
+#define THOST_FTDC_OF_ForceClose '2'
+///平今
+#define THOST_FTDC_OF_CloseToday '3'
+///平昨
+#define THOST_FTDC_OF_CloseYesterday '4'
+*/
+	CString ret="";
+	switch(flag)
+	{
+	case THOST_FTDC_OF_Open:
+		ret = "开仓";
+		break;
+	case THOST_FTDC_OF_Close:
+		ret = "平仓";
+		break;
+	case THOST_FTDC_OF_ForceClose:
+		ret = "强平";
+		break;
+	case THOST_FTDC_OF_CloseToday:
+		ret = "平今";
+		break;
+	case THOST_FTDC_OF_CloseYesterday:
+		ret = "平昨";
+		break;
+	default:
+		ASSERT(FALSE);
+	}
+	return ret;
+}
+
+CString CTraderSpi::GetTradeType(TThostFtdcTradeTypeType type)
+{
+/*
+///普通成交
+#define THOST_FTDC_TRDT_Common '0'
+///期权执行
+#define THOST_FTDC_TRDT_OptionsExecution '1'
+///OTC成交
+#define THOST_FTDC_TRDT_OTC '2'
+///期转现衍生成交
+#define THOST_FTDC_TRDT_EFPDerived '3'
+///组合衍生成交
+#define THOST_FTDC_TRDT_CombinationDerived '4'
+
+typedef char TThostFtdcTradeTypeType;
+*/
+	CString ret="";
+	switch(type)
+	{
+	case THOST_FTDC_TRDT_Common:
+		ret = "普通成交";
+		break;
+	case THOST_FTDC_TRDT_OptionsExecution:
+		ret = "期权执行";
+		break;
+	case THOST_FTDC_TRDT_OTC:
+		ret = "OTC成交";
+		break;
+	case THOST_FTDC_TRDT_EFPDerived:
+		ret = "期转现衍生成交";
+		break;
+	case THOST_FTDC_TRDT_CombinationDerived:
+		ret = "组合衍生成交";
+		break;
+	default:
+		ret = "普通成交";
+	}
+	return ret;
+}
+
+CString CTraderSpi::GetOrderPriceType(TThostFtdcOrderPriceTypeType type)
+{
+/*
+/////////////////////////////////////////////////////////////////////////
+///TFtdcOrderPriceTypeType是一个报单价格条件类型
+/////////////////////////////////////////////////////////////////////////
+///任意价
+#define THOST_FTDC_OPT_AnyPrice '1'
+///限价
+#define THOST_FTDC_OPT_LimitPrice '2'
+///最优价
+#define THOST_FTDC_OPT_BestPrice '3'
+///最新价
+#define THOST_FTDC_OPT_LastPrice '4'
+///最新价浮动上浮1个ticks
+#define THOST_FTDC_OPT_LastPricePlusOneTicks '5'
+///最新价浮动上浮2个ticks
+#define THOST_FTDC_OPT_LastPricePlusTwoTicks '6'
+///最新价浮动上浮3个ticks
+#define THOST_FTDC_OPT_LastPricePlusThreeTicks '7'
+///卖一价
+#define THOST_FTDC_OPT_AskPrice1 '8'
+///卖一价浮动上浮1个ticks
+#define THOST_FTDC_OPT_AskPrice1PlusOneTicks '9'
+///卖一价浮动上浮2个ticks
+#define THOST_FTDC_OPT_AskPrice1PlusTwoTicks 'A'
+///卖一价浮动上浮3个ticks
+#define THOST_FTDC_OPT_AskPrice1PlusThreeTicks 'B'
+///买一价
+#define THOST_FTDC_OPT_BidPrice1 'C'
+///买一价浮动上浮1个ticks
+#define THOST_FTDC_OPT_BidPrice1PlusOneTicks 'D'
+///买一价浮动上浮2个ticks
+#define THOST_FTDC_OPT_BidPrice1PlusTwoTicks 'E'
+///买一价浮动上浮3个ticks
+#define THOST_FTDC_OPT_BidPrice1PlusThreeTicks 'F'
+*/
+	CString ret="";
+	switch(type)
+	{
+	case THOST_FTDC_OPT_AnyPrice:
+		ret = "任意价";
+		break;
+	case THOST_FTDC_OPT_LimitPrice:
+		ret = "限价";
+		break;
+	case THOST_FTDC_OPT_BestPrice:
+		ret = "最优价";
+		break;
+	case THOST_FTDC_OPT_LastPrice:
+		ret = "最新价";
+		break;
+	default:
+		ret = "其它类型";
+	}
+	return ret;
 }

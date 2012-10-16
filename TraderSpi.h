@@ -11,12 +11,25 @@ using namespace std;
 
 	struct InvestorPosition
 	{
+		string Instrument;
 		int  Net;
-		int	 Long;
+		int  Long;
 		int  Short;
 		int  YdNet;
 		int  YdLong;
 		int  YdShort;
+		double LongPositionCost;
+		double ShortPositionCost;
+		double LongPositionProfit;
+		double ShortPositionProfit;
+		double LongUseMargin;
+		double ShortUseMargin;
+		double YdLongPositionCost;
+		double YdShortPositionCost;
+		double YdLongPositionProfit;
+		double YdShortPositionProfit;
+		double YdLongUseMargin;
+		double YdShortUseMargin;
 	};
 class CTraderSpi : public CThostFtdcTraderSpi
 {
@@ -92,6 +105,9 @@ public:
 	// 是否正在交易的报单
 	bool IsTradingOrder(CThostFtdcOrderField *pOrder);
 private:
+	CString GetOrderPriceType(TThostFtdcOrderPriceTypeType type);
+	CString GetTradeType(TThostFtdcTradeTypeType type);
+	CString GetTradeFlag(TThostFtdcOffsetFlagType flag);
 
 	void StoreOrder(const OrderInfo& initialData, bool isRej=false);
 	CThostFtdcTraderApi* m_pTradeApi;

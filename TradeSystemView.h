@@ -19,21 +19,14 @@ protected: // create from serialization only
 public:
 	//{{AFX_DATA(CTradeSystemView)
 	enum { IDD = IDD_TRADESYSTEM_FORM };
+	CListCtrl	m_OrderList;
+	CListCtrl	m_TradeList;
 	CListCtrl	m_PositionList;
 	CListCtrl	m_InstrumentList;
 	CListCtrl	m_AccountList;
-	CStatic	m_YdShortPos;
-	CStatic	m_YdLongPos;
-	CStatic	m_AlgoPos;
-	CStatic	m_ShortPos;
-	CStatic	m_LongPos;
 	CDateTimeCtrl	m_DateEnd;
 	CDateTimeCtrl	m_DateStart;
-	CStatic	m_TradeTotal;
 	CStatic	m_TradeStatus;
-	CEdit	m_TradeDetail;
-	CStatic	m_OrderTotal;
-	CEdit	m_OrderDetail;
 	CStatic	m_MDStatus;
 	//}}AFX_DATA
 
@@ -85,6 +78,7 @@ protected:
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 private:
+	void UpdatePosition();
 	void InitListCtrl();
 	void RefreshForm();
 	CString GetActiveInstrument();
