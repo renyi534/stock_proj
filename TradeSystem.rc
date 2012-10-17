@@ -168,20 +168,20 @@ BEGIN
     DEFPUSHBUTTON   "确定",IDOK,178,7,50,14,WS_GROUP
 END
 
-IDD_TRADESYSTEM_FORM DIALOGEX 0, 0, 873, 507
+IDD_TRADESYSTEM_FORM DIALOGEX 0, 0, 873, 525
 STYLE WS_CHILD
 FONT 9, "宋体"
 BEGIN
-    LTEXT           "Data Server: OFF ",IDC_MD_STATUS,791,19,75,8
-    LTEXT           "Trade Server: OFF",IDC_TRADE_STATUS,791,7,75,8
-    GROUPBOX        "Simulation Panel",IDC_STATIC,30,451,811,43
-    LTEXT           "Start Date:",IDC_STATIC,39,472,45,8
+    LTEXT           "数据服务器: OFF ",IDC_MD_STATUS,791,19,75,8
+    LTEXT           "交易服务器: OFF",IDC_TRADE_STATUS,791,7,75,8
+    GROUPBOX        "模拟面板",IDC_STATIC,29,456,811,49
+    LTEXT           "起始日:",IDC_STATIC,39,480,29,8
     CONTROL         "DateTimePicker2",IDC_DATETIME_START,"SysDateTimePick32",
-                    DTS_RIGHTALIGN | WS_TABSTOP,91,468,100,15
-    LTEXT           "End Date:",IDC_STATIC,361,471,37,8
+                    DTS_RIGHTALIGN | WS_TABSTOP,91,477,100,15
+    LTEXT           "结束日:",IDC_STATIC,360,481,29,8
     CONTROL         "DateTimePicker3",IDC_DATETIME_END,"SysDateTimePick32",
-                    DTS_RIGHTALIGN | WS_TABSTOP,407,468,100,15
-    PUSHBUTTON      "开始模拟",IDC_SIMU_START,735,468,50,14
+                    DTS_RIGHTALIGN | WS_TABSTOP,406,475,100,15
+    PUSHBUTTON      "开始模拟",IDC_SIMU_START,735,477,50,14
     PUSHBUTTON      "清空仓",IDC_CLEAR_SHORT,205,197,50,14
     PUSHBUTTON      "清多仓",IDC_CLEAR_LONG,581,198,50,14
     CONTROL         "List2",IDC_ACCOUNT_LIST,"SysListView32",LVS_REPORT | 
@@ -190,10 +190,9 @@ BEGIN
                     WS_BORDER | WS_TABSTOP,7,49,859,70,WS_EX_STATICEDGE
     CONTROL         "List4",IDC_POSITION_LIST,"SysListView32",LVS_REPORT | 
                     WS_BORDER | WS_TABSTOP,7,126,859,66,WS_EX_STATICEDGE
-    CONTROL         "List1",IDC_ORDER_LIST,"SysListView32",LVS_REPORT | 
-                    WS_BORDER | WS_TABSTOP,7,220,859,111
-    CONTROL         "List2",IDC_TRADE_LIST,"SysListView32",LVS_REPORT | 
-                    WS_BORDER | WS_TABSTOP,7,343,859,106
+    CONTROL         "Tab1",IDC_TRADE_TAB,"SysTabControl32",0x0,7,223,859,228
+    LTEXT           "Copyright ? 2012 PhotonHedge, All Rights Reserved",
+                    IDC_STATIC,663,510,203,8
 END
 
 
@@ -261,7 +260,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 866
         TOPMARGIN, 7
-        BOTTOMMARGIN, 494
+        BOTTOMMARGIN, 518
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -274,12 +273,12 @@ END
 
 STRINGTABLE PRELOAD DISCARDABLE 
 BEGIN
-    IDR_MAINFRAME           "TradeSystem\n\nTradeS\n\n\nTradeSystem.Document\nTradeS Document"
+    IDR_MAINFRAME           "光子量化交易系统\n\nTradeS\n\n\nTradeSystem.Document\nTradeS Document"
 END
 
 STRINGTABLE PRELOAD DISCARDABLE 
 BEGIN
-    AFX_IDS_APP_TITLE       "TradeSystem"
+    AFX_IDS_APP_TITLE       "光子量化交易系统"
     AFX_IDS_IDLEMESSAGE     "就绪"
 END
 
@@ -384,9 +383,72 @@ END
 STRINGTABLE DISCARDABLE 
 BEGIN
     AFX_IDS_PREVIEW_CLOSE   "关闭打印预览模式\n取消预阅"
+    ID_INDICATOR_CLOCK      "00:00:00"
 END
 
 #endif    // Chinese (P.R.C.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ORDER_TRADE DIALOG DISCARDABLE  0, 0, 862, 218
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "List1",IDC_ORDER_LIST,"SysListView32",LVS_REPORT | 
+                    WS_BORDER | WS_TABSTOP,7,15,848,82
+    CONTROL         "List2",IDC_TRADE_LIST,"SysListView32",LVS_REPORT | 
+                    WS_BORDER | WS_TABSTOP,7,115,848,88
+END
+
+IDD_ALGORITHM_DLG DIALOG DISCARDABLE  0, 0, 185, 93
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "ToDo",IDC_STATIC,33,32,17,8
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_ORDER_TRADE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 855
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 211
+    END
+
+    IDD_ALGORITHM_DLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 178
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 86
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

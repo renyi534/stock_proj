@@ -63,7 +63,7 @@ void CMdSpi::OnFrontDisconnected(int nReason)
 	CTradeSystemView* view = CTradeSystemView::GetCurrView();
 	if( view != NULL)
 	{
-	str.Format("Data Server: %s", "OFF");
+	str.Format("数据服务器: %s", "OFF");
 	view->m_MDStatus.SetWindowText(str);
 	}
 }
@@ -83,7 +83,7 @@ void CMdSpi::OnFrontConnected()
 	CTradeSystemView* view = CTradeSystemView::GetCurrView();
 	if( view != NULL)
 	{
-	str.Format("Data Server: %s", "ON");
+	str.Format("数据服务器: %s", "ON");
 	view->m_MDStatus.SetWindowText(str);
 	}
 }

@@ -137,6 +137,10 @@ SOURCE=.\MessageRouter.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\OrderTradeDlg.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\RandomAlgorithm.cpp
 # End Source File
 # Begin Source File
@@ -147,6 +151,14 @@ SOURCE=.\StdAfx.cpp
 # Begin Source File
 
 SOURCE=.\StockRetriever.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\TabCtrlSSL.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\TabPageSSL.cpp
 # End Source File
 # Begin Source File
 
@@ -246,6 +258,10 @@ SOURCE=.\OneMinuteData.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\OrderTradeDlg.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\RandomAlgorithm.h
 # End Source File
 # Begin Source File
@@ -263,6 +279,14 @@ SOURCE=.\StdAfx.h
 # Begin Source File
 
 SOURCE=.\StockRetriever.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\TabCtrlSSL.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\TabPageSSL.h
 # End Source File
 # Begin Source File
 

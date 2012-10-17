@@ -8,8 +8,8 @@
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000
-
-
+#include "OrderTradeDlg.h"
+#include "TabCtrlSSL.h"
 class CTradeSystemView : public CFormView
 {
 protected: // create from serialization only
@@ -19,8 +19,7 @@ protected: // create from serialization only
 public:
 	//{{AFX_DATA(CTradeSystemView)
 	enum { IDD = IDD_TRADESYSTEM_FORM };
-	CListCtrl	m_OrderList;
-	CListCtrl	m_TradeList;
+	CTabCtrlSSL	m_TradeTab;
 	CListCtrl	m_PositionList;
 	CListCtrl	m_InstrumentList;
 	CListCtrl	m_AccountList;
@@ -32,6 +31,7 @@ public:
 
 	double m_BidPrice;
 	double m_AskPrice;
+	COrderTradeDlg m_OrderTradeDlg;
 // Attributes
 public:
 	CTradeSystemDoc* GetDocument();

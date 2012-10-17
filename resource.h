@@ -6,6 +6,8 @@
 #define IDD_TRADESYSTEM_FORM            101
 #define IDR_MAINFRAME                   128
 #define IDR_TRADESTYPE                  129
+#define IDD_ORDER_TRADE                 130
+#define IDD_ALGORITHM_DLG               131
 #define IDC_INS_LABEL                   1000
 #define IDC_INSTRUMENT_COMBO            1001
 #define IDC_MD_STATUS                   1002
@@ -31,15 +33,17 @@
 #define IDC_POSITION_LIST               1028
 #define IDC_ORDER_LIST                  1029
 #define IDC_TRADE_LIST                  1030
+#define IDC_TRADE_TAB                   1033
+#define ID_INDICATOR_CLOCK              61446+1
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        130
+#define _APS_NEXT_RESOURCE_VALUE        132
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1031
+#define _APS_NEXT_CONTROL_VALUE         1034
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

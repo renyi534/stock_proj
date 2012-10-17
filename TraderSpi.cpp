@@ -37,7 +37,7 @@ void CTraderSpi::OnFrontConnected()
 	CTradeSystemView* view = CTradeSystemView::GetCurrView();
 	if( view != NULL)
 	{
-		str.Format("Trade Server: %s", "ON");
+		str.Format("交易服务器: %s", "ON");
 		view->m_TradeStatus.SetWindowText(str);
 	}
 }
@@ -624,37 +624,37 @@ void CTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder)
 		info.flags = LVFI_PARTIAL|LVFI_STRING;
 		info.psz = pOrder->OrderSysID;
 				
-		n = view->m_OrderList.FindItem(&info);
+		n = view->m_OrderTradeDlg.m_OrderList.FindItem(&info);
 		if( n == -1)
 		{
-			n = view->m_OrderList.GetItemCount();
-			view->m_OrderList.InsertItem(n, pOrder->OrderSysID);
+			n = view->m_OrderTradeDlg.m_OrderList.GetItemCount();
+			view->m_OrderTradeDlg.m_OrderList.InsertItem(n, pOrder->OrderSysID);
 		}
 
-		view->m_OrderList.SetItemText(n, 1, pOrder->InstrumentID);
+		view->m_OrderTradeDlg.m_OrderList.SetItemText(n, 1, pOrder->InstrumentID);
 
-		view->m_OrderList.SetItemText(n, 2, 
-			pOrder->Direction == THOST_FTDC_D_Sell? "卖" : "买");
+		view->m_OrderTradeDlg.m_OrderList.SetItemText(n, 2, 
+			pOrder->Direction == THOST_FTDC_D_Sell? "    卖" : "买");
 
 		str = GetTradeFlag(pOrder->CombOffsetFlag[0]);
-		view->m_OrderList.SetItemText(n, 3, str);	
+		view->m_OrderTradeDlg.m_OrderList.SetItemText(n, 3, str);	
 
 		str.Format("%u", pOrder->VolumeTotalOriginal);
-		view->m_OrderList.SetItemText(n, 4, str);	
+		view->m_OrderTradeDlg.m_OrderList.SetItemText(n, 4, str);	
 
 		str.Format("%u", pOrder->VolumeTotal);
-		view->m_OrderList.SetItemText(n, 5, str);	
+		view->m_OrderTradeDlg.m_OrderList.SetItemText(n, 5, str);	
 
 		str.Format("%u", pOrder->VolumeTraded);
-		view->m_OrderList.SetItemText(n, 6, str);
+		view->m_OrderTradeDlg.m_OrderList.SetItemText(n, 6, str);
 
-		str.Format("%f", pOrder->LimitPrice);
-		view->m_OrderList.SetItemText(n, 7, str);	
+		str.Format("%.2f", pOrder->LimitPrice);
+		view->m_OrderTradeDlg.m_OrderList.SetItemText(n, 7, str);	
 
-		view->m_OrderList.SetItemText(n, 8, pOrder->InsertTime);	
+		view->m_OrderTradeDlg.m_OrderList.SetItemText(n, 8, pOrder->InsertTime);	
 
 		str = GetOrderPriceType(pOrder->OrderPriceType);
-		view->m_OrderList.SetItemText(n, 9, str);
+		view->m_OrderTradeDlg.m_OrderList.SetItemText(n, 9, str);
 	}
 	OrderInfo order_req;
 
@@ -731,7 +731,7 @@ void CTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade)
 	//DbConn conn(dbAccessPool);
 	char* buffer= new char[2048];
 	string insert_sql = "insert into stock_data.trade_details(instrument_id, trans_day, trans_time, price, amount, is_buy, is_open) "
-		"values('%s','%s','%s',%f,%d,%d,%d)";
+		"values('%s','%s','%s',%.2f,%d,%d,%d)";
 	
     int amount = pTrade->Volume;
 	
@@ -757,21 +757,21 @@ void CTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade)
 	CTradeSystemView* view = CTradeSystemView::GetCurrView();
 	if( view != NULL)
 	{
-		int n = view->m_TradeList.GetItemCount();
-		view->m_TradeList.InsertItem(n, pTrade->TradeID);
-		view->m_TradeList.SetItemText(n, 1, pTrade->OrderSysID);
-		view->m_TradeList.SetItemText(n, 2, pTrade->InstrumentID);	
-		view->m_TradeList.SetItemText(n, 3, 
-			pTrade->Direction == THOST_FTDC_D_Sell? "卖" : "买");
+		int n = view->m_OrderTradeDlg.m_TradeList.GetItemCount();
+		view->m_OrderTradeDlg.m_TradeList.InsertItem(n, pTrade->TradeID);
+		view->m_OrderTradeDlg.m_TradeList.SetItemText(n, 1, pTrade->OrderSysID);
+		view->m_OrderTradeDlg.m_TradeList.SetItemText(n, 2, pTrade->InstrumentID);	
+		view->m_OrderTradeDlg.m_TradeList.SetItemText(n, 3, 
+			pTrade->Direction == THOST_FTDC_D_Sell? "    卖" : "买");
 		str = GetTradeFlag(pTrade->OffsetFlag);
-		view->m_TradeList.SetItemText(n, 4, str);	
-		str.Format("%f", pTrade->Price);
-		view->m_TradeList.SetItemText(n, 5, str);	
+		view->m_OrderTradeDlg.m_TradeList.SetItemText(n, 4, str);	
+		str.Format("%.2f", pTrade->Price);
+		view->m_OrderTradeDlg.m_TradeList.SetItemText(n, 5, str);	
 		str.Format("%u", pTrade->Volume);
-		view->m_TradeList.SetItemText(n, 6, str);	
-		view->m_TradeList.SetItemText(n, 7, pTrade->TradeTime);	
+		view->m_OrderTradeDlg.m_TradeList.SetItemText(n, 6, str);	
+		view->m_OrderTradeDlg.m_TradeList.SetItemText(n, 7, pTrade->TradeTime);	
 		str = GetTradeType( pTrade->TradeType );
-		view->m_TradeList.SetItemText(n, 8, str);	
+		view->m_OrderTradeDlg.m_TradeList.SetItemText(n, 8, str);	
 	}
 	
 	gThreadPool.Run(ExecSQL, (void*) buffer);
@@ -786,7 +786,7 @@ void CTraderSpi::StoreOrder(const OrderInfo& initialData, bool isRej)
 	//DbConn conn(dbAccessPool);
 	char* buffer= new char[2048];
 	string insert_sql = "insert into stock_data.order_details(instrument_id, trans_day, trans_time, price, amount,is_buy,is_open) "
-		"values('%s','%s','%s',%f,%d,%d,%d)";
+		"values('%s','%s','%s',%.2f,%d,%d,%d)";
 
 	if (isRej)
 	{
@@ -819,7 +819,7 @@ void CTraderSpi::OnFrontDisconnected(int nReason)
 	CTradeSystemView* view = CTradeSystemView::GetCurrView();
 	if( view != NULL)
 	{
-		str.Format("Trade Server: %s", "OFF");
+		str.Format("交易服务器: %s", "OFF");
 		view->m_TradeStatus.SetWindowText(str);
 	}
 }

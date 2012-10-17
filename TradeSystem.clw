@@ -2,29 +2,35 @@
 
 [General Info]
 Version=1
-LastClass=CTradeSystemView
+LastClass=CMainFrame
 LastTemplate=CDialog
 NewFileInclude1=#include "stdafx.h"
 NewFileInclude2=#include "tradesystem.h"
 LastPage=0
 
-ClassCount=5
+ClassCount=6
 Class1=CMainFrame
 Class2=CTradeSystemApp
 Class3=CAboutDlg
 Class4=CTradeSystemDoc
 Class5=CTradeSystemView
 
-ResourceCount=3
-Resource1=IDR_MAINFRAME
-Resource2=IDD_ABOUTBOX
+ResourceCount=5
+Resource1=IDD_ABOUTBOX
+Resource2=IDD_ORDER_TRADE (English (U.S.))
 Resource3=IDD_TRADESYSTEM_FORM
+Class6=COrderTradeDlg
+Resource4=IDR_MAINFRAME
+Resource5=IDD_ALGORITHM_DLG (English (U.S.))
 
 [CLS:CMainFrame]
 Type=0
 BaseClass=CFrameWnd
 HeaderFile=MainFrm.h
 ImplementationFile=MainFrm.cpp
+Filter=T
+VirtualFilter=fWC
+LastObject=CMainFrame
 
 [CLS:CTradeSystemApp]
 Type=0
@@ -53,7 +59,7 @@ HeaderFile=TradeSystemView.h
 ImplementationFile=TradeSystemView.cpp
 Filter=D
 VirtualFilter=VWC
-LastObject=CTradeSystemView
+LastObject=IDC_TRADE_STATUS
 
 [DLG:IDD_ABOUTBOX]
 Type=1
@@ -81,8 +87,8 @@ Control10=IDC_CLEAR_LONG,button,1342242816
 Control11=IDC_ACCOUNT_LIST,SysListView32,1350633473
 Control12=IDC_INSTRUMENT_LIST,SysListView32,1350631425
 Control13=IDC_POSITION_LIST,SysListView32,1350631425
-Control14=IDC_ORDER_LIST,SysListView32,1350631425
-Control15=IDC_TRADE_LIST,SysListView32,1350631425
+Control14=IDC_TRADE_TAB,SysTabControl32,1342177280
+Control15=IDC_STATIC,static,1342308352
 
 [TB:IDR_MAINFRAME]
 Type=1
@@ -130,4 +136,26 @@ Command12=ID_EDIT_PASTE
 Command13=ID_NEXT_PANE
 Command14=ID_PREV_PANE
 CommandCount=14
+
+[DLG:IDD_ORDER_TRADE (English (U.S.))]
+Type=1
+Class=COrderTradeDlg
+ControlCount=2
+Control1=IDC_ORDER_LIST,SysListView32,1350631425
+Control2=IDC_TRADE_LIST,SysListView32,1350631425
+
+[CLS:COrderTradeDlg]
+Type=0
+HeaderFile=OrderTradeDlg.h
+ImplementationFile=OrderTradeDlg.cpp
+BaseClass=CDialog
+Filter=D
+VirtualFilter=dWC
+LastObject=COrderTradeDlg
+
+[DLG:IDD_ALGORITHM_DLG (English (U.S.))]
+Type=1
+Class=?
+ControlCount=1
+Control1=IDC_STATIC,static,1342308352
 
