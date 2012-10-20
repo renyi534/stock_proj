@@ -170,7 +170,7 @@ END
 
 IDD_TRADESYSTEM_FORM DIALOGEX 0, 0, 873, 525
 STYLE WS_CHILD
-FONT 9, "宋体", 0, 0, 0x1
+FONT 9, "宋体"
 BEGIN
     LTEXT           "数据服务器: OFF ",IDC_MD_STATUS,791,19,75,8
     LTEXT           "交易服务器: OFF",IDC_TRADE_STATUS,791,7,75,8
@@ -191,7 +191,7 @@ BEGIN
     CONTROL         "List4",IDC_POSITION_LIST,"SysListView32",LVS_REPORT | 
                     WS_BORDER | WS_TABSTOP,7,126,859,66,WS_EX_STATICEDGE
     CONTROL         "Tab1",IDC_TRADE_TAB,"SysTabControl32",0x0,7,223,859,228
-    LTEXT           "Copyright ? 2012 PhotonHedge, All Rights Reserved",
+    LTEXT           "Copyright 2012 PhotonHedge, All Rights Reserved",
                     IDC_STATIC,663,510,203,8
 END
 
