@@ -170,7 +170,7 @@ END
 
 IDD_TRADESYSTEM_FORM DIALOGEX 0, 0, 873, 525
 STYLE WS_CHILD
-FONT 9, "宋体"
+FONT 9, "宋体", 0, 0, 0x1
 BEGIN
     LTEXT           "数据服务器: OFF ",IDC_MD_STATUS,791,19,75,8
     LTEXT           "交易服务器: OFF",IDC_TRADE_STATUS,791,7,75,8
@@ -195,6 +195,61 @@ BEGIN
                     IDC_STATIC,663,510,203,8
 END
 
+IDD_ORDER_TRADE DIALOG DISCARDABLE  0, 0, 862, 218
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "List1",IDC_ORDER_LIST,"SysListView32",LVS_REPORT | 
+                    WS_BORDER | WS_TABSTOP,7,15,838,82
+    CONTROL         "List2",IDC_TRADE_LIST,"SysListView32",LVS_REPORT | 
+                    WS_BORDER | WS_TABSTOP,7,115,838,88
+END
+
+IDD_ALGORITHM_DLG DIALOG DISCARDABLE  0, 0, 861, 217
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "ToDo",IDC_STATIC,33,32,17,8
+    CONTROL         "Tree1",IDC_ALGO_TREE,"SysTreeView32",TVS_HASBUTTONS | 
+                    TVS_HASLINES | TVS_LINESATROOT | TVS_SINGLEEXPAND | 
+                    WS_TABSTOP,7,7,98,197
+    LTEXT           "算法状态",IDC_STATIC,118,40,43,8
+    EDITTEXT        IDC_EDIT1,175,7,196,71,ES_AUTOHSCROLL | WS_DISABLED
+    LTEXT           "报单记录",IDC_STATIC,116,133,45,8
+    EDITTEXT        IDC_EDIT2,175,108,196,83,ES_AUTOHSCROLL | WS_DISABLED
+    GROUPBOX        "开停算法",IDC_STATIC,402,17,102,60
+    CONTROL         "激活",IDC_RADIO1,"Button",BS_AUTORADIOBUTTON | WS_GROUP,
+                    421,33,31,10
+    CONTROL         "去激活",IDC_RADIO2,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,421,57,38,10
+    LTEXT           "仓位上限设置",IDC_STATIC,405,109,61,8
+    EDITTEXT        IDC_EDIT3,476,105,54,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT4,475,142,54,14,ES_AUTOHSCROLL
+    LTEXT           "资金上限设置",IDC_STATIC,405,145,61,8
+    LTEXT           "当前持仓调整",IDC_STATIC,405,175,63,8
+    EDITTEXT        IDC_EDIT5,475,172,54,14,ES_AUTOHSCROLL
+    LTEXT           "内部参数设置",IDC_STATIC,531,41,70,8
+    EDITTEXT        IDC_EDIT6,616,7,232,73,ES_AUTOHSCROLL
+    PUSHBUTTON      "应用设置",IDC_BUTTON1,636,173,50,14
+    PUSHBUTTON      "回退设置",IDC_BUTTON2,767,171,50,14
+    GROUPBOX        "盈亏情况：",IDC_STATIC,559,95,288,66
+    LTEXT           "日盈亏",IDC_STATIC,569,113,35,8
+    EDITTEXT        IDC_EDIT7,611,113,61,14,ES_AUTOHSCROLL | WS_DISABLED
+    LTEXT           "周盈亏",IDC_STATIC,569,140,36,8
+    EDITTEXT        IDC_EDIT8,611,140,62,14,ES_AUTOHSCROLL | WS_DISABLED
+    LTEXT           "年盈亏",IDC_STATIC,716,113,43,8
+    EDITTEXT        IDC_EDIT9,773,113,61,14,ES_AUTOHSCROLL | WS_DISABLED
+    LTEXT           "总盈亏",IDC_STATIC,717,140,43,8
+    EDITTEXT        IDC_EDIT10,773,140,61,14,ES_AUTOHSCROLL | WS_DISABLED
+END
+
+IDD_RISK_DLG DIALOG DISCARDABLE  0, 0, 185, 93
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "TODO: layout formview",IDC_STATIC,55,42,74,8
+END
+
 
 #ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////
@@ -217,8 +272,9 @@ VS_VERSION_INFO VERSIONINFO
 BEGIN
     BLOCK "StringFileInfo"
     BEGIN
-        BLOCK "080404B0"
+        BLOCK "080404b0"
         BEGIN
+            VALUE "Comments", "\0"
             VALUE "CompanyName", "\0"
             VALUE "FileDescription", "TradeSystem Microsoft 基础类应用程序\0"
             VALUE "FileVersion", "1, 0, 0, 1\0"
@@ -226,8 +282,10 @@ BEGIN
             VALUE "LegalCopyright", "版权所有 (C) 2012\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "TradeSystem.EXE\0"
+            VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "TradeSystem 应用程序\0"
             VALUE "ProductVersion", "1, 0, 0, 1\0"
+            VALUE "SpecialBuild", "\0"
         END
     END
     BLOCK "VarFileInfo"
@@ -261,6 +319,30 @@ BEGIN
         RIGHTMARGIN, 866
         TOPMARGIN, 7
         BOTTOMMARGIN, 518
+    END
+
+    IDD_ORDER_TRADE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 855
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 211
+    END
+
+    IDD_ALGORITHM_DLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 854
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 210
+    END
+
+    IDD_RISK_DLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 178
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 86
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -387,68 +469,6 @@ BEGIN
 END
 
 #endif    // Chinese (P.R.C.) resources
-/////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////
-// English (U.S.) resources
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-#ifdef _WIN32
-LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
-#pragma code_page(1252)
-#endif //_WIN32
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Dialog
-//
-
-IDD_ORDER_TRADE DIALOG DISCARDABLE  0, 0, 862, 218
-STYLE WS_CHILD
-FONT 8, "MS Sans Serif"
-BEGIN
-    CONTROL         "List1",IDC_ORDER_LIST,"SysListView32",LVS_REPORT | 
-                    WS_BORDER | WS_TABSTOP,7,15,848,82
-    CONTROL         "List2",IDC_TRADE_LIST,"SysListView32",LVS_REPORT | 
-                    WS_BORDER | WS_TABSTOP,7,115,848,88
-END
-
-IDD_ALGORITHM_DLG DIALOG DISCARDABLE  0, 0, 185, 93
-STYLE WS_CHILD
-FONT 8, "MS Sans Serif"
-BEGIN
-    LTEXT           "ToDo",IDC_STATIC,33,32,17,8
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// DESIGNINFO
-//
-
-#ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO DISCARDABLE 
-BEGIN
-    IDD_ORDER_TRADE, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 855
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 211
-    END
-
-    IDD_ALGORITHM_DLG, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 178
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 86
-    END
-END
-#endif    // APSTUDIO_INVOKED
-
-#endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

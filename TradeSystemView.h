@@ -9,6 +9,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 #include "OrderTradeDlg.h"
+#include "AlgorithmCfgDlg.h"
 #include "TabCtrlSSL.h"
 class CTradeSystemView : public CFormView
 {
@@ -32,6 +33,7 @@ public:
 	double m_BidPrice;
 	double m_AskPrice;
 	COrderTradeDlg m_OrderTradeDlg;
+	CAlgorithmCfgDlg m_AlgorithmCfgDlg;
 // Attributes
 public:
 	CTradeSystemDoc* GetDocument();

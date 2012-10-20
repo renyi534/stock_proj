@@ -101,6 +101,10 @@ SOURCE=.\Algorithm.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\AlgorithmCfgDlg.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\DataSimulator.cpp
 # End Source File
 # Begin Source File
@@ -195,6 +199,10 @@ SOURCE=.\WeightedAlgorithm.cpp
 # Begin Source File
 
 SOURCE=.\Algorithm.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\AlgorithmCfgDlg.h
 # End Source File
 # Begin Source File
 

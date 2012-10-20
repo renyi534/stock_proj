@@ -88,10 +88,12 @@ void CTradeSystemView::OnInitialUpdate()
 
 	m_OrderTradeDlg.Create(IDD_ORDER_TRADE, this);
 	
+	m_AlgorithmCfgDlg.Create(IDD_ALGORITHM_DLG, this);
+
 	m_TradeTab.AddSSLPage(_T("成交记录"), nPageID++, &m_OrderTradeDlg);
-	m_TradeTab.AddSSLPage(_T("算法管理"), nPageID++, IDD_ALGORITHM_DLG);
-	m_TradeTab.AddSSLPage(_T("资金管理"), nPageID++, IDD_ALGORITHM_DLG);
-	m_TradeTab.AddSSLPage(_T("风险控制"), nPageID++, IDD_ALGORITHM_DLG);
+	m_TradeTab.AddSSLPage(_T("算法管理"), nPageID++, &m_AlgorithmCfgDlg);
+	m_TradeTab.AddSSLPage(_T("资金管理"), nPageID++, IDD_RISK_DLG);
+	m_TradeTab.AddSSLPage(_T("风险控制"), nPageID++, IDD_RISK_DLG);
 
 	m_RefreshFormTimer = SetTimer(1, 1000, 0);	
 	m_RefreshPosTimer  = SetTimer(2, 10000, 0);	
