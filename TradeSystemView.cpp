@@ -26,28 +26,28 @@ extern char HS300_URL[];
 IMPLEMENT_DYNCREATE(CTradeSystemView, CFormView)
 
 BEGIN_MESSAGE_MAP(CTradeSystemView, CFormView)
-	//{{AFX_MSG_MAP(CTradeSystemView)
-	ON_BN_CLICKED(IDC_SIMU_START, OnSimuStart)
-	ON_BN_CLICKED(IDC_CLEAR_SHORT, OnClearShort)
-	ON_BN_CLICKED(IDC_CLEAR_LONG, OnClearLong)
-	ON_WM_TIMER()
-	//}}AFX_MSG_MAP
-	// Standard printing commands
-	ON_COMMAND(ID_FILE_PRINT, CFormView::OnFilePrint)
-	ON_COMMAND(ID_FILE_PRINT_DIRECT, CFormView::OnFilePrint)
-	ON_COMMAND(ID_FILE_PRINT_PREVIEW, CFormView::OnFilePrintPreview)
+//{{AFX_MSG_MAP(CTradeSystemView)
+ON_BN_CLICKED(IDC_SIMU_START, OnSimuStart)
+ON_BN_CLICKED(IDC_CLEAR_SHORT, OnClearShort)
+ON_BN_CLICKED(IDC_CLEAR_LONG, OnClearLong)
+ON_WM_TIMER()
+//}}AFX_MSG_MAP
+// Standard printing commands
+ON_COMMAND(ID_FILE_PRINT, CFormView::OnFilePrint)
+ON_COMMAND(ID_FILE_PRINT_DIRECT, CFormView::OnFilePrint)
+ON_COMMAND(ID_FILE_PRINT_PREVIEW, CFormView::OnFilePrintPreview)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 // CTradeSystemView construction/destruction
 
 CTradeSystemView::CTradeSystemView()
-	: CFormView(CTradeSystemView::IDD)
+: CFormView(CTradeSystemView::IDD)
 {
 	//{{AFX_DATA_INIT(CTradeSystemView)
 	//}}AFX_DATA_INIT
 	// TODO: add construction code here
-
+	m_instrument_error_cnt.insert(instrument_error_cnt_pair("", 0));
 }
 
 CTradeSystemView::~CTradeSystemView()
@@ -73,7 +73,7 @@ BOOL CTradeSystemView::PreCreateWindow(CREATESTRUCT& cs)
 {
 	// TODO: Modify the Window class or styles here by modifying
 	//  the CREATESTRUCT cs
-
+	
 	return CFormView::PreCreateWindow(cs);
 }
 
@@ -82,19 +82,19 @@ void CTradeSystemView::OnInitialUpdate()
 	CFormView::OnInitialUpdate();
 	GetParentFrame()->RecalcLayout();
 	ResizeParentToFit(FALSE);
-
+	
 	InitListCtrl();
 	int nPageID =0;
-
+	
 	m_OrderTradeDlg.Create(IDD_ORDER_TRADE, this);
 	
 	m_AlgorithmCfgDlg.Create(IDD_ALGORITHM_DLG, this);
-
+	
 	m_TradeTab.AddSSLPage(_T("成交记录"), nPageID++, &m_OrderTradeDlg);
 	m_TradeTab.AddSSLPage(_T("算法管理"), nPageID++, &m_AlgorithmCfgDlg);
 	m_TradeTab.AddSSLPage(_T("资金管理"), nPageID++, IDD_RISK_DLG);
 	m_TradeTab.AddSSLPage(_T("风险控制"), nPageID++, IDD_RISK_DLG);
-
+	
 	m_RefreshFormTimer = SetTimer(1, 1000, 0);	
 	m_RefreshPosTimer  = SetTimer(2, 10000, 0);	
 	m_CorrectionPosTimer  = SetTimer(3, 20000, 0);
@@ -157,17 +157,17 @@ void CTradeSystemView::OnSimuStart()
 	int year = time.GetYear();
 	int month = time.GetMonth();
 	int day = time.GetDay();
-
+	
 	char endDayBuffer[20],  startDayBuffer[20];
 	sprintf(startDayBuffer, "%d%02d%02d", year, month, day);
-
+	
 	m_DateEnd.GetTime(time);
 	year = time.GetYear();
 	month = time.GetMonth();
 	day = time.GetDay();
-
+	
 	sprintf(endDayBuffer, "%d%02d%02d", year, month, day);
-
+	
 	CString str = GetActiveInstrument();
 	DataSimulator simu((LPCSTR)str);
 	simu.SetRange(startDayBuffer, endDayBuffer);
@@ -177,11 +177,14 @@ void CTradeSystemView::OnSimuStart()
 void CTradeSystemView::OnClearShort() 
 {
 	// TODO: Add your control notification handler code here
-
-
+	
+	
 	CString instrument =GetActiveInstrument();
+	
 	tradeConn->m_TradeSpi->CancelAllOrders((LPCSTR)instrument);
-	tradeConn->m_TradeSpi->ClearShortPos((LPCSTR)instrument, m_AskPrice);
+	CThostFtdcDepthMarketDataField tickData = 
+		tradeConn->m_UserSpi->m_tick_data_map[(LPCSTR)instrument];
+	tradeConn->m_TradeSpi->ClearShortPos((LPCSTR)instrument, tickData.AskPrice1);
 }
 
 void CTradeSystemView::OnClearLong() 
@@ -189,7 +192,9 @@ void CTradeSystemView::OnClearLong()
 	// TODO: Add your control notification handler code here
 	CString instrument =GetActiveInstrument();;
 	tradeConn->m_TradeSpi->CancelAllOrders((LPCSTR)instrument);
-	tradeConn->m_TradeSpi->ClearLongPos((LPCSTR)instrument, m_BidPrice);	
+	CThostFtdcDepthMarketDataField tickData = 
+		tradeConn->m_UserSpi->m_tick_data_map[(LPCSTR)instrument];
+	tradeConn->m_TradeSpi->ClearLongPos((LPCSTR)instrument, tickData.BidPrice1);	
 }
 
 BOOL CTradeSystemView::DestroyWindow() 
@@ -205,22 +210,6 @@ BOOL CTradeSystemView::DestroyWindow()
 void CTradeSystemView::OnTimer(UINT nIDEvent) 
 {
 	// TODO: Add your message handler code here and/or call default
-	CString instrument=GetActiveInstrument();
-
-	InvestorPosition pos;
-	memset(&pos, 0, sizeof(pos));
-
-	if( tradeConn == NULL )
-		return;
-
-	CTraderSpi::inv_pos_map::iterator pos_iter = 
-		tradeConn->m_TradeSpi->m_inv_pos.find((LPCSTR)instrument);
-	
-	if ( pos_iter != tradeConn->m_TradeSpi->m_inv_pos.end() )
-	{
-		pos = pos_iter->second;
-	}
-
 	if( nIDEvent == m_RefreshPosTimer )
 	{
 		tradeConn->m_TradeSpi->ReqQryTradingAccount();
@@ -231,36 +220,7 @@ void CTradeSystemView::OnTimer(UINT nIDEvent)
 	}
 	else if (m_CorrectionPosTimer == nIDEvent)
 	{
-		static errorInterval =0;
-		if( pos.Long-pos.Short != tradeConn->m_TradeSpi->m_AlgoPos )
-		{
-			errorInterval++;
-
-			if ( errorInterval >= 3 )
-			{
-
-				tradeConn->m_TradeSpi->CancelAllOrders((LPCSTR)instrument);
-				
-				OrderInfoShort orderShort;
-				orderShort.m_instrumentID = (LPCSTR)instrument;
-				orderShort.amount = tradeConn->m_TradeSpi->m_AlgoPos-(pos.Long-pos.Short);
-				
-				if ( orderShort.amount > 0 )
-				{
-					orderShort.price = m_AskPrice;
-				}
-				else
-				{
-					orderShort.price = m_BidPrice;				
-				}
-				errorInterval =0;
-				tradeConn->m_TradeSpi->ReqOrderInsert(orderShort, true);
-			}
-		}
-		else
-		{
-			errorInterval =0;
-		}
+		CorrectAlgoPos();
 	}
 	else if( m_HS300Timer == nIDEvent )
 	{
@@ -287,7 +247,7 @@ void CTradeSystemView::OnTimer(UINT nIDEvent)
 CTradeSystemView* CTradeSystemView::GetCurrView()
 {
 	CFrameWnd* pWnd = (CFrameWnd*)AfxGetMainWnd();
-
+	
 	if ( pWnd != NULL )
 		return (CTradeSystemView*)pWnd->GetActiveView();
 	else
@@ -299,9 +259,9 @@ CString CTradeSystemView::GetActiveInstrument()
     POSITION pos = m_PositionList.GetFirstSelectedItemPosition();
 	if (pos == NULL)
 		TRACE0("No items were selected!\n");
-
+	
 	int nItem = m_PositionList.GetNextSelectedItem(pos);
-
+	
 	return m_PositionList.GetItemText(nItem, 0);
 }
 
@@ -377,7 +337,7 @@ void CTradeSystemView::RefreshForm()
 		str.Format("%.2f", tick_data.Turnover);
 		m_InstrumentList.SetItemText(i, 14, str );
 	}
-
+	
 	UpdatePosition();
 }
 
@@ -397,13 +357,13 @@ void CTradeSystemView::InitListCtrl()
 	m_AccountList.InsertColumn(6, _T("平仓盈亏"), LVCFMT_CENTER, nColInterval);
 	m_AccountList.InsertColumn(7, _T("持仓盈亏"), LVCFMT_CENTER, nColInterval);
 	m_AccountList.InsertColumn(8, _T("保证金"), LVCFMT_CENTER, rect.Width()-8*nColInterval);
-
+	
 	m_AccountList.InsertItem(0,"");
-
+	
 	exstyle = m_InstrumentList.GetExtendedStyle();
 	m_InstrumentList.SetExtendedStyle(exstyle | LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES | WS_EX_STATICEDGE );
 	m_InstrumentList.GetClientRect(&rect);
-       nColInterval = rect.Width()/16;
+	nColInterval = rect.Width()/16;
 	m_InstrumentList.InsertColumn(0, _T("合约"), LVCFMT_CENTER, nColInterval);
 	m_InstrumentList.InsertColumn(1, _T("更新时间"), LVCFMT_CENTER, nColInterval);
 	m_InstrumentList.InsertColumn(2, _T("最新价"), LVCFMT_CENTER, nColInterval);
@@ -419,7 +379,7 @@ void CTradeSystemView::InitListCtrl()
 	m_InstrumentList.InsertColumn(12, _T("最低价"), LVCFMT_CENTER, nColInterval);
 	m_InstrumentList.InsertColumn(13, _T("昨收盘"), LVCFMT_CENTER, nColInterval);
 	m_InstrumentList.InsertColumn(14, _T("成交额"), LVCFMT_CENTER, rect.Width()-14*nColInterval);
-
+	
 	exstyle = m_PositionList.GetExtendedStyle();
 	m_PositionList.SetExtendedStyle(exstyle | LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES | WS_EX_STATICEDGE );
 	m_PositionList.GetClientRect(&rect);
@@ -437,17 +397,17 @@ void CTradeSystemView::InitListCtrl()
 	m_PositionList.InsertColumn(10, _T("持仓盈亏(多)"), LVCFMT_CENTER, nColInterval);
 	m_PositionList.InsertColumn(11, _T("占用保证金(空)"), LVCFMT_CENTER, nColInterval);
 	m_PositionList.InsertColumn(12, _T("占用保证金(多)"), LVCFMT_CENTER, rect.Width()-12*nColInterval);
-
+	
 	int i =0;
 	for (  i =0 ; i< iInstrumentID; i++)
 	{
 		m_InstrumentList.InsertItem(i, ppInstrumentID[i]);
 		m_PositionList.InsertItem(i, ppInstrumentID[i]);
 	}
-
+	
 	m_InstrumentList.InsertItem(i+1, "沪深300");
-
-
+	
+	
 }
 
 void CTradeSystemView::UpdatePosition()
@@ -478,30 +438,100 @@ void CTradeSystemView::UpdatePosition()
 		m_PositionList.SetItemText(i, 2, str );
 		str.Format("%u", pos.Short);
 		m_PositionList.SetItemText(i, 3, str );
-
+		
 		str.Format("%u", pos.Long+pos.YdLong);
 		m_PositionList.SetItemText(i, 4, str );
 		str.Format("%u", pos.YdLong);
 		m_PositionList.SetItemText(i, 5, str );
 		str.Format("%u", pos.Long);
 		m_PositionList.SetItemText(i, 6, str );
-
+		
 		str.Format("%.2f", pos.ShortPositionCost+pos.YdShortPositionCost);
 		m_PositionList.SetItemText(i, 7, str );
-
+		
 		str.Format("%.2f", pos.LongPositionCost+pos.YdLongPositionCost);
 		m_PositionList.SetItemText(i, 8, str );
-
+		
 		str.Format("%.2f", pos.ShortPositionProfit+pos.YdShortPositionProfit);
 		m_PositionList.SetItemText(i, 9, str );
-
+		
 		str.Format("%.2f", pos.LongPositionProfit+pos.YdLongPositionProfit);
 		m_PositionList.SetItemText(i, 10, str );
-
+		
 		str.Format("%.2f", pos.ShortUseMargin+pos.YdShortUseMargin);
 		m_PositionList.SetItemText(i, 11, str );
-
+		
 		str.Format("%.2f", pos.LongUseMargin+pos.YdLongUseMargin);
 		m_PositionList.SetItemText(i, 12, str );
+	}
+}
+
+void CTradeSystemView::CorrectAlgoPos()
+{
+	for (int i=0; i<iInstrumentID; i++)
+	{
+		CString instrument=ppInstrumentID[i];
+		
+		InvestorPosition pos;
+		memset(&pos, 0, sizeof(pos));
+		
+		if( tradeConn == NULL )
+			return;
+		
+		CTraderSpi::inv_pos_map::iterator pos_iter = 
+			tradeConn->m_TradeSpi->m_inv_pos.find((LPCSTR)instrument);
+		
+		if ( pos_iter != tradeConn->m_TradeSpi->m_inv_pos.end() )
+		{
+			pos = pos_iter->second;
+		}
+		
+		int algoPos =0;
+		if ( tradeConn->m_TradeSpi->m_algo_instrument_pos.find((LPCSTR)instrument) 
+			!= tradeConn->m_TradeSpi->m_algo_instrument_pos.end() )
+		{
+			algoPos = tradeConn->m_TradeSpi->m_algo_instrument_pos[(LPCSTR)instrument];
+		}
+
+		if( pos.Long-pos.Short !=  algoPos)
+		{
+			if(m_instrument_error_cnt.find((LPCSTR)instrument) != 
+				m_instrument_error_cnt.end())
+			{
+				int new_cnt = m_instrument_error_cnt[(LPCSTR)instrument]+1;
+				m_instrument_error_cnt[(LPCSTR)instrument] = new_cnt;
+			}
+			else
+			{
+				m_instrument_error_cnt.insert(instrument_error_cnt_pair((LPCSTR)instrument, 1));
+			}
+			
+			if ( m_instrument_error_cnt[(LPCSTR)instrument] >= 3 )
+			{
+				
+				tradeConn->m_TradeSpi->CancelAllOrders((LPCSTR)instrument);
+				
+				OrderInfoShort orderShort;
+				orderShort.m_instrumentID = (LPCSTR)instrument;
+				orderShort.amount = 
+					algoPos
+					-(pos.Long-pos.Short);
+				
+				if ( orderShort.amount > 0 )
+				{
+					orderShort.price = tradeConn->m_UserSpi->m_tick_data_map[(LPCSTR)instrument].AskPrice1;
+				}
+				else
+				{
+					orderShort.price = tradeConn->m_UserSpi->m_tick_data_map[(LPCSTR)instrument].BidPrice1;				
+				}
+				m_instrument_error_cnt.erase((LPCSTR)instrument);
+				tradeConn->m_TradeSpi->ReqOrderInsert(orderShort, true);
+			}
+		}
+		else
+		{
+			m_instrument_error_cnt.erase((LPCSTR)instrument);
+		}
 	}
 }

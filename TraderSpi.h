@@ -121,7 +121,9 @@ private:
 	ofstream m_log;
 	int m_TradeCount;
 	int m_OrderCount;
-	int m_AlgoPos;
+    typedef map<string,int> instrument_pos_map;	
+    typedef pair<string,int> instrument_pos_pair;			    
+    instrument_pos_map m_algo_instrument_pos;
 
     typedef map<string,CThostFtdcOrderField> order_state_map;	
     typedef pair<string,CThostFtdcOrderField> order_state_pair;			    

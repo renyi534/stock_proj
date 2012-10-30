@@ -179,13 +179,6 @@ void CMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketDa
 		m_tick_data_map[pDepthMarketData->InstrumentID] = *pDepthMarketData;
 	}
 
-	CString str;
-	CTradeSystemView* view = CTradeSystemView::GetCurrView();
-	if( view != NULL && strcmp("»¦Éî300",pDepthMarketData->InstrumentID) != 0)
-	{
-		view->m_AskPrice = pDepthMarketData->AskPrice1;
-		view->m_BidPrice = pDepthMarketData->BidPrice1;
-	}
 	char* buffer = new char[8196];
 	int index=0;
 	/*const char* format_str="insert into stock_data.depthmarketdata values('%s','%s','%s','%s',%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,'%s',"

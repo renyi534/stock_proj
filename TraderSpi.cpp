@@ -51,11 +51,12 @@ CTraderSpi::CTraderSpi(CThostFtdcTraderApi* api):m_pTradeApi(api),m_requestID(0)
 {
 	m_TradeCount =0;
 	m_OrderCount =0;
-	m_AlgoPos =0;
+
 	memset(&m_account, 0 ,sizeof(m_account));
 	// stl library can be buggy with empty maps. Insert some rubbish data here.
 	m_inv_pos.insert(inv_pos_pair("", InvestorPosition() ));
 	m_order_state.insert(order_state_pair("", CThostFtdcOrderField() ));
+	m_algo_instrument_pos.insert(instrument_pos_pair("",0));
 }
 
 void CTraderSpi::ReqUserLogin()
@@ -447,8 +448,18 @@ void CTraderSpi::ReqOrderInsert(OrderInfoShort& order_req, bool isCorrection)
 	string key = order_req.m_instrumentID;
 
 	if( !isCorrection )
-		m_AlgoPos += order_req.amount;
-	
+	{
+		if (m_algo_instrument_pos.find(key) != m_algo_instrument_pos.end())
+		{
+			int new_pos = m_algo_instrument_pos[key]+order_req.amount;
+			m_algo_instrument_pos[key] = new_pos;
+		}
+		else
+		{
+			m_algo_instrument_pos.insert(instrument_pos_pair(key,order_req.amount));
+		}
+	}
+
 	memset(&pos, 0, sizeof(pos));
 	if ( m_inv_pos.find(key) != m_inv_pos.end() )
 	{
@@ -964,7 +975,15 @@ void CTraderSpi::ClearLongPos(string instrument, double price)
 
 	if(pos.Long >0)
 	{
-		m_AlgoPos -= pos.Long;  
+		if (m_algo_instrument_pos.find(instrument) != m_algo_instrument_pos.end())
+		{
+			int new_pos = m_algo_instrument_pos[instrument]-pos.Long;
+			m_algo_instrument_pos[instrument] = new_pos;
+		}
+		else
+		{
+			m_algo_instrument_pos.insert(instrument_pos_pair(instrument,-pos.Long));
+		}
 		///报单引用
 		strcpy(req.OrderRef, ORDER_REF);
 		///业务单元
@@ -1074,7 +1093,15 @@ void CTraderSpi::ClearShortPos(string instrument, double price)
 
 	if(pos.Short >0)
 	{
-		m_AlgoPos += pos.Short;  
+		if (m_algo_instrument_pos.find(instrument) != m_algo_instrument_pos.end())
+		{
+			int new_pos = m_algo_instrument_pos[instrument]+pos.Short;
+			m_algo_instrument_pos[instrument] = new_pos;
+		}
+		else
+		{
+			m_algo_instrument_pos.insert(instrument_pos_pair(instrument,pos.Short));
+		}
 		///报单引用
 		strcpy(req.OrderRef, ORDER_REF);
 		///业务单元

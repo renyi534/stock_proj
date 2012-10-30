@@ -30,8 +30,6 @@ public:
 	CStatic	m_MDStatus;
 	//}}AFX_DATA
 
-	double m_BidPrice;
-	double m_AskPrice;
 	COrderTradeDlg m_OrderTradeDlg;
 	CAlgorithmCfgDlg m_AlgorithmCfgDlg;
 // Attributes
@@ -58,6 +56,7 @@ public:
 
 // Implementation
 public:
+	void CorrectAlgoPos();
 	static CTradeSystemView* GetCurrView();
 	virtual ~CTradeSystemView();
 #ifdef _DEBUG
@@ -84,6 +83,9 @@ private:
 	void InitListCtrl();
 	void RefreshForm();
 	CString GetActiveInstrument();
+    typedef map<string,int> instrument_error_cnt_map;	
+    typedef pair<string,int> instrument_error_cnt_pair;			    
+    instrument_error_cnt_map m_instrument_error_cnt;
 };
 
 #ifndef _DEBUG  // debug version in TradeSystemView.cpp
