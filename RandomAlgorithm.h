@@ -17,6 +17,7 @@ public:
 	RandomAlgorithm(string instrument_id);
 	virtual ~RandomAlgorithm();
     virtual void OnMinuteData(const CMinuteData& data);
+    virtual void OnTenMinuteData(const CTenMinuteData& data);
 	virtual void OnHalfMinuteData(const CHalfMinuteData& data);
     virtual void OnTickData(const CThostFtdcDepthMarketDataField&);
     virtual void OnTradeData(const CThostFtdcTradeField&);

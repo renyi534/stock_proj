@@ -41,7 +41,11 @@ void RandomAlgorithm::OnMinuteData(const CMinuteData& data)
 	return;
 }
 
-
+void RandomAlgorithm::OnTenMinuteData(const CTenMinuteData& data)
+{
+	m_log<<"Receive ten minute data"<<endl;
+	return;
+}
 
 int mkk=1;
 
