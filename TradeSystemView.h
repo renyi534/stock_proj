@@ -11,6 +11,11 @@
 #include "OrderTradeDlg.h"
 #include "AlgorithmCfgDlg.h"
 #include "TabCtrlSSL.h"
+#include "stdafx.h"
+#include "OneMinuteData.h"
+#include <map>
+#include <iostream>
+#include <fstream>
 class CTradeSystemView : public CFormView
 {
 protected: // create from serialization only

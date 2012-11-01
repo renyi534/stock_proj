@@ -121,7 +121,15 @@ SOURCE=.\DtAlgorithm.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\HalfMinuteSeriesGenerator.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\HsAlgorithm.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\KSeriesGenerator.cpp
 # End Source File
 # Begin Source File
 
@@ -138,6 +146,10 @@ SOURCE=.\mdspi.cpp
 # Begin Source File
 
 SOURCE=.\MessageRouter.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\OneMinuteSeriesGenerator.cpp
 # End Source File
 # Begin Source File
 
@@ -226,7 +238,15 @@ SOURCE=.\DtAlgorithm.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\HalfMinuteSeriesGenerator.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\HsAlgorithm.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\KSeriesGenerator.h
 # End Source File
 # Begin Source File
 
@@ -263,6 +283,10 @@ SOURCE=.\MessageRouter.h
 # Begin Source File
 
 SOURCE=.\OneMinuteData.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\OneMinuteSeriesGenerator.h
 # End Source File
 # Begin Source File
 

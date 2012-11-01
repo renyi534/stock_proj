@@ -3,12 +3,14 @@
 #include "stdafx.h"
 #include "OneMinuteData.h"
 #include <map>
+#include <vector>
 #include <iostream>
 #include <fstream>
 
 
 using namespace std;
 class DbConn;
+class KSeriesGenerator;
 class CMdSpi : public CThostFtdcMdSpi
 {
 public:
@@ -48,27 +50,13 @@ public:
 
 
 private:
-	void genOneMinuteData(const CThostFtdcDepthMarketDataField&);
-	void genHalfMinuteData(const CThostFtdcDepthMarketDataField&);
-	void resetOneMinuteData(CMinuteData& , const string& instrument_id);
+
 	void ReqUserLogin();
 	void SubscribeMarketData();
 	// 
 	bool IsErrorRspInfo(CThostFtdcRspInfoField *pRspInfo);
 	// UserApi∂‘œÛ
 	CThostFtdcMdApi* m_pUserApi;
-
-
-
-	typedef map<string,CMinuteData> CMinuteDataMap;	
-	typedef pair<string,CMinuteData> CMinuteDataPair;	
-	CMinuteDataMap m_one_minute_data_map;
-	CMinuteDataMap m_prev_one_minute_data_map;
-
-	typedef map<string,CHalfMinuteData> CHalfMinuteDataMap;	
-	typedef pair<string,CHalfMinuteData> CHalfMinuteDataPair;	
-	CHalfMinuteDataMap m_half_minute_data_map;
-	CHalfMinuteDataMap m_prev_half_minute_data_map;
 
 
 	typedef map<string,CThostFtdcDepthMarketDataField> CTickDataMap;	
@@ -80,7 +68,7 @@ private:
 	int m_requestID;
 	friend class CTradeSystemView;
 
-
+	vector<KSeriesGenerator*> m_series_generator;
 	CRITICAL_SECTION		m_data_critsec;
 	
 };
