@@ -1,10 +1,10 @@
-// OneMinuteData.cpp: implementation of the COneMinuteData class.
+// KSeriesGenerator.cpp: implementation of the KSeriesGenerator class.
 //
 //////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "TradeSystem.h"
-#include "OneMinuteData.h"
+#include "tradesystem.h"
+#include "KSeriesGenerator.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -16,12 +16,16 @@ static char THIS_FILE[]=__FILE__;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CMinuteData::CMinuteData()
+KSeriesGenerator::KSeriesGenerator(string name):
+	m_log((string("c:\\")+name+string(".txt")).c_str(),ios::app), m_name(name)
 {
 
 }
 
-CMinuteData::~CMinuteData()
+KSeriesGenerator::~KSeriesGenerator()
 {
-
+	m_log.close();
 }
+
+
+

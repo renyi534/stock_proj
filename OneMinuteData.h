@@ -12,7 +12,7 @@
 #include <string>
 using namespace std;
 
-class CMinuteData  
+class KSeriesData  
 {
 public:
 	string m_Day;
@@ -26,20 +26,22 @@ public:
 	double m_OpenInterest;
 };
 
-
-class CHalfMinuteData  
+class CMinuteData : public KSeriesData
 {
 public:
-	string m_Day;
-	string m_Time;
+
+};
+
+class CTenMinuteData : public KSeriesData
+{
+public:
+
+};
+
+class CHalfMinuteData : public KSeriesData
+{
+public:
 	string m_Sec;
-	string m_InstrumentID;
-	double m_OpenPrice;
-	double m_ClosePrice;
-	double m_HighPrice;
-	double m_LowPrice;
-	double m_Volume;
-	double m_OpenInterest;
 };
 
 #endif // !defined(AFX_ONEMINUTEDATA_H__A9E8A124_E74F_40CE_A335_CA7F9011B934__INCLUDED_)
