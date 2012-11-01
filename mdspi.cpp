@@ -16,7 +16,7 @@ using namespace std;
 #include "TradeSystemView.h"
 #include "HalfMinuteSeriesGenerator.h"
 #include "OneMinuteSeriesGenerator.h"
-
+#include "TenMinuteSeriesGenerator.h"
 // USER_API²ÎÊý
 //extern CThostFtdcMdApi* m_pUserApi;
 
@@ -54,6 +54,7 @@ CMdSpi::CMdSpi(CThostFtdcMdApi* api):m_pUserApi(api),m_requestID(0),m_log("c:\\m
 
 	m_series_generator.push_back(new OneMinuteSeriesGenerator());
 	m_series_generator.push_back(new HalfMinuteSeriesGenerator());
+	m_series_generator.push_back(new TenMinuteSeriesGenerator());
 }
 
 void CMdSpi::OnRspError(CThostFtdcRspInfoField *pRspInfo,

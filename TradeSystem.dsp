@@ -178,6 +178,10 @@ SOURCE=.\TabPageSSL.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\TenMinuteSeriesGenerator.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ThreadPool.cpp
 # End Source File
 # Begin Source File
@@ -319,6 +323,10 @@ SOURCE=.\TabCtrlSSL.h
 # Begin Source File
 
 SOURCE=.\TabPageSSL.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\TenMinuteSeriesGenerator.h
 # End Source File
 # Begin Source File
 

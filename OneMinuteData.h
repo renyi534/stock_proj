@@ -38,6 +38,7 @@ public:
 
 };
 
+
 class CHalfMinuteData : public KSeriesData
 {
 public:

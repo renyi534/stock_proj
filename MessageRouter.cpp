@@ -89,6 +89,20 @@ void MessageRouter::sendData(const CMinuteData& data)
 	}
 }
 
+void MessageRouter::sendData(const CTenMinuteData& data)
+{
+	int size = m_algorithms.size();
+	
+	for( int i =0; i<size; i++)
+	{
+		if( m_algorithms[i]->IsInterestingInstrument(data.m_InstrumentID) )
+		{
+			CTenMinuteData* dataToSend=new CTenMinuteData(data);
+			m_algorithms[i]->PostThreadMessage(WM_MARKET_DATA, (WPARAM)dataToSend,  4);
+		}
+	}
+}
+
 void MessageRouter::sendData(const CHalfMinuteData& data)
 {
 	int size = m_algorithms.size();

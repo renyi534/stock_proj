@@ -46,12 +46,13 @@ public:
 	Algorithm();
     Algorithm(string configFile);
     virtual BOOL InitInstance();
-    virtual void OnMinuteData(const CMinuteData& data) =0;
-	virtual void OnHalfMinuteData(const CHalfMinuteData& data) =0;
-    virtual void OnTickData(const CThostFtdcDepthMarketDataField&) =0;
-    virtual void OnTradeData(const CThostFtdcTradeField&) =0;
-    virtual void OnAccountData(const CThostFtdcTradingAccountField&) =0;
-    virtual void OnPositionData(const CThostFtdcInvestorPositionField&) =0;
+    virtual void OnMinuteData(const CMinuteData& data) {}
+    virtual void OnTenMinuteData(const CTenMinuteData& data) {}
+	virtual void OnHalfMinuteData(const CHalfMinuteData& data) {}
+    virtual void OnTickData(const CThostFtdcDepthMarketDataField&) {}
+    virtual void OnTradeData(const CThostFtdcTradeField&) {}
+    virtual void OnAccountData(const CThostFtdcTradingAccountField&) {}
+    virtual void OnPositionData(const CThostFtdcInvestorPositionField&) {}
 	virtual int	 SendStrategy(const OrderInfo &);
 	virtual int	 SendStrategy(const OrderInfoShort &);
 	virtual int  Run();

@@ -135,6 +135,12 @@ void Algorithm::HandleNewMarketData(MSG& msg)
 		OnHalfMinuteData(*data);
         delete data;
 	}
+	else if(data_type==4)//ten minute K series
+	{
+		CTenMinuteData* data = (CTenMinuteData*)msg.wParam;
+		OnTenMinuteData(*data);
+        delete data;
+	}
 }
 
 void Algorithm::UpdateTradeInfo(MSG& msg)

@@ -16,6 +16,7 @@ class MessageRouter
 public:
 	virtual ~MessageRouter();
 	void sendData(const CMinuteData& data);
+	void sendData(const CTenMinuteData& data);
 	void sendData(const CHalfMinuteData& data);
 	void sendData(const CThostFtdcDepthMarketDataField& data);
 	void sendData(const CThostFtdcTradeField& data);
