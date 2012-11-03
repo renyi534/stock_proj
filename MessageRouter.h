@@ -14,7 +14,7 @@
 class MessageRouter  
 {
 public:
-	void AddAlgorithm(string algo_name, string instrument);
+	void AddAlgorithm(string algo_name, string instrument, string config_file="");
 	virtual ~MessageRouter();
 	void sendData(const CMinuteData& data);
 	void sendData(const CTenMinuteData& data);
@@ -30,6 +30,7 @@ private:
 	{
 		string AlgoName;
 		string Instrument;
+		string config_file;
 	};
 	Algorithm* createAlgorithm(AlgoInstrumentPair algoInstrument);
 	MessageRouter();

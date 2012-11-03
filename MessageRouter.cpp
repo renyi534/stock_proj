@@ -151,11 +151,12 @@ void MessageRouter::sendData(const CThostFtdcInvestorPositionField& data)
 	}
 }
 
-void MessageRouter::AddAlgorithm(string algo_name, string instrument)
+void MessageRouter::AddAlgorithm(string algo_name, string instrument, string config_file)
 {
 	AlgoInstrumentPair pair;
 	pair.AlgoName=algo_name;
 	pair.Instrument = instrument;
+	pair.config_file = config_file;
 	m_algoInstrument.push_back(pair);
 }
 

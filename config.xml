@@ -15,29 +15,47 @@
     <ALGORITHM>
 	<ITEM>
 		<NAME>RandomAlgorithm</NAME>
-    		<INSTRUMENT>
-        		<ITEM>0</ITEM>
-        		<ITEM>1</ITEM>
-		</INSTRUMENT>   
+		<INSTANCE>
+			<ITEM>
+				<INSTRUMENT>0</INSTRUMENT>
+				<CONFIG>c:\temp.xml</CONFIG>
+			</ITEM>
+			<ITEM>
+				<INSTRUMENT>1</INSTRUMENT>
+				<CONFIG>c:\temp.xml</CONFIG>
+			</ITEM>
+		</INSTANCE>   
 	</ITEM>
 	<ITEM>
 		<NAME>HsAlgorithm</NAME>
-    		<INSTRUMENT>
-        		<ITEM>0</ITEM>
-        		<ITEM>1</ITEM>
-		</INSTRUMENT>   
+    		<INSTANCE>
+			<ITEM>
+				<INSTRUMENT>0</INSTRUMENT>
+				<CONFIG>c:\temp.xml</CONFIG>
+			</ITEM>
+			<ITEM>
+				<INSTRUMENT>2</INSTRUMENT>
+				<CONFIG>c:\temp.xml</CONFIG>				
+			</ITEM>
+		</INSTANCE>   
 	</ITEM>
 	<ITEM>
 		<NAME>WeightedAlgorithm</NAME>
-    		<INSTRUMENT>
-        		<ITEM>1</ITEM>
-		</INSTRUMENT>   
+    		<INSTANCE>
+			<ITEM>
+				<INSTRUMENT>0</INSTRUMENT>
+				<CONFIG>c:\temp.xml</CONFIG>				
+			</ITEM>
+		</INSTANCE>   
 	</ITEM>
 	<ITEM>
 		<NAME>DtAlgorithm</NAME>
-    		<INSTRUMENT>
-        		<ITEM>1</ITEM>
-		</INSTRUMENT>   
+    		<INSTANCE>
+			<ITEM>
+				<INSTRUMENT>1</INSTRUMENT>
+				<CONFIG>c:\temp.xml</CONFIG>
+			</ITEM>
+		</INSTANCE>   
 	</ITEM>
     </ALGORITHM>
 </PARAMETER>

@@ -148,16 +148,22 @@ void CTradeSystemApp::LoadConfig()
         CString name = xml.GetChildData();
 		activeAlgorithm.insert((LPCSTR)name);
 
-		xml.FindChildElem("INSTRUMENT");
+		xml.FindChildElem("INSTANCE");
 		xml.IntoElem();
 		while ( xml.FindChildElem("ITEM") )
 		{
+			xml.IntoElem();
+			xml.FindChildElem("INSTRUMENT");
 			CString instrument = xml.GetChildData();
 			int index = atoi((LPCSTR)instrument);
 			if( index >=0 && index <iInstrumentID)
 			{
-				MessageRouter::Router.AddAlgorithm((LPCSTR)name, ppInstrumentID[index]);
+				xml.FindChildElem("CONFIG");
+				CString config = xml.GetChildData();
+				MessageRouter::Router.AddAlgorithm((LPCSTR)name, 
+					ppInstrumentID[index], (LPCSTR)config);
 			}
+			xml.OutOfElem();
 		}
 		xml.OutOfElem();
 
