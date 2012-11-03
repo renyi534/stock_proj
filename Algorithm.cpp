@@ -18,9 +18,15 @@ extern DbAccessorPool dbAccessPool;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-Algorithm::Algorithm(string configFile)
+Algorithm::Algorithm(string instrument)
 {
-    m_configFile = configFile;
+    RegisterInstrument(instrument);
+}
+
+Algorithm::Algorithm(string instrument, string config_file)
+{
+	RegisterInstrument(instrument);
+    m_configFile = config_file;
 }
 
 Algorithm::Algorithm()

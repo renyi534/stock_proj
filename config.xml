@@ -13,9 +13,31 @@
     <DB_CONN>DSN=PostgreSQL35W;UID=postgres;PWD=123</DB_CONN>
     <HS300_URL>http://hq.sinajs.cn/list=sz399300</HS300_URL>
     <ALGORITHM>
-        <ITEM>RandomAlgorithm</ITEM>
-	<ITEM>HsAlgorithm</ITEM>
-	<ITEM>WeightedAlgorithm</ITEM>
-	<ITEM>DtAlgorithm</ITEM>
+	<ITEM>
+		<NAME>RandomAlgorithm</NAME>
+    		<INSTRUMENT>
+        		<ITEM>0</ITEM>
+        		<ITEM>1</ITEM>
+		</INSTRUMENT>   
+	</ITEM>
+	<ITEM>
+		<NAME>HsAlgorithm</NAME>
+    		<INSTRUMENT>
+        		<ITEM>0</ITEM>
+        		<ITEM>1</ITEM>
+		</INSTRUMENT>   
+	</ITEM>
+	<ITEM>
+		<NAME>WeightedAlgorithm</NAME>
+    		<INSTRUMENT>
+        		<ITEM>1</ITEM>
+		</INSTRUMENT>   
+	</ITEM>
+	<ITEM>
+		<NAME>DtAlgorithm</NAME>
+    		<INSTRUMENT>
+        		<ITEM>1</ITEM>
+		</INSTRUMENT>   
+	</ITEM>
     </ALGORITHM>
 </PARAMETER>

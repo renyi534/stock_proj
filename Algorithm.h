@@ -44,7 +44,8 @@ class Algorithm  : public CWinThread
 {
 public:	
 	Algorithm();
-    Algorithm(string configFile);
+    Algorithm(string instrument);
+    Algorithm(string instrument, string config_file);
     virtual BOOL InitInstance();
     virtual void OnMinuteData(const CMinuteData& data) {}
     virtual void OnTenMinuteData(const CTenMinuteData& data) {}

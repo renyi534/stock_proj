@@ -18,6 +18,8 @@
 #include "matlab\\libMethod_4.h"
 #include "Markup.h"
 #include <set>
+#include <map>
+#include <vector>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -53,6 +55,7 @@ TThostFtdcInstrumentIDType INSTRUMENT_ID = "IF1207";	// ºÏÔ¼´úÂë
 DbAccessorPool dbAccessPool;
 TradeConn* tradeConn; //(FRONT_ADDR_MD,FRONT_ADDR_TRADE,TERT_RESUME);
 set<string> activeAlgorithm;
+
 /////////////////////////////////////////////////////////////////////////////
 // CTradeSystemApp
 
@@ -140,8 +143,25 @@ void CTradeSystemApp::LoadConfig()
     
     while ( xml.FindChildElem("ITEM") )
     {
-        CString item = xml.GetChildData();
-		activeAlgorithm.insert((LPCSTR)item);
+		xml.IntoElem();
+		xml.FindChildElem("NAME");
+        CString name = xml.GetChildData();
+		activeAlgorithm.insert((LPCSTR)name);
+
+		xml.FindChildElem("INSTRUMENT");
+		xml.IntoElem();
+		while ( xml.FindChildElem("ITEM") )
+		{
+			CString instrument = xml.GetChildData();
+			int index = atoi((LPCSTR)instrument);
+			if( index >=0 && index <iInstrumentID)
+			{
+				MessageRouter::Router.AddAlgorithm((LPCSTR)name, ppInstrumentID[index]);
+			}
+		}
+		xml.OutOfElem();
+
+		xml.OutOfElem();
     }
     xml.OutOfElem();
 	delete [] buf;

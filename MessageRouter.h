@@ -14,6 +14,7 @@
 class MessageRouter  
 {
 public:
+	void AddAlgorithm(string algo_name, string instrument);
 	virtual ~MessageRouter();
 	void sendData(const CMinuteData& data);
 	void sendData(const CTenMinuteData& data);
@@ -25,8 +26,17 @@ public:
 	static MessageRouter Router;
 	void InitAlgorithm();
 private:
+	struct AlgoInstrumentPair
+	{
+		string AlgoName;
+		string Instrument;
+	};
+	Algorithm* createAlgorithm(AlgoInstrumentPair algoInstrument);
 	MessageRouter();
 	vector<Algorithm*> m_algorithms;
+
+
+	vector<AlgoInstrumentPair> m_algoInstrument;
 };
 
 #endif // !defined(AFX_MESSAGEROUTER_H__E15C451A_729C_41C4_90A2_4E14A8C12B2B__INCLUDED_)

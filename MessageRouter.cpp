@@ -40,38 +40,18 @@ MessageRouter::~MessageRouter()
 
 void MessageRouter::InitAlgorithm()
 {
-	Algorithm * algo ;
-
-	if (activeAlgorithm.find("RandomAlgorithm") != activeAlgorithm.end() )
-	{
-		algo= new RandomAlgorithm(ppInstrumentID[0]);
-		algo->CreateThread(CREATE_SUSPENDED);
-		algo->ResumeThread();
-		m_algorithms.push_back(algo);
-	}
+	Algorithm * algo=NULL;
 	
-	if (activeAlgorithm.find("HsAlgorithm") != activeAlgorithm.end() )
+	vector<AlgoInstrumentPair>::iterator iter;
+	for(iter = m_algoInstrument.begin(); iter != m_algoInstrument.end(); iter++)
 	{
-		algo= new HsAlgorithm(ppInstrumentID[0]);
-		algo->CreateThread(CREATE_SUSPENDED);
-		algo->ResumeThread();
-		m_algorithms.push_back(algo);
-	}
-	
-	if (activeAlgorithm.find("WeightedAlgorithm") != activeAlgorithm.end() )
-	{
-		algo= new WeightedAlgorithm(ppInstrumentID[0]);
-		algo->CreateThread(CREATE_SUSPENDED);
-		algo->ResumeThread();
-		m_algorithms.push_back(algo);
-	}
-	
-	if (activeAlgorithm.find("DtAlgorithm") != activeAlgorithm.end() )
-	{
-		algo= new DtAlgorithm(ppInstrumentID[0]);
-		algo->CreateThread(CREATE_SUSPENDED);
-		algo->ResumeThread();
-		m_algorithms.push_back(algo);
+		algo = createAlgorithm(*iter);
+		if (algo != NULL)
+		{
+			algo->CreateThread(CREATE_SUSPENDED);
+			algo->ResumeThread();
+			m_algorithms.push_back(algo);
+		}
 	}
 }
 
@@ -169,4 +149,38 @@ void MessageRouter::sendData(const CThostFtdcInvestorPositionField& data)
 			m_algorithms[i]->PostThreadMessage(WM_POSITION_INFO, (WPARAM)dataToSend,  NULL);
 		}
 	}
+}
+
+void MessageRouter::AddAlgorithm(string algo_name, string instrument)
+{
+	AlgoInstrumentPair pair;
+	pair.AlgoName=algo_name;
+	pair.Instrument = instrument;
+	m_algoInstrument.push_back(pair);
+}
+
+Algorithm* MessageRouter::createAlgorithm(AlgoInstrumentPair algoInstrument)
+{
+	Algorithm* algo = NULL;
+	if (activeAlgorithm.find(algoInstrument.AlgoName) == activeAlgorithm.end() )
+		return NULL;
+	
+	if (algoInstrument.AlgoName == "RandomAlgorithm")
+	{
+		algo= new RandomAlgorithm(algoInstrument.Instrument);
+	}
+	else if (algoInstrument.AlgoName == "HsAlgorithm")
+	{
+		algo= new HsAlgorithm(algoInstrument.Instrument);
+	}
+	else if (algoInstrument.AlgoName == "WeightedAlgorithm" )
+	{
+		algo= new WeightedAlgorithm(algoInstrument.Instrument);
+	}	
+	else if (algoInstrument.AlgoName == "DtAlgorithm" )
+	{
+		algo= new DtAlgorithm(algoInstrument.Instrument);
+	}
+	
+	return algo;
 }
