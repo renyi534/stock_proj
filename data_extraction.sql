@@ -949,3 +949,19 @@ BEGIN
     EXECUTE 'ALTER TABLE '||target_table_name||' DROP column close;';
 END
 $$ LANGUAGE PLPGSQL;
+
+select generate_history_stat_data('minute_data', 'minute_stat_data', 1.5);
+
+create table profit_minute as
+select id, sum(CASE WHEN (class='Hold') THEN 
+                            0 
+                       ELSE 
+                            CASE WHEN(class = 'Sell') THEN
+                                close-nxt_close
+                            ELSE
+                                -close+nxt_close
+                            END
+                       END) over (order by trans_time), trans_time 
+from
+(select n.id, n.trans_time, m.close, lead(m.close) over (order by n.trans_time) nxt_close, t.result class , t.res 
+ from minute_data m, minute_stat_data n, minute_classify t where n.id=t.id and n.trans_time = m.trans_time) l order by trans_time;
