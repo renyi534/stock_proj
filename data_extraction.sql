@@ -830,3 +830,122 @@ BEGIN
 END
 $$ LANGUAGE PLPGSQL;
 
+CREATE OR REPLACE FUNCTION generate_history_stat_data
+    ( 
+    original_table_name     TEXT,
+    target_table_name       TEXT,
+    parameter	            FLOAT8
+    ) 
+RETURNS VOID AS $$
+DECLARE
+    index   BIGINT;
+    result  BIGINT;
+    stmt    TEXT;
+    ti      TIMESTAMP;
+BEGIN
+    ti=clock_timestamp();
+    EXECUTE 'DROP TABLE IF EXISTS temp_history_tr_table cascade';
+    stmt= 'CREATE TEMP TABLE temp_history_tr_table AS
+		SELECT trans_time, open, high, low, close, volume, open_interest,
+		   CASE WHEN ( abs(high-low)>abs(high-last_close) ) THEN
+			CASE WHEN (abs(high-low)>abs(low-last_close)) THEN
+				abs(high-low)
+			ELSE
+				abs(low-last_close)
+			END
+		   ELSE
+			CASE WHEN (abs(high-last_close)>abs(low-last_close)) THEN
+				abs(high-last_close)
+			ELSE
+				abs(low-last_close)
+			END
+		   END as tr 
+		FROM
+			(SELECT trans_time, open, high, low, close, volume, open_interest,
+		   		lag(close) over (ORDER BY trans_time) as last_close
+			FROM '||original_table_name||') l;';
+    RAISE INFO '%',stmt;
+    EXECUTE stmt;
+    RAISE INFO 'Time:%', clock_timestamp()-ti;
+
+    ti=clock_timestamp();
+    EXECUTE 'DROP TABLE IF EXISTS '||target_table_name||' cascade;';
+    stmt= 'CREATE TABLE '||target_table_name||' AS 
+        SELECT row_number() over (order by trans_time) as id, 
+        trans_time, close, open/close as open, high/close as high, low/close as low, volume, open_interest, tr, 
+    avg(volume) over 
+        (ORDER BY trans_time ROWS BETWEEN 5 PRECEDING AND CURRENT ROW) as avg_volume_5,
+    avg(volume) over 
+        (ORDER BY trans_time ROWS BETWEEN 10 PRECEDING AND CURRENT ROW) as avg_volume_10,
+    avg(volume) over 
+        (ORDER BY trans_time ROWS BETWEEN 20 PRECEDING AND CURRENT ROW) as avg_volume_20,
+    avg(open_interest) over 
+        (ORDER BY trans_time ROWS BETWEEN 5 PRECEDING AND CURRENT ROW) as avg_open_interest_5,
+    avg(open_interest) over 
+        (ORDER BY trans_time ROWS BETWEEN 10 PRECEDING AND CURRENT ROW) as avg_open_interest_10,
+    avg(open_interest) over 
+        (ORDER BY trans_time ROWS BETWEEN 20 PRECEDING AND CURRENT ROW) as avg_open_interest_20,
+    avg(close) over 
+        (ORDER BY trans_time ROWS BETWEEN 5 PRECEDING AND CURRENT ROW) as avg_close_5,
+    avg(close) over 
+        (ORDER BY trans_time ROWS BETWEEN 10 PRECEDING AND CURRENT ROW) as avg_close_10,
+    avg(close) over 
+        (ORDER BY trans_time ROWS BETWEEN 20 PRECEDING AND CURRENT ROW) as avg_close_20,
+    avg(close) over 
+        (ORDER BY trans_time ROWS BETWEEN 40 PRECEDING AND CURRENT ROW) as avg_close_40,	
+    avg(close) over 
+        (ORDER BY trans_time ROWS BETWEEN 80 PRECEDING AND CURRENT ROW) as avg_close_80,
+    avg(close) over 
+        (ORDER BY trans_time ROWS BETWEEN 160 PRECEDING AND CURRENT ROW) as avg_close_160,	
+    avg(close) over 
+        (ORDER BY trans_time ROWS BETWEEN 240 PRECEDING AND CURRENT ROW) as avg_close_240,	
+    avg(tr) over 
+        (ORDER BY trans_time ROWS BETWEEN 5 PRECEDING AND CURRENT ROW) as atr_5,	
+    avg(tr) over 
+        (ORDER BY trans_time ROWS BETWEEN 10 PRECEDING AND CURRENT ROW) as atr_10,	
+    avg(tr) over 
+        (ORDER BY trans_time ROWS BETWEEN 20 PRECEDING AND CURRENT ROW) as atr_20,	
+    avg(tr) over 
+        (ORDER BY trans_time ROWS BETWEEN 40 PRECEDING AND CURRENT ROW) as atr_40,	
+    avg(tr) over 
+        (ORDER BY trans_time ROWS BETWEEN 80 PRECEDING AND CURRENT ROW) as atr_80,	
+    avg(tr) over 
+        (ORDER BY trans_time ROWS BETWEEN 160 PRECEDING AND CURRENT ROW) as atr_160,	
+    avg(tr) over 
+        (ORDER BY trans_time ROWS BETWEEN 240 PRECEDING AND CURRENT ROW) as atr_240,	
+    avg(close) over 
+        (ORDER BY trans_time ROWS BETWEEN 1 FOLLOWING AND 1 FOLLOWING) as avg_close_pred
+    from temp_history_tr_table;';
+    
+    RAISE INFO '%',stmt;
+    EXECUTE stmt;
+    RAISE INFO 'Time:%', clock_timestamp()-ti;
+
+    EXECUTE 'ALTER TABLE '||target_table_name||' ADD column class TEXT;';
+    
+    EXECUTE 'UPDATE '||target_table_name||' 
+        SET class=
+            CASE WHEN(avg_close_pred>close+'||parameter||') THEN
+                ''Buy''
+            ELSE
+                CASE WHEN (avg_close_pred<close-'||parameter||') THEN
+                    ''Sell''   
+                ELSE
+                    ''Hold''
+                END
+            END;';
+
+    EXECUTE 'UPDATE '||target_table_name||' 
+        SET 
+          avg_close_5           = avg_close_5/close, 
+          avg_close_10           = avg_close_10/close,  
+          avg_close_20           = avg_close_20/close, 
+          avg_close_40           = avg_close_40/close,  
+          avg_close_80           = avg_close_80/close,  
+          avg_close_240           = avg_close_240/close,  
+          avg_close_160           = avg_close_160/close  
+       	;';
+    EXECUTE 'ALTER TABLE '||target_table_name||' DROP column avg_close_pred;';
+    EXECUTE 'ALTER TABLE '||target_table_name||' DROP column close;';
+END
+$$ LANGUAGE PLPGSQL;
