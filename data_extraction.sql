@@ -963,5 +963,5 @@ select id, sum(CASE WHEN (class='Hold') THEN
                             END
                        END) over (order by trans_time), trans_time 
 from
-(select n.id, n.trans_time, m.close, lead(m.close) over (order by n.trans_time) nxt_close, t.result class , t.res 
+(select n.id, n.trans_time, m.close, lead(m.close) over (order by m.trans_time) nxt_close, t.result as class , t.res 
  from minute_data m, minute_stat_data n, minute_classify t where n.id=t.id and n.trans_time = m.trans_time) l order by trans_time;

@@ -403,6 +403,10 @@ SOURCE=.\res\TradeSystemDoc.ico
 # End Group
 # Begin Source File
 
+SOURCE=.\data_extraction.sql
+# End Source File
+# Begin Source File
+
 SOURCE=.\matlab\libMethod_1.dll
 
 !IF  "$(CFG)" == "TradeSystem - Win32 Release"

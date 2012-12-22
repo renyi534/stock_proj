@@ -135,6 +135,11 @@ void CMdSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
 			m_log<<"Database connection OK"<<endl;
 		}*/
 	}
+	else if (bIsLast && IsErrorRspInfo(pRspInfo))
+	{
+		Sleep(1000);
+		ReqUserLogin();
+	}
 }
 
 void CMdSpi::SubscribeMarketData()

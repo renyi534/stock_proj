@@ -89,6 +89,7 @@ void CTraderSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
 	}
 	else if (bIsLast && IsErrorRspInfo(pRspInfo))
 	{
+		Sleep(1000);
 		ReqUserLogin();
 	}
 }
