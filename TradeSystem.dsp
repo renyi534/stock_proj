@@ -206,6 +206,10 @@ SOURCE=.\TradeSystemView.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\VarOneMinuteSeriesGenerator.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\WeightedAlgorithm.cpp
 # End Source File
 # End Group
@@ -375,6 +379,10 @@ SOURCE=.\TradeSystemView.h
 # Begin Source File
 
 SOURCE=.\utility.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\VarOneMinuteSeriesGenerator.h
 # End Source File
 # Begin Source File
 
