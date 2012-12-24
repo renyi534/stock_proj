@@ -15,9 +15,10 @@ class OneMinuteSeriesGenerator : public KSeriesGenerator
 {
 public:
 	OneMinuteSeriesGenerator();
+	OneMinuteSeriesGenerator(string name);
 	virtual ~OneMinuteSeriesGenerator();
 	virtual void InputTickData(const CThostFtdcDepthMarketDataField& tick);
-private:
+protected:
 	void resetOneMinuteData(CMinuteData& m_one_minute_data, const string& instrument_id);
 	typedef map<string,CMinuteData> CMinuteDataMap;	
 	typedef pair<string,CMinuteData> CMinuteDataPair;	

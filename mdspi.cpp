@@ -17,6 +17,7 @@ using namespace std;
 #include "HalfMinuteSeriesGenerator.h"
 #include "OneMinuteSeriesGenerator.h"
 #include "TenMinuteSeriesGenerator.h"
+#include "VarOneMinuteSeriesGenerator.h"
 // USER_API²ÎÊý
 //extern CThostFtdcMdApi* m_pUserApi;
 
@@ -55,6 +56,7 @@ CMdSpi::CMdSpi(CThostFtdcMdApi* api):m_pUserApi(api),m_requestID(0),m_log("c:\\m
 	m_series_generator.push_back(new OneMinuteSeriesGenerator());
 	m_series_generator.push_back(new HalfMinuteSeriesGenerator());
 	m_series_generator.push_back(new TenMinuteSeriesGenerator());
+	m_series_generator.push_back(new VarOneMinuteSeriesGenerator(5));
 }
 
 void CMdSpi::OnRspError(CThostFtdcRspInfoField *pRspInfo,

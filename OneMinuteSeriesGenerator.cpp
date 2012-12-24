@@ -24,6 +24,14 @@ OneMinuteSeriesGenerator::OneMinuteSeriesGenerator():
 	m_prev_one_minute_data_map.insert(CMinuteDataPair("", CMinuteData() ));
 }
 
+OneMinuteSeriesGenerator::OneMinuteSeriesGenerator(string name):
+		KSeriesGenerator(name)
+{
+	// stl library can be buggy with empty maps. Insert some rubbish data here.
+	m_one_minute_data_map.insert(CMinuteDataPair("", CMinuteData() ));
+	m_prev_one_minute_data_map.insert(CMinuteDataPair("", CMinuteData() ));
+}
+
 OneMinuteSeriesGenerator::~OneMinuteSeriesGenerator()
 {
 
