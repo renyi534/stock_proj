@@ -40,6 +40,8 @@ void VarOneMinuteSeriesGenerator::InputTickData(const CThostFtdcDepthMarketDataF
 	
 	CMinuteData m_one_minute_data;
 
+	int curr_minute = 0;
+	int tick_minute = atoi(updateTime.substr(3,2).c_str());
 	CMinuteDataMap::iterator iter = m_one_minute_data_map.find(instrument_id);
 	if (iter == m_one_minute_data_map.end())
 	{
@@ -50,11 +52,16 @@ void VarOneMinuteSeriesGenerator::InputTickData(const CThostFtdcDepthMarketDataF
 	else
 	{
 		m_one_minute_data = m_one_minute_data_map[instrument_id];
+		curr_minute = atoi(m_one_minute_data.m_Time.substr(3,2).c_str());
 	}
 
 	if(tradingDay==m_one_minute_data.m_Day &&
-		(updateTime==m_one_minute_data.m_Time || i_second <= m_delimiter )
+		(updateTime==m_one_minute_data.m_Time || 
+		 (i_second < m_delimiter && 
+		  (tick_minute<curr_minute+2 && curr_minute-tick_minute<58)
 		 )
+		) 
+	  )
 	{
 		m_one_minute_data.m_ClosePrice= tick_data.LastPrice;
 
@@ -76,6 +83,7 @@ void VarOneMinuteSeriesGenerator::InputTickData(const CThostFtdcDepthMarketDataF
 		{
 			char buffer[10];
 			sprintf(buffer, ":%02d", m_delimiter);
+			
 			m_one_minute_data.m_Time =updateTime+buffer;
 
 			//We have gotten one minute statistics data
