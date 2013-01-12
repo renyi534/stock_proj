@@ -18,6 +18,7 @@ using namespace std;
 #include "OneMinuteSeriesGenerator.h"
 #include "TenMinuteSeriesGenerator.h"
 #include "VarOneMinuteSeriesGenerator.h"
+#include "VarHalfMinuteSeriesGenerator.h"
 // USER_API²ÎÊý
 //extern CThostFtdcMdApi* m_pUserApi;
 
@@ -57,8 +58,9 @@ CMdSpi::CMdSpi(CThostFtdcMdApi* api):m_pUserApi(api),m_requestID(0),m_log("c:\\m
 	m_series_generator.push_back(new HalfMinuteSeriesGenerator());
 	m_series_generator.push_back(new TenMinuteSeriesGenerator());
 	m_series_generator.push_back(new VarOneMinuteSeriesGenerator(5));
-	m_series_generator.push_back(new VarOneMinuteSeriesGenerator(0));
-	m_series_generator.push_back(new VarOneMinuteSeriesGenerator(59));
+//	m_series_generator.push_back(new VarOneMinuteSeriesGenerator(0));
+//	m_series_generator.push_back(new VarOneMinuteSeriesGenerator(59));
+	m_series_generator.push_back(new VarHalfMinuteSeriesGenerator(5));
 }
 
 void CMdSpi::OnRspError(CThostFtdcRspInfoField *pRspInfo,
@@ -179,7 +181,7 @@ void CMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketDa
 	
 	string time = pDepthMarketData->UpdateTime;
 
-	if ( time > "09:13:59" && time < "23:17" )
+	if ( time > "09:13:59" && time < "23:40" )
 	{
 		int size = m_series_generator.size();
 		

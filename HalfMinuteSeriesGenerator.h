@@ -14,11 +14,11 @@
 class HalfMinuteSeriesGenerator : public KSeriesGenerator  
 {
 public:
-	HalfMinuteSeriesGenerator();
+	HalfMinuteSeriesGenerator(string name="HalfMinuteSeriesGenerator");
 	virtual ~HalfMinuteSeriesGenerator();
 	virtual void InputTickData(const CThostFtdcDepthMarketDataField& tick);
 
-private:
+protected:
 	typedef map<string,CHalfMinuteData> CHalfMinuteDataMap;	
 	typedef pair<string,CHalfMinuteData> CHalfMinuteDataPair;	
 	CHalfMinuteDataMap m_half_minute_data_map;

@@ -16,8 +16,8 @@ static char THIS_FILE[]=__FILE__;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-HalfMinuteSeriesGenerator::HalfMinuteSeriesGenerator():
-	KSeriesGenerator("HalfMinuteKSeries")
+HalfMinuteSeriesGenerator::HalfMinuteSeriesGenerator(string name):
+	KSeriesGenerator(name)
 {
 	// stl library can be buggy with empty maps. Insert some rubbish data here.
 	m_half_minute_data_map.insert(CHalfMinuteDataPair("", CHalfMinuteData() ));
