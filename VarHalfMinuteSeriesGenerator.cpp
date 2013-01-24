@@ -81,7 +81,7 @@ void VarHalfMinuteSeriesGenerator::InputTickData(const CThostFtdcDepthMarketData
 		}
 		half_minute_data.m_Volume=tick_data.Volume;
 		half_minute_data.m_OpenInterest=tick_data.OpenInterest;
-		
+		half_minute_data.m_Time = updateTime;
 	}
 	else
 	{
