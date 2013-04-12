@@ -95,7 +95,7 @@ void CTradeSystemView::OnInitialUpdate()
 	m_TradeTab.AddSSLPage(_T("资金管理"), nPageID++, IDD_RISK_DLG);
 	m_TradeTab.AddSSLPage(_T("风险控制"), nPageID++, IDD_RISK_DLG);
 	
-	m_RefreshFormTimer = SetTimer(1, 1000, 0);	
+	m_RefreshFormTimer = SetTimer(1, 4000, 0);	
 	m_RefreshPosTimer  = SetTimer(2, 10000, 0);	
 	m_CorrectionPosTimer  = SetTimer(3, 20000, 0);
 	m_HS300Timer  = SetTimer(4, 500, 0);
