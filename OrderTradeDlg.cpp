@@ -4,7 +4,7 @@
 #include "stdafx.h"
 #include "tradesystem.h"
 #include "OrderTradeDlg.h"
-
+#include "ListCtrlCl.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -64,6 +64,13 @@ BOOL COrderTradeDlg::OnInitDialog()
 	m_OrderList.InsertColumn(8, _T("报单时间"), LVCFMT_CENTER, nColInterval);
 	m_OrderList.InsertColumn(9, _T("报单类型"), LVCFMT_CENTER, rect.Width()-9*nColInterval);
 
+	m_OrderList.SetBkColor(RGB(50,10,10));
+	m_OrderList.SetHeaderHeight(1.5);          //设置头部高度
+	m_OrderList.SetHeaderFontHW(16,0);         //设置头部字体高度,和宽度,0表示缺省，自适应 
+	m_OrderList.SetTextColor(RGB(0,255,255));  //设置文本颜色
+	m_OrderList.SetHeaderBKColor(100,255,100,8); //设置头部背景色
+	m_OrderList.SetFontHW(13,0);               //设置字体高度，和宽度,0表示缺省宽度
+
 	exstyle = m_TradeList.GetExtendedStyle();
 	m_TradeList.SetExtendedStyle(exstyle | LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES | WS_EX_STATICEDGE );
 	m_TradeList.GetClientRect(&rect);
@@ -77,6 +84,13 @@ BOOL COrderTradeDlg::OnInitDialog()
 	m_TradeList.InsertColumn(6, _T("成交手数"), LVCFMT_CENTER, nColInterval);
 	m_TradeList.InsertColumn(7, _T("成交时间"), LVCFMT_CENTER, nColInterval);
 	m_TradeList.InsertColumn(8, _T("成交类型"), LVCFMT_CENTER, rect.Width()-8*nColInterval);	
+
+	m_TradeList.SetBkColor(RGB(50,10,10));
+	m_TradeList.SetHeaderHeight(1.5);          //设置头部高度
+	m_TradeList.SetHeaderFontHW(16,0);         //设置头部字体高度,和宽度,0表示缺省，自适应 
+	m_TradeList.SetTextColor(RGB(0,255,255));  //设置文本颜色
+	m_TradeList.SetHeaderBKColor(100,255,100,8); //设置头部背景色
+	m_TradeList.SetFontHW(13,0);               //设置字体高度，和宽度,0表示缺省宽度
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
 }

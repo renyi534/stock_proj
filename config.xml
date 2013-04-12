@@ -5,9 +5,9 @@
     <INVESTOR_ID>601000047</INVESTOR_ID>
     <PASSWORD>123456</PASSWORD>
     <INSTRUMENT>
-        <ITEM>IF1301</ITEM>
-        <ITEM>IF1302</ITEM>
-        <ITEM>IF1303</ITEM>
+        <ITEM>IF1307</ITEM>
+        <ITEM>IF1305</ITEM>
+        <ITEM>IF1304</ITEM>
     </INSTRUMENT>        
     <DB_CONN>DSN=PostgreSQL35W;UID=postgres;PWD=123</DB_CONN>
     <HS300_URL>http://hq.sinajs.cn/list=sz399300</HS300_URL>

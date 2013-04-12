@@ -16,6 +16,7 @@
 #include <map>
 #include <iostream>
 #include <fstream>
+#include "ListCtrlCl.h"
 class CTradeSystemView : public CFormView
 {
 protected: // create from serialization only
@@ -26,9 +27,9 @@ public:
 	//{{AFX_DATA(CTradeSystemView)
 	enum { IDD = IDD_TRADESYSTEM_FORM };
 	CTabCtrlSSL	m_TradeTab;
-	CListCtrl	m_PositionList;
-	CListCtrl	m_InstrumentList;
-	CListCtrl	m_AccountList;
+	CListCtrlCl	m_PositionList;
+	CListCtrlCl	m_InstrumentList;
+	CListCtrlCl	m_AccountList;
 	CDateTimeCtrl	m_DateEnd;
 	CDateTimeCtrl	m_DateStart;
 	CStatic	m_TradeStatus;

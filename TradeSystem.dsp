@@ -125,11 +125,19 @@ SOURCE=.\HalfMinuteSeriesGenerator.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\HeaderCtrlCl.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\HsAlgorithm.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\KSeriesGenerator.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ListCtrlCl.cpp
 # End Source File
 # Begin Source File
 
@@ -254,6 +262,10 @@ SOURCE=.\HalfMinuteSeriesGenerator.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\HeaderCtrlCl.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\HsAlgorithm.h
 # End Source File
 # Begin Source File
@@ -275,6 +287,10 @@ SOURCE=.\matlab\libMethod_3.h
 # Begin Source File
 
 SOURCE=.\matlab\libMethod_4.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ListCtrlCl.h
 # End Source File
 # Begin Source File
 

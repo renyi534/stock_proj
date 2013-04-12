@@ -7,6 +7,7 @@
 // OrderTradeDlg.h : header file
 //
 #include "TabPageSSL.h"
+#include "ListCtrlCl.h"
 /////////////////////////////////////////////////////////////////////////////
 // COrderTradeDlg dialog
 
@@ -19,8 +20,8 @@ public:
 // Dialog Data
 	//{{AFX_DATA(COrderTradeDlg)
 	enum { IDD = IDD_ORDER_TRADE };
-	CListCtrl	m_TradeList;
-	CListCtrl	m_OrderList;
+	CListCtrlCl	m_TradeList;
+	CListCtrlCl	m_OrderList;
 	//}}AFX_DATA
 
 
