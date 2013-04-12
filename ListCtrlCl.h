@@ -54,6 +54,8 @@ public:
 public:
 	// ×ÖÌå¿í¶È
 	int m_fontWith;
+private:
+	void DestroyColorList(CPtrList & list);
 };
 
 

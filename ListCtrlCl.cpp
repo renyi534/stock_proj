@@ -24,6 +24,10 @@ CListCtrlCl::CListCtrlCl()
 
 CListCtrlCl::~CListCtrlCl()
 {
+	DestroyColorList(m_ptrListCol);
+	DestroyColorList(m_ptrListItem);
+	DestroyColorList(m_colTextColor);
+	DestroyColorList(m_ItemTextColor);
 }
 
 
@@ -350,4 +354,14 @@ void CListCtrlCl::SetItemTextColor(int col,int row,COLORREF color)
 	pColor->nRow = row;
 	pColor->rgb = color;
 	m_ItemTextColor.AddTail(pColor);
+}
+
+void CListCtrlCl::DestroyColorList(CPtrList &list)
+{
+	POSITION pos;
+	for (pos = list.GetHeadPosition();pos!=NULL;)
+	{
+		stColor *pColor = (stColor*)list.GetNext(pos);
+		delete pColor;
+	}
 }
