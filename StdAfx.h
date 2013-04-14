@@ -64,4 +64,9 @@ typedef std::basic_string<unsigned char> MyString;
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.
 
+
+
+extern BYTE head_BK_R, head_BK_G, head_BK_B;
+extern BYTE TX_R, TX_G, TX_B;
+extern BYTE BK_R, BK_G, BK_B;
 #endif // !defined(AFX_STDAFX_H__8D7F99BF_1591_4F52_8428_1832B5C7A849__INCLUDED_)

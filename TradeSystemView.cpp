@@ -358,12 +358,14 @@ void CTradeSystemView::InitListCtrl()
 	m_AccountList.InsertColumn(7, _T("持仓盈亏"), LVCFMT_CENTER, nColInterval);
 	m_AccountList.InsertColumn(8, _T("保证金"), LVCFMT_CENTER, rect.Width()-8*nColInterval);
 	
+
+
 	m_AccountList.InsertItem(0,"");
-	m_AccountList.SetBkColor(RGB(50,10,10));
+	m_AccountList.SetBkColor(RGB(BK_R,BK_G,BK_B));
 	m_AccountList.SetHeaderHeight(1.5);          //设置头部高度
 	m_AccountList.SetHeaderFontHW(16,0);         //设置头部字体高度,和宽度,0表示缺省，自适应 
-	m_AccountList.SetTextColor(RGB(0,255,255));  //设置文本颜色
-	m_AccountList.SetHeaderBKColor(100,255,100,8); //设置头部背景色
+	m_AccountList.SetTextColor(RGB(TX_R,TX_G,TX_B));  //设置文本颜色
+	m_AccountList.SetHeaderBKColor(head_BK_R,head_BK_G,head_BK_B,8); //设置头部背景色
 	m_AccountList.SetFontHW(15,0);               //设置字体高度，和宽度,0表示缺省宽度
 	
 	exstyle = m_InstrumentList.GetExtendedStyle();
@@ -385,12 +387,14 @@ void CTradeSystemView::InitListCtrl()
 	m_InstrumentList.InsertColumn(12, _T("最低价"), LVCFMT_CENTER, nColInterval);
 	m_InstrumentList.InsertColumn(13, _T("昨收盘"), LVCFMT_CENTER, nColInterval);
 	m_InstrumentList.InsertColumn(14, _T("成交额"), LVCFMT_CENTER, rect.Width()-14*nColInterval);
-	
-	m_InstrumentList.SetBkColor(RGB(50,10,10));
+
+
+
+	m_InstrumentList.SetBkColor(RGB(BK_R,BK_G,BK_B));
 	m_InstrumentList.SetHeaderHeight(1.5);          //设置头部高度
 	m_InstrumentList.SetHeaderFontHW(16,0);         //设置头部字体高度,和宽度,0表示缺省，自适应 
-	m_InstrumentList.SetTextColor(RGB(0,255,255));  //设置文本颜色
-	m_InstrumentList.SetHeaderBKColor(100,255,100,8); //设置头部背景色
+	m_InstrumentList.SetTextColor(RGB(TX_R,TX_G,TX_B));  //设置文本颜色
+	m_InstrumentList.SetHeaderBKColor(head_BK_R,head_BK_G,head_BK_B,8); //设置头部背景色
 	m_InstrumentList.SetFontHW(13,0);               //设置字体高度，和宽度,0表示缺省宽度
 
 	exstyle = m_PositionList.GetExtendedStyle();
@@ -410,12 +414,12 @@ void CTradeSystemView::InitListCtrl()
 	m_PositionList.InsertColumn(10, _T("持仓盈亏(多)"), LVCFMT_CENTER, nColInterval);
 	m_PositionList.InsertColumn(11, _T("占用保证金(空)"), LVCFMT_CENTER, nColInterval);
 	m_PositionList.InsertColumn(12, _T("占用保证金(多)"), LVCFMT_CENTER, rect.Width()-12*nColInterval);
-	
-	m_PositionList.SetBkColor(RGB(50,10,10));
+
+	m_PositionList.SetBkColor(RGB(BK_R,BK_G,BK_B));
 	m_PositionList.SetHeaderHeight(1.5);          //设置头部高度
 	m_PositionList.SetHeaderFontHW(13,0);         //设置头部字体高度,和宽度,0表示缺省，自适应 
-	m_PositionList.SetTextColor(RGB(0,255,255));  //设置文本颜色
-	m_PositionList.SetHeaderBKColor(100,255,100,8); //设置头部背景色
+	m_PositionList.SetTextColor(RGB(TX_R,TX_G,TX_B));  //设置文本颜色
+	m_PositionList.SetHeaderBKColor(head_BK_R,head_BK_G,head_BK_B,8); //设置头部背景色
 	m_PositionList.SetFontHW(13,0);               //设置字体高度，和宽度,0表示缺省宽度
 
 	int i =0;
