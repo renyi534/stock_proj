@@ -468,6 +468,10 @@ SOURCE=.\ReadMe.txt
 # End Source File
 # Begin Source File
 
+SOURCE=.\TableCreation.sql
+# End Source File
+# Begin Source File
+
 SOURCE=.\ThostTraderApi\thostmduserapi.dll
 # End Source File
 # Begin Source File
