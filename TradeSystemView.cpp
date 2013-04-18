@@ -237,7 +237,8 @@ void CTradeSystemView::OnTimer(UINT nIDEvent)
 				) )
 			{
 				old_data = data;
-				tradeConn->m_UserSpi->OnRtnDepthMarketData(&data);
+				if (tradeConn != NULL)
+					tradeConn->m_UserSpi->OnRtnDepthMarketData(&data);
 			}
 		}
 	}

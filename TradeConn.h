@@ -10,6 +10,13 @@
 #include "TraderSpi.h"
 #include "MdSpi.h"
 #include <direct.h>
+#include <vector>
+
+struct Algo_Inst_Pair{
+	string Algorithm;
+	string Instrument;
+	int slot;
+};
 struct TradeConn
 {
 	CThostFtdcTraderApi*	m_TradeApi;
@@ -18,11 +25,18 @@ struct TradeConn
 	CThostFtdcMdApi*		m_UserApi;
 	CMdSpi*		m_UserSpi;
 
+	string m_TradeAddr;
+	string m_MdAddr;
+	string m_BrokerId;
+	string m_InvestorId;
+	string m_Passwd;
+	vector<Algo_Inst_Pair> m_AlgoList;
 	TradeConn(string FRONT_ADDR_MD, string FRONT_ADDR_TRADE,TE_RESUME_TYPE nResumeType)
 	{
-		int ret=_mkdir(".\\UserApi");
+		string userDir =string(".\\UserApi")+m_InvestorId;
+		int ret=_mkdir(userDir.c_str());
 		ASSERT( errno  == EEXIST || ret == 0);
-		m_TradeApi = CThostFtdcTraderApi::CreateFtdcTraderApi(".\\UserApi");			// 创建UserApi
+		m_TradeApi = CThostFtdcTraderApi::CreateFtdcTraderApi(userDir.c_str());			// 创建UserApi
 		m_TradeSpi = new CTraderSpi(m_TradeApi);
 		m_TradeApi->RegisterSpi((CThostFtdcTraderSpi*)m_TradeSpi);			// 注册事件类
 		m_TradeApi->SubscribePublicTopic(nResumeType);					// 注册公有流
@@ -30,9 +44,10 @@ struct TradeConn
 		m_TradeApi->RegisterFront((char*)FRONT_ADDR_TRADE.c_str());			// connect
 		m_TradeApi->Init();
 
-		ret = _mkdir(".\\MdApi");
+		string mdDir =string(".\\MdApi")+m_InvestorId;
+		ret = _mkdir(mdDir.c_str());
 		ASSERT( errno  == EEXIST || ret == 0);
-		m_UserApi = CThostFtdcMdApi::CreateFtdcMdApi(".\\MdApi");			// 创建UserApi
+		m_UserApi = CThostFtdcMdApi::CreateFtdcMdApi(mdDir.c_str());			// 创建UserApi
 		m_UserSpi = new CMdSpi(m_UserApi);
 		m_UserApi->RegisterSpi(m_UserSpi);						// 注册事件类
 		m_UserApi->RegisterFront((char*)FRONT_ADDR_MD.c_str());					// connect

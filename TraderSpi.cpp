@@ -47,7 +47,7 @@ CTraderSpi::~CTraderSpi()
 	m_log.close();
 }
 
-CTraderSpi::CTraderSpi(CThostFtdcTraderApi* api):m_pTradeApi(api),m_requestID(0),m_log("c:\\trade.log", ios::app)
+CTraderSpi::CTraderSpi(CThostFtdcTraderApi* api):m_pTradeApi(api),m_requestID(0),m_log(".\\trade.log", ios::app)
 {
 	m_TradeCount =0;
 	m_OrderCount =0;

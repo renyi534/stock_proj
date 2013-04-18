@@ -19,8 +19,8 @@ extern DbAccessorPool dbAccessPool;
 //////////////////////////////////////////////////////////////////////
 
 DtAlgorithm::DtAlgorithm(string instrument_id):
-m_InstrumentID(instrument_id), m_Amount(0), m_log("c:\\dt_algo_data.log", ios::app),
-m_state_log("c:\\dt_algo_state.log", ios::app)
+m_InstrumentID(instrument_id), m_Amount(0), m_log(".\\dt_algo_data.log", ios::app),
+m_state_log(".\\dt_algo_state.log", ios::app)
 {
 	lastVol=0;
 	totalAmount=0;

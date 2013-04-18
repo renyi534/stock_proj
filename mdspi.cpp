@@ -48,7 +48,7 @@ CMdSpi::~CMdSpi()
 }
 
 
-CMdSpi::CMdSpi(CThostFtdcMdApi* api):m_pUserApi(api),m_requestID(0),m_log("c:\\marketdata.log",ios::app)
+CMdSpi::CMdSpi(CThostFtdcMdApi* api):m_pUserApi(api),m_requestID(0),m_log(".\\marketdata.log",ios::app)
 {
 	::InitializeCriticalSection(&m_data_critsec);
 	// stl library can be buggy with empty maps. Insert some rubbish data here.

@@ -62,18 +62,22 @@ UINT ThrdFunc (LPVOID n)
 
 CWinThread* TradeHandlingThread=AfxBeginThread(ThrdFunc,NULL,THREAD_PRIORITY_NORMAL);
 
+extern bool WriteDb;
 DWORD WINAPI ExecSQL(LPVOID param)
 {
     // VERY IMPORTANT: param is a pointer to UserPoolData
 	UserPoolData* pPoolData = (UserPoolData*) param;
     char* sql = (char*)pPoolData->pData;
-
-	try{
-		DbConn conn(dbAccessPool);
-		conn.m_db->execSql(sql);
-	}
-	catch(...)
+	
+	if(WriteDb)
 	{
+		try{
+			DbConn conn(dbAccessPool);
+			conn.m_db->execSql(sql);
+		}
+		catch(...)
+		{
+		}
 	}
 	delete [] sql;
 	return 1;

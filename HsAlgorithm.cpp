@@ -19,7 +19,7 @@ extern DbAccessorPool dbAccessPool;
 //////////////////////////////////////////////////////////////////////
 
 HsAlgorithm::HsAlgorithm(string instrument_id):
-	m_InstrumentID(instrument_id), m_Amount(0), m_log("c:\\hs_algo_data.log", ios::app)
+	m_InstrumentID(instrument_id), m_Amount(0), m_log(".\\hs_algo_data.log", ios::app)
 {
 	lastVol=0;
 	totalAmount=0;

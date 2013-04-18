@@ -55,7 +55,7 @@ TThostFtdcInstrumentIDType INSTRUMENT_ID = "IF1207";	// ºÏÔ¼´úÂë
 DbAccessorPool dbAccessPool;
 TradeConn* tradeConn; //(FRONT_ADDR_MD,FRONT_ADDR_TRADE,TERT_RESUME);
 set<string> activeAlgorithm;
-
+bool WriteDb = false;
 /////////////////////////////////////////////////////////////////////////////
 // CTradeSystemApp
 
@@ -133,6 +133,13 @@ void CTradeSystemApp::LoadConfig()
     xml.FindChildElem("DB_CONN");
     CString db_conn = xml.GetChildData();
     strcpy( DB_CONN, (LPCSTR)db_conn);
+
+    xml.FindChildElem("WRITE_DB");
+    CString write_db = xml.GetChildData();
+    if ( write_db == "TRUE")
+		WriteDb = true;
+	else
+		WriteDb = false;
 
     xml.FindChildElem("HS300_URL");
     CString hs300_url = xml.GetChildData();

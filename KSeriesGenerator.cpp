@@ -17,7 +17,7 @@ static char THIS_FILE[]=__FILE__;
 //////////////////////////////////////////////////////////////////////
 
 KSeriesGenerator::KSeriesGenerator(string name):
-	m_log((string("c:\\")+name+string(".txt")).c_str(),ios::app), m_name(name)
+	m_log((string(".\\")+name+string(".txt")).c_str(),ios::app), m_name(name)
 {
 
 }

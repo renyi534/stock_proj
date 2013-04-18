@@ -20,8 +20,8 @@ extern DbAccessorPool dbAccessPool;
 //////////////////////////////////////////////////////////////////////
 
 WeightedAlgorithm::WeightedAlgorithm(string instrument_id):
-m_InstrumentID(instrument_id), m_Amount(0), m_log("c:\\weighted_algo_data.log", ios::app),
-m_state_log("c:\\weighted_algo_state.log", ios::app)
+m_InstrumentID(instrument_id), m_Amount(0), m_log(".\\weighted_algo_data.log", ios::app),
+m_state_log(".\\weighted_algo_state.log", ios::app)
 {
 	lastVol=0;
 	totalAmount=0;
