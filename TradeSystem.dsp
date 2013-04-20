@@ -435,6 +435,10 @@ SOURCE=.\res\TradeSystemDoc.ico
 # End Group
 # Begin Source File
 
+SOURCE=.\config.xml
+# End Source File
+# Begin Source File
+
 SOURCE=.\data_extraction.sql
 # End Source File
 # Begin Source File
