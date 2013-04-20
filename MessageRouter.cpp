@@ -16,14 +16,14 @@ static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
 
-extern char * ppInstrumentID[30];
+
 extern set<string> activeAlgorithm;
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
-MessageRouter MessageRouter::Router;
 
-MessageRouter::MessageRouter()
+MessageRouter::MessageRouter(string broker, string investor)
+: m_BrokerId(broker), m_InvestorId(investor)
 {
 	
 }
@@ -49,6 +49,8 @@ void MessageRouter::InitAlgorithm()
 		if (algo != NULL)
 		{
 			algo->CreateThread(CREATE_SUSPENDED);
+			algo->SetSlot(iter->slot);
+			algo->SetAccountInfo(m_BrokerId, m_InvestorId);
 			algo->ResumeThread();
 			m_algorithms.push_back(algo);
 		}
@@ -151,12 +153,14 @@ void MessageRouter::sendData(const CThostFtdcInvestorPositionField& data)
 	}
 }
 
-void MessageRouter::AddAlgorithm(string algo_name, string instrument, string config_file)
+void MessageRouter::AddAlgorithm(string algo_name, string instrument, 
+								 int slot, string config_file)
 {
 	AlgoInstrumentPair pair;
 	pair.AlgoName=algo_name;
 	pair.Instrument = instrument;
 	pair.config_file = config_file;
+	pair.slot = slot;
 	m_algoInstrument.push_back(pair);
 }
 

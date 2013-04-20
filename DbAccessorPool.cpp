@@ -72,12 +72,12 @@ void DbAccessorPool::releaseDbAccessor(DbAccessor& acc)
 	ASSERT("releaseDbAccessor wrong");
 }
 
-void DbAccessorPool::Init()
+void DbAccessorPool::Init(string conn_str)
 {
 	m_sem = CreateSemaphore(NULL, m_size, m_size, NULL);
 	for(int i=0;i<m_size;i++)
 	{
-		DbAccessor* accessor= new DbAccessor();
+		DbAccessor* accessor= new DbAccessor(conn_str);
 		DbAccessorItem item(accessor,false);
 		this->m_dbVector.push_back(item);
 	}

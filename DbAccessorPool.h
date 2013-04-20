@@ -28,7 +28,7 @@ struct DbAccessorItem{
 class DbAccessorPool  
 {
 public:
-	void Init();
+	void Init(string conn_str);
 	DbAccessorPool(int size=2);
 	virtual ~DbAccessorPool();
 	DbAccessor& getDbAccessor();

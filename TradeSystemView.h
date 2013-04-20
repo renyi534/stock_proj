@@ -17,6 +17,7 @@
 #include <iostream>
 #include <fstream>
 #include "ListCtrlCl.h"
+
 class CTradeSystemView : public CFormView
 {
 protected: // create from serialization only
@@ -63,6 +64,7 @@ public:
 // Implementation
 public:
 	void CorrectAlgoPos();
+	TradeConn* GetCurrConn();
 	static CTradeSystemView* GetCurrView();
 	virtual ~CTradeSystemView();
 #ifdef _DEBUG
@@ -82,9 +84,12 @@ protected:
 	afx_msg void OnClearShort();
 	afx_msg void OnClearLong();
 	afx_msg void OnTimer(UINT nIDEvent);
+	afx_msg void OnItemchangedAccountList(NMHDR* pNMHDR, LRESULT* pResult);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 private:
+	TradeConn* GetConnById(int);
+
 	void UpdatePosition();
 	void InitListCtrl();
 	void RefreshForm();

@@ -19,14 +19,12 @@ using namespace std;
 #include "TenMinuteSeriesGenerator.h"
 #include "VarOneMinuteSeriesGenerator.h"
 #include "VarHalfMinuteSeriesGenerator.h"
+#include "TradeConn.h"
 // USER_API参数
 //extern CThostFtdcMdApi* m_pUserApi;
 
-// 配置参数
-extern char FRONT_ADDR[];		
-extern TThostFtdcBrokerIDType	BROKER_ID;
-extern TThostFtdcInvestorIDType INVESTOR_ID;
-extern TThostFtdcPasswordType	PASSWORD;
+// 配置参数	
+
 extern char *ppInstrumentID[];	
 extern int iInstrumentID;
 
@@ -47,20 +45,23 @@ CMdSpi::~CMdSpi()
 	//::DeleteCriticalSection(&m_minute_critsec);
 }
 
-
-CMdSpi::CMdSpi(CThostFtdcMdApi* api):m_pUserApi(api),m_requestID(0),m_log(".\\marketdata.log",ios::app)
+CMdSpi::CMdSpi(CThostFtdcMdApi* api, string broker_id, string investor_id, 
+			   string passwd, TradeConn* conn)
+	:m_pUserApi(api),m_requestID(0), m_BrokerId(broker_id), m_InvestorId(investor_id),
+		m_Passwd(passwd), m_log(".\\marketdata.log",ios::app), m_Conn(conn)
 {
 	::InitializeCriticalSection(&m_data_critsec);
+	ASSERT(m_Conn != NULL);
 	// stl library can be buggy with empty maps. Insert some rubbish data here.
 	m_tick_data_map.insert(CTickDataPair("", CThostFtdcDepthMarketDataField() ));
 
-	m_series_generator.push_back(new OneMinuteSeriesGenerator());
-	m_series_generator.push_back(new HalfMinuteSeriesGenerator());
-	m_series_generator.push_back(new TenMinuteSeriesGenerator());
-	m_series_generator.push_back(new VarOneMinuteSeriesGenerator(5));
+	m_series_generator.push_back(new OneMinuteSeriesGenerator(&(m_Conn->m_Router)));
+	m_series_generator.push_back(new HalfMinuteSeriesGenerator(&(m_Conn->m_Router)));
+	m_series_generator.push_back(new TenMinuteSeriesGenerator(&(m_Conn->m_Router)));
+	m_series_generator.push_back(new VarOneMinuteSeriesGenerator(&(m_Conn->m_Router),5));
 //	m_series_generator.push_back(new VarOneMinuteSeriesGenerator(0));
 //	m_series_generator.push_back(new VarOneMinuteSeriesGenerator(59));
-	m_series_generator.push_back(new VarHalfMinuteSeriesGenerator(5));
+	m_series_generator.push_back(new VarHalfMinuteSeriesGenerator(&(m_Conn->m_Router),5));
 }
 
 void CMdSpi::OnRspError(CThostFtdcRspInfoField *pRspInfo,
@@ -107,9 +108,9 @@ void CMdSpi::ReqUserLogin()
 {
 	CThostFtdcReqUserLoginField req;
 	memset(&req, 0, sizeof(req));
-	strcpy(req.BrokerID, BROKER_ID);
-	strcpy(req.UserID, INVESTOR_ID);
-	strcpy(req.Password, PASSWORD);
+	strcpy(req.BrokerID, m_BrokerId.c_str());
+	strcpy(req.UserID, m_InvestorId.c_str());
+	strcpy(req.Password, m_Passwd.c_str());
 	int iResult = m_pUserApi->ReqUserLogin(&req, ++m_requestID);
 	m_log << "--->>> 发送用户登录请求: " << ((iResult == 0) ? "成功" : "失败") << endl;
 }
@@ -177,7 +178,7 @@ void CMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketDa
 		<<pDepthMarketData->UpdateTime<<" "<<pDepthMarketData->UpdateMillisec<<" "<<pDepthMarketData->InstrumentID<<" "
 		<<"  Price:"<<pDepthMarketData->LastPrice<<" threadid: "<<thread_id<<endl;
     
-	MessageRouter::Router.sendData(* pDepthMarketData);
+	m_Conn->m_Router.sendData(* pDepthMarketData);
 	
 	string time = pDepthMarketData->UpdateTime;
 

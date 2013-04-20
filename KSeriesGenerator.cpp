@@ -16,8 +16,9 @@ static char THIS_FILE[]=__FILE__;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-KSeriesGenerator::KSeriesGenerator(string name):
-	m_log((string(".\\")+name+string(".txt")).c_str(),ios::app), m_name(name)
+KSeriesGenerator::KSeriesGenerator(string name, MessageRouter* router):
+	m_log((string(".\\")+name+string(".txt")).c_str(),ios::app), 
+	m_Router(router), m_name(name)
 {
 
 }

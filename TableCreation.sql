@@ -3,7 +3,7 @@ CREATE SCHEMA stock_data
 
 -- Table: stock_data."DepthMarketData"
 
--- DROP TABLE stock_data."DepthMarketData";
+DROP TABLE IF EXISTS stock_data."DepthMarketData";
 
 CREATE TABLE stock_data."DepthMarketData"
 (
@@ -60,7 +60,7 @@ ALTER TABLE stock_data."DepthMarketData"
 
 -- Table: stock_data."HalfMinuteData"
 
--- DROP TABLE stock_data."HalfMinuteData";
+DROP TABLE IF EXISTS stock_data."HalfMinuteData";
 
 CREATE TABLE stock_data."HalfMinuteData"
 (
@@ -82,7 +82,7 @@ ALTER TABLE stock_data."HalfMinuteData"
 
 -- Table: stock_data."OneMinuteData"
 
--- DROP TABLE stock_data."OneMinuteData";
+DROP TABLE IF EXISTS stock_data."OneMinuteData";
 
 CREATE TABLE stock_data."OneMinuteData"
 (
@@ -104,7 +104,7 @@ ALTER TABLE stock_data."OneMinuteData"
 
 -- Table: stock_data."TenMinuteData"
 
--- DROP TABLE stock_data."TenMinuteData";
+DROP TABLE IF EXISTS stock_data."TenMinuteData";
 
 CREATE TABLE stock_data."TenMinuteData"
 (
@@ -146,10 +146,12 @@ ALTER TABLE stock_data.history_minute_data
 
 -- Table: stock_data.order_details
 
--- DROP TABLE stock_data.order_details;
+DROP TABLE IF EXISTS stock_data.order_details;
 
 CREATE TABLE stock_data.order_details
 (
+  broker_id text,
+  investor_id text,
   amount integer,
   price double precision,
   trans_day text,
@@ -166,10 +168,12 @@ ALTER TABLE stock_data.order_details
 
 -- Table: stock_data.trade_details
 
--- DROP TABLE stock_data.trade_details;
+DROP TABLE IF EXISTS stock_data.trade_details;
 
 CREATE TABLE stock_data.trade_details
 (
+  broker_id text,
+  investor_id text,
   amount integer,
   price double precision,
   trans_day text,

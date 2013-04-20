@@ -5,7 +5,7 @@
 #include "stdafx.h"
 #include "tradesystem.h"
 #include "VarOneMinuteSeriesGenerator.h"
-
+#include "MessageRouter.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -17,8 +17,8 @@ static char THIS_FILE[]=__FILE__;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-VarOneMinuteSeriesGenerator::VarOneMinuteSeriesGenerator(int delimiter)
-	:OneMinuteSeriesGenerator("VarOneMinuteKSeries"),
+VarOneMinuteSeriesGenerator::VarOneMinuteSeriesGenerator(MessageRouter* router, int delimiter)
+	:OneMinuteSeriesGenerator(router, "VarOneMinuteKSeries"),
 	 m_delimiter(delimiter)
 {
 
@@ -105,7 +105,7 @@ void VarOneMinuteSeriesGenerator::InputTickData(const CThostFtdcDepthMarketDataF
 			{
 				m_one_minute_data.m_OpenInterest -= prev_data.m_OpenInterest;
 				m_one_minute_data.m_Volume -= prev_data.m_Volume;
-				MessageRouter::Router.sendData(m_one_minute_data);
+				m_Router->sendData(m_one_minute_data);
 				
 				char* buffer = new char[8196];
 				int index=0;

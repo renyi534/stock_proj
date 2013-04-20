@@ -11,10 +11,11 @@
 using namespace std;
 class DbConn;
 class KSeriesGenerator;
+struct TradeConn;
 class CMdSpi : public CThostFtdcMdSpi
 {
 public:
-	CMdSpi(CThostFtdcMdApi* api);
+	CMdSpi(CThostFtdcMdApi* api, string, string, string, TradeConn*);
 	~CMdSpi();
 	///´íÎóÓ¦´ð
 	virtual void OnRspError(CThostFtdcRspInfoField *pRspInfo,
@@ -69,6 +70,10 @@ private:
 	friend class CTradeSystemView;
 
 	vector<KSeriesGenerator*> m_series_generator;
+	string m_BrokerId;
+	string m_InvestorId;
+	string m_Passwd;
+	TradeConn* m_Conn;
 	CRITICAL_SECTION		m_data_critsec;
 	
 };

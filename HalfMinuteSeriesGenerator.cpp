@@ -5,7 +5,7 @@
 #include "stdafx.h"
 #include "tradesystem.h"
 #include "HalfMinuteSeriesGenerator.h"
-
+#include "MessageRouter.h"
 #ifdef _DEBUG
 #undef THIS_FILE
 static char THIS_FILE[]=__FILE__;
@@ -16,8 +16,8 @@ static char THIS_FILE[]=__FILE__;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-HalfMinuteSeriesGenerator::HalfMinuteSeriesGenerator(string name):
-	KSeriesGenerator(name)
+HalfMinuteSeriesGenerator::HalfMinuteSeriesGenerator(MessageRouter* router,string name):
+	KSeriesGenerator(name, router)
 {
 	// stl library can be buggy with empty maps. Insert some rubbish data here.
 	m_half_minute_data_map.insert(CHalfMinuteDataPair("", CHalfMinuteData() ));
@@ -109,7 +109,7 @@ void HalfMinuteSeriesGenerator::InputTickData(const CThostFtdcDepthMarketDataFie
 				half_minute_data.m_OpenInterest -= prev_data.m_OpenInterest;
 				half_minute_data.m_Volume -= prev_data.m_Volume;
 				
-				MessageRouter::Router.sendData(half_minute_data);
+				m_Router->sendData(half_minute_data);
 				
 				char* buffer = new char[8196];
 				int index=0;

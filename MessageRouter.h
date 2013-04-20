@@ -9,12 +9,12 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "Algorithm.h"
-
+//#include "Algorithm.h"
+class Algorithm;
 class MessageRouter  
 {
 public:
-	void AddAlgorithm(string algo_name, string instrument, string config_file="");
+	void AddAlgorithm(string algo_name, string instrument, int slot, string config_file="");
 	virtual ~MessageRouter();
 	void sendData(const CMinuteData& data);
 	void sendData(const CTenMinuteData& data);
@@ -25,19 +25,22 @@ public:
 	void sendData(const CThostFtdcInvestorPositionField& data);
 	static MessageRouter Router;
 	void InitAlgorithm();
+	MessageRouter(string broker_id, string investor_id);
 private:
 	struct AlgoInstrumentPair
 	{
 		string AlgoName;
 		string Instrument;
 		string config_file;
+		int slot;
 	};
 	Algorithm* createAlgorithm(AlgoInstrumentPair algoInstrument);
-	MessageRouter();
+
 	vector<Algorithm*> m_algorithms;
 
-
 	vector<AlgoInstrumentPair> m_algoInstrument;
+	string m_BrokerId;
+	string m_InvestorId;
 };
 
 #endif // !defined(AFX_MESSAGEROUTER_H__E15C451A_729C_41C4_90A2_4E14A8C12B2B__INCLUDED_)

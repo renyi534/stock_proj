@@ -172,7 +172,7 @@ void WeightedAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 
 
 
-int	WeightedAlgorithm::SendStrategy(const OrderInfoShort & res)
+int	WeightedAlgorithm::SendStrategy( OrderInfoShort & res)
 {
 
 	//第一行就是真实的发送指令，第二行是本地模拟写log

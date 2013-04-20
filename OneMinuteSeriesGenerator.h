@@ -10,12 +10,12 @@
 #endif // _MSC_VER > 1000
 
 #include "KSeriesGenerator.h"
-
+class MessageRouter;
 class OneMinuteSeriesGenerator : public KSeriesGenerator  
 {
 public:
 	OneMinuteSeriesGenerator();
-	OneMinuteSeriesGenerator(string name);
+	OneMinuteSeriesGenerator(MessageRouter* router, string name="OneMinuteSeriesGenerator");
 	virtual ~OneMinuteSeriesGenerator();
 	virtual void InputTickData(const CThostFtdcDepthMarketDataField& tick);
 protected:
@@ -24,6 +24,7 @@ protected:
 	typedef pair<string,CMinuteData> CMinuteDataPair;	
 	CMinuteDataMap m_one_minute_data_map;
 	CMinuteDataMap m_prev_one_minute_data_map;
+	MessageRouter* m_Router;
 };
 
 #endif // !defined(AFX_ONEMINUTESERIESGENERATOR_H__510C949D_9193_478E_B787_06FC4AB35FDD__INCLUDED_)

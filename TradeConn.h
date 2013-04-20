@@ -11,12 +11,8 @@
 #include "MdSpi.h"
 #include <direct.h>
 #include <vector>
+#include "MessageRouter.h"
 
-struct Algo_Inst_Pair{
-	string Algorithm;
-	string Instrument;
-	int slot;
-};
 struct TradeConn
 {
 	CThostFtdcTraderApi*	m_TradeApi;
@@ -25,30 +21,35 @@ struct TradeConn
 	CThostFtdcMdApi*		m_UserApi;
 	CMdSpi*		m_UserSpi;
 
-	string m_TradeAddr;
-	string m_MdAddr;
+	string m_TradeServerAddr;
+	string m_MdServerAddr;
 	string m_BrokerId;
 	string m_InvestorId;
 	string m_Passwd;
-	vector<Algo_Inst_Pair> m_AlgoList;
-	TradeConn(string FRONT_ADDR_MD, string FRONT_ADDR_TRADE,TE_RESUME_TYPE nResumeType)
+
+	MessageRouter m_Router;
+	TradeConn(string FRONT_ADDR_MD, string FRONT_ADDR_TRADE,TE_RESUME_TYPE nResumeType,
+		string broker_id, string investor_id, string passwd):
+		m_TradeServerAddr(FRONT_ADDR_TRADE), m_MdServerAddr(FRONT_ADDR_MD),
+		m_BrokerId(broker_id), m_InvestorId(investor_id), m_Passwd(passwd),
+		m_Router(broker_id, investor_id)
 	{
-		string userDir =string(".\\UserApi")+m_InvestorId;
+		string userDir =string(".\\UserApi")+m_BrokerId+m_InvestorId;
 		int ret=_mkdir(userDir.c_str());
 		ASSERT( errno  == EEXIST || ret == 0);
 		m_TradeApi = CThostFtdcTraderApi::CreateFtdcTraderApi(userDir.c_str());			// 创建UserApi
-		m_TradeSpi = new CTraderSpi(m_TradeApi);
+		m_TradeSpi = new CTraderSpi(m_TradeApi, m_BrokerId, m_InvestorId, m_Passwd, this);
 		m_TradeApi->RegisterSpi((CThostFtdcTraderSpi*)m_TradeSpi);			// 注册事件类
 		m_TradeApi->SubscribePublicTopic(nResumeType);					// 注册公有流
 		m_TradeApi->SubscribePrivateTopic(nResumeType);					// 注册私有流
 		m_TradeApi->RegisterFront((char*)FRONT_ADDR_TRADE.c_str());			// connect
 		m_TradeApi->Init();
 
-		string mdDir =string(".\\MdApi")+m_InvestorId;
+		string mdDir =string(".\\MdApi")+m_BrokerId+m_InvestorId;
 		ret = _mkdir(mdDir.c_str());
 		ASSERT( errno  == EEXIST || ret == 0);
 		m_UserApi = CThostFtdcMdApi::CreateFtdcMdApi(mdDir.c_str());			// 创建UserApi
-		m_UserSpi = new CMdSpi(m_UserApi);
+		m_UserSpi = new CMdSpi(m_UserApi, m_BrokerId, m_InvestorId, m_Passwd, this);
 		m_UserApi->RegisterSpi(m_UserSpi);						// 注册事件类
 		m_UserApi->RegisterFront((char*)FRONT_ADDR_MD.c_str());					// connect
 		m_UserApi->Init();

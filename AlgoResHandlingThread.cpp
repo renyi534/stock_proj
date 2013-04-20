@@ -6,12 +6,14 @@
 #include "map"
 #include "utility.h"
 #include "DbConn.h"
+#include "TradeSystem.h"
 #include <math.h>
 using namespace std;
 
 CThreadPool gThreadPool(2);
 
-extern TradeConn* tradeConn;
+extern CTradeSystemApp theApp;
+
 extern DbAccessorPool dbAccessPool;
 
 static void HandleAlgoResponse(MSG& msg)
@@ -22,12 +24,20 @@ static void HandleAlgoResponse(MSG& msg)
 	if( msg.lParam == 1)
 	{
 		data= (OrderInfo*)msg.wParam;
+		TradeConn* tradeConn = 
+			theApp.GetTradeConn(data->broker_id, data->investor_id);
+
+		ASSERT(tradeConn != NULL);
 		tradeConn->m_TradeSpi->ReqOrderInsert(*data);
 		delete data;
 	}
 	else
 	{
 		data_short = (OrderInfoShort*)msg.wParam;
+		TradeConn* tradeConn = 
+			theApp.GetTradeConn(data->broker_id, data->investor_id);
+
+		ASSERT(tradeConn != NULL);
 		tradeConn->m_TradeSpi->ReqOrderInsert(*data_short);
 		delete data_short;
 	}

@@ -5,7 +5,7 @@
 #include "stdafx.h"
 #include "tradesystem.h"
 #include "OneMinuteSeriesGenerator.h"
-
+#include "MessageRouter.h"
 #ifdef _DEBUG
 #undef THIS_FILE
 static char THIS_FILE[]=__FILE__;
@@ -16,16 +16,8 @@ static char THIS_FILE[]=__FILE__;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-OneMinuteSeriesGenerator::OneMinuteSeriesGenerator():
-		KSeriesGenerator("OneMinuteKSeries")
-{
-	// stl library can be buggy with empty maps. Insert some rubbish data here.
-	m_one_minute_data_map.insert(CMinuteDataPair("", CMinuteData() ));
-	m_prev_one_minute_data_map.insert(CMinuteDataPair("", CMinuteData() ));
-}
-
-OneMinuteSeriesGenerator::OneMinuteSeriesGenerator(string name):
-		KSeriesGenerator(name)
+OneMinuteSeriesGenerator::OneMinuteSeriesGenerator(MessageRouter* router, string name):
+		KSeriesGenerator(name, router)
 {
 	// stl library can be buggy with empty maps. Insert some rubbish data here.
 	m_one_minute_data_map.insert(CMinuteDataPair("", CMinuteData() ));
@@ -113,7 +105,7 @@ void OneMinuteSeriesGenerator::InputTickData(const CThostFtdcDepthMarketDataFiel
 			{
 				m_one_minute_data.m_OpenInterest -= prev_data.m_OpenInterest;
 				m_one_minute_data.m_Volume -= prev_data.m_Volume;
-				MessageRouter::Router.sendData(m_one_minute_data);
+				m_Router->sendData(m_one_minute_data);
 				
 				char* buffer = new char[8196];
 				int index=0;

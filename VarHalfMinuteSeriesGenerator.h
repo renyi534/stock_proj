@@ -10,11 +10,11 @@
 #endif // _MSC_VER > 1000
 
 #include "HalfMinuteSeriesGenerator.h"
-
+class MessageRouter;
 class VarHalfMinuteSeriesGenerator : public HalfMinuteSeriesGenerator  
 {
 public:
-	VarHalfMinuteSeriesGenerator(int delimiter);
+	VarHalfMinuteSeriesGenerator(MessageRouter*, int delimiter);
 	virtual ~VarHalfMinuteSeriesGenerator();
 	virtual void InputTickData(const CThostFtdcDepthMarketDataField& tick);
 protected:

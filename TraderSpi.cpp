@@ -11,11 +11,7 @@ using namespace std;
 #pragma warning(disable : 4996)
 #include "TradeHandlingThread.h"
 // 配置参数
-extern char FRONT_ADDR[];		// 前置地址
-extern char BROKER_ID[];		// 经纪公司代码
-extern char INVESTOR_ID[];		// 投资者代码
-extern char PASSWORD[];			// 用户密码
-extern char INSTRUMENT_ID[];	// 合约代码
+
 extern char* ppInstrumentID[];	
 extern int iInstrumentID;
 
@@ -24,9 +20,7 @@ extern DbAccessorPool dbAccessPool;
 #include "TradeSystemDoc.h"
 #include "TradeSystemView.h"
 // 会话参数
-TThostFtdcFrontIDType	FRONT_ID;	//前置编号
-TThostFtdcSessionIDType	SESSION_ID;	//会话编号
-TThostFtdcOrderRefType	ORDER_REF;	//报单引用
+
 
 void CTraderSpi::OnFrontConnected()
 {
@@ -47,8 +41,13 @@ CTraderSpi::~CTraderSpi()
 	m_log.close();
 }
 
-CTraderSpi::CTraderSpi(CThostFtdcTraderApi* api):m_pTradeApi(api),m_requestID(0),m_log(".\\trade.log", ios::app)
+CTraderSpi::CTraderSpi(CThostFtdcTraderApi* api, string broker_id, 
+					   string investor_id, string passwd, TradeConn* conn)
+	:m_pTradeApi(api),m_requestID(0),m_log(".\\trade.log", ios::app),
+	  m_BrokerId(broker_id), m_InvestorId(investor_id), m_Passwd(passwd),
+	  m_Conn(conn)
 {
+	ASSERT(m_Conn!=NULL);
 	m_TradeCount =0;
 	m_OrderCount =0;
 
@@ -63,9 +62,9 @@ void CTraderSpi::ReqUserLogin()
 {
 	CThostFtdcReqUserLoginField req;
 	memset(&req, 0, sizeof(req));
-	strcpy(req.BrokerID, BROKER_ID);
-	strcpy(req.UserID, INVESTOR_ID);
-	strcpy(req.Password, PASSWORD);
+	strcpy(req.BrokerID, m_BrokerId.c_str());
+	strcpy(req.UserID, m_InvestorId.c_str());
+	strcpy(req.Password, m_Passwd.c_str());
 	int iResult = m_pTradeApi->ReqUserLogin(&req, ++m_requestID);
 	m_log << "--->>> 发送用户登录请求: " << ((iResult == 0) ? "成功" : "失败") << endl;
 }
@@ -77,11 +76,11 @@ void CTraderSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
 	if (bIsLast && !IsErrorRspInfo(pRspInfo))
 	{
 		// 保存会话参数
-		FRONT_ID = pRspUserLogin->FrontID;
-		SESSION_ID = pRspUserLogin->SessionID;
+		m_FrontId = pRspUserLogin->FrontID;
+		m_SessionId = pRspUserLogin->SessionID;
 		int iNextOrderRef = atoi(pRspUserLogin->MaxOrderRef);
 		iNextOrderRef++;
-		sprintf(ORDER_REF, "%d", iNextOrderRef);
+		sprintf(m_OrderRef, "%d", iNextOrderRef);
 		///获取当前交易日
 		m_log << "--->>> 获取当前交易日 = " << m_pTradeApi->GetTradingDay() << endl;
 		///投资者结算结果确认
@@ -98,8 +97,8 @@ void CTraderSpi::ReqSettlementInfoConfirm()
 {
 	CThostFtdcSettlementInfoConfirmField req;
 	memset(&req, 0, sizeof(req));
-	strcpy(req.BrokerID, BROKER_ID);
-	strcpy(req.InvestorID, INVESTOR_ID);
+	strcpy(req.BrokerID, m_BrokerId.c_str());
+	strcpy(req.InvestorID, m_InvestorId.c_str());
 	int iResult = m_pTradeApi->ReqSettlementInfoConfirm(&req, ++m_requestID);
 	m_log << "--->>> 投资者结算结果确认: " << ((iResult == 0) ? "成功" : "失败") << endl;
 }
@@ -152,8 +151,8 @@ void CTraderSpi::ReqQryTradingAccount()
 {
 	CThostFtdcQryTradingAccountField req;
 	memset(&req, 0, sizeof(req));
-	strcpy(req.BrokerID, BROKER_ID);
-	strcpy(req.InvestorID, INVESTOR_ID);
+	strcpy(req.BrokerID, m_BrokerId.c_str());
+	strcpy(req.InvestorID, m_InvestorId.c_str());
 	int iResult = m_pTradeApi->ReqQryTradingAccount(&req, ++m_requestID);
 	m_log << "--->>> 请求查询资金账户: " << ((iResult == 0) ? "成功" : "失败") << endl;
 }
@@ -170,7 +169,7 @@ void CTraderSpi::OnRspQryTradingAccount(CThostFtdcTradingAccountField *pTradingA
 
 
     m_account = *pTradingAccount;
-	MessageRouter::Router.sendData(*pTradingAccount);
+	m_Conn->m_Router.sendData(*pTradingAccount);
 
 	if (bIsLast && !IsErrorRspInfo(pRspInfo))
 	{
@@ -192,8 +191,8 @@ void CTraderSpi::ReqQryInvestorPosition(string instrument)
 {
 	CThostFtdcQryInvestorPositionField req;
 	memset(&req, 0, sizeof(req));
-	strcpy(req.BrokerID, BROKER_ID);
-	strcpy(req.InvestorID, INVESTOR_ID);
+	strcpy(req.BrokerID, m_BrokerId.c_str());
+	strcpy(req.InvestorID, m_InvestorId.c_str());
 	strcpy(req.InstrumentID, instrument.c_str());
 	int iResult = m_pTradeApi->ReqQryInvestorPosition(&req, ++m_requestID);
 	m_log << "--->>> 请求查询投资者持仓: " << ((iResult == 0) ? "成功" : "失败") << endl;
@@ -279,7 +278,7 @@ void CTraderSpi::OnRspQryInvestorPosition(CThostFtdcInvestorPositionField *pInve
 		{
 			m_inv_pos.insert(inv_pos_pair(key,pos));   
 		}
-		MessageRouter::Router.sendData(*pInvestorPosition);
+		m_Conn->m_Router.sendData(*pInvestorPosition);
 		//m_inv_pos.insert(inv_pos_pair(key,*pInvestorPosition));
 	}
 	
@@ -295,13 +294,13 @@ void CTraderSpi::ReqOrderInsert(CThostFtdcInputOrderField& req)
 /*CThostFtdcInputOrderField req;
 memset(&req, 0, sizeof(req));
 ///经纪公司代码
-strcpy(req.BrokerID, BROKER_ID);
+strcpy(req.BrokerID, m_BrokerId.c_str());
 ///投资者代码
-strcpy(req.InvestorID, INVESTOR_ID);
+strcpy(req.InvestorID, m_InvestorId.c_str());
 ///合约代码
 strcpy(req.InstrumentID, INSTRUMENT_ID);
 ///报单引用
-strcpy(req.OrderRef, ORDER_REF);
+strcpy(req.OrderRef, m_OrderRef);
 ///用户代码
 //	TThostFtdcUserIDType	UserID;
 ///报单价格条件: 限价
@@ -341,9 +340,9 @@ req.IsAutoSuspend = 0;
 	
 	int iResult = m_pTradeApi->ReqOrderInsert(&req, ++m_requestID);
 	m_log << "--->>> 报单录入请求: " << ((iResult == 0) ? "成功" : "失败") << endl;
-    int iNextOrderRef = atoi(ORDER_REF);
+    int iNextOrderRef = atoi(m_OrderRef);
     iNextOrderRef++;
-    sprintf(ORDER_REF, "%d", iNextOrderRef);    
+    sprintf(m_OrderRef, "%d", iNextOrderRef);    
 }
 
 void CTraderSpi::ReqOrderInsert(OrderInfo& order_req)
@@ -353,16 +352,16 @@ void CTraderSpi::ReqOrderInsert(OrderInfo& order_req)
 	CThostFtdcInputOrderField req;
 	memset(&req, 0, sizeof(req));
 	///经纪公司代码
-	strcpy(req.BrokerID, BROKER_ID);
+	strcpy(req.BrokerID, m_BrokerId.c_str());
 	///投资者代码
-	strcpy(req.InvestorID, INVESTOR_ID);
+	strcpy(req.InvestorID, m_InvestorId.c_str());
 	///合约代码
 	strcpy(req.InstrumentID, order_req.m_instrumentID.c_str());
 	///报单引用
-	strcpy(req.OrderRef, ORDER_REF);
+	strcpy(req.OrderRef, m_OrderRef);
 	///用户代码
 	//	TThostFtdcUserIDType	UserID;
-	strcpy(req.UserID, INVESTOR_ID);
+	strcpy(req.UserID, m_InvestorId.c_str());
 	///报单价格条件: 限价
 	
 	if (order_req.price<0) {
@@ -438,9 +437,9 @@ void CTraderSpi::ReqOrderInsert(OrderInfo& order_req)
 	m_log <<"New Order!   Time:"<<order_req.day<<" "<<order_req.time<<"  Price:"<<order_req.price<< " Amount: "
 		<<order_req.amount<<"  is_buy:"<<order_req.is_buy<<"  is_open:"<<order_req.is_open
 		<<"--->>> 报单录入请求: " << ((iResult == 0) ? "成功" : "失败") << endl;
-    int iNextOrderRef = atoi(ORDER_REF);
+    int iNextOrderRef = atoi(m_OrderRef);
     iNextOrderRef++;
-    sprintf(ORDER_REF, "%d", iNextOrderRef);    		
+    sprintf(m_OrderRef, "%d", iNextOrderRef);    		
 }
 
 void CTraderSpi::ReqOrderInsert(OrderInfoShort& order_req, bool isCorrection)
@@ -552,7 +551,7 @@ void CTraderSpi::OnRspOrderInsert(CThostFtdcInputOrderField *pInputOrder, CThost
             // Error order, shuffle open/close flag
             CThostFtdcInputOrderField req= *pInputOrder;
 
-            strcpy(req.OrderRef, ORDER_REF);
+            strcpy(req.OrderRef, m_OrderRef);
             
             // if cash not enough, try to release cash here
 	        if (req.CombOffsetFlag[0] == THOST_FTDC_OF_Open)
@@ -585,9 +584,9 @@ void CTraderSpi::ReqOrderAction(CThostFtdcOrderField *pOrder)
 	///请求编号
 	//	TThostFtdcRequestIDType	RequestID;
 	///前置编号
-	req.FrontID = FRONT_ID;
+	req.FrontID = m_FrontId;
 	///会话编号
-	req.SessionID = SESSION_ID;
+	req.SessionID = m_SessionId;
 	///交易所代码
 	//	TThostFtdcExchangeIDType	ExchangeID;
 	///报单编号
@@ -628,7 +627,7 @@ void CTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder)
 	}
 	CString str;
 	CTradeSystemView* view = CTradeSystemView::GetCurrView();
-	if( view != NULL)
+	if( view != NULL && view->GetCurrConn()==this->m_Conn)
 	{
 		LVFINDINFO info;
 		int n;
@@ -701,6 +700,8 @@ void CTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder)
 	order_req.time = pOrder->InsertTime;
 	order_req.m_instrumentID = pOrder->InstrumentID;
 	order_req.milliSec =0;
+	order_req.broker_id = m_BrokerId;
+	order_req.investor_id = m_InvestorId;
 	StoreOrder(order_req, false);
 	/*if ( pOrder->OrderSubmitStatus == THOST_FTDC_OSS_InsertSubmitted )
 	{
@@ -739,10 +740,12 @@ void CTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade)
 		return;
 	}
 
-	MessageRouter::Router.sendData(*pTrade);
+	m_Conn->m_Router.sendData(*pTrade);
 	//DbConn conn(dbAccessPool);
 	char* buffer= new char[2048];
-	string insert_sql = "insert into stock_data.trade_details(instrument_id, trans_day, trans_time, price, amount, is_buy, is_open) "
+	string insert_sql = "insert into stock_data.trade_details(broker_id, "
+		"investor_id, instrument_id, "
+		"trans_day, trans_time, price, amount, is_buy, is_open) "
 		"values('%s','%s','%s',%.2f,%d,%d,%d)";
 	
     int amount = pTrade->Volume;
@@ -757,6 +760,8 @@ void CTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade)
 		is_open =0;
 	
 	sprintf(buffer, insert_sql.c_str(), 
+		m_BrokerId.c_str(),
+		m_InvestorId.c_str(),
         pTrade->InstrumentID,
         pTrade->TradeDate,
         pTrade->TradeTime,
@@ -767,7 +772,7 @@ void CTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade)
 
 	CString str;
 	CTradeSystemView* view = CTradeSystemView::GetCurrView();
-	if( view != NULL)
+	if( view != NULL && view->GetCurrConn() == m_Conn)
 	{
 		int n = view->m_OrderTradeDlg.m_TradeList.GetItemCount();
 		view->m_OrderTradeDlg.m_TradeList.InsertItem(n, pTrade->TradeID);
@@ -797,8 +802,9 @@ void CTraderSpi::StoreOrder(const OrderInfo& initialData, bool isRej)
 {
 	//DbConn conn(dbAccessPool);
 	char* buffer= new char[2048];
-	string insert_sql = "insert into stock_data.order_details(instrument_id, trans_day, trans_time, price, amount,is_buy,is_open) "
-		"values('%s','%s','%s',%.2f,%d,%d,%d)";
+	string insert_sql = "insert into stock_data.order_details(broker_id, "
+		"investor_id, instrument_id, trans_day, trans_time, price, amount,is_buy,is_open) "
+		"values('%s','%s','%s','%s','%s',%.2f,%d,%d,%d)";
 
 	if (isRej)
 	{
@@ -807,6 +813,8 @@ void CTraderSpi::StoreOrder(const OrderInfo& initialData, bool isRej)
 
 
 	sprintf(buffer, insert_sql.c_str(), 
+		m_BrokerId.c_str(),
+		m_InvestorId.c_str(),
 		initialData.m_instrumentID.c_str(),
 		initialData.day.c_str(),
 		initialData.time.c_str(),
@@ -868,8 +876,8 @@ bool CTraderSpi::IsMyOrder(CThostFtdcOrderField *pOrder)
 	if (pOrder==NULL)
 		return false;
 
-	return ((pOrder->FrontID == FRONT_ID) &&
-		(pOrder->SessionID == SESSION_ID) );
+	return ((pOrder->FrontID == m_FrontId) &&
+		(pOrder->SessionID == m_SessionId) );
 }
 
 bool CTraderSpi::IsTradingOrder(CThostFtdcOrderField *pOrder)
@@ -898,15 +906,15 @@ void CTraderSpi::ClearLongPos(string instrument, double price)
 	CThostFtdcInputOrderField req;
 	memset(&req, 0, sizeof(req));
 	///经纪公司代码
-	strcpy(req.BrokerID, BROKER_ID);
+	strcpy(req.BrokerID, m_BrokerId.c_str());
 	///投资者代码
-	strcpy(req.InvestorID, INVESTOR_ID);
+	strcpy(req.InvestorID, m_InvestorId.c_str());
 	///合约代码
 	strcpy(req.InstrumentID, instrument.c_str());
 
 	///用户代码
 	//	TThostFtdcUserIDType	UserID;
-	strcpy(req.UserID, INVESTOR_ID);
+	strcpy(req.UserID, m_InvestorId.c_str());
 	///报单价格条件: 限价
 	
 	if (price<0) {
@@ -961,7 +969,7 @@ void CTraderSpi::ClearLongPos(string instrument, double price)
 	if( pos.YdLong > 0 )
 	{
 		///报单引用
-		strcpy(req.OrderRef, ORDER_REF);
+		strcpy(req.OrderRef, m_OrderRef);
 		///业务单元
 		//	TThostFtdcBusinessUnitType	BusinessUnit;
 		///请求编号
@@ -986,7 +994,7 @@ void CTraderSpi::ClearLongPos(string instrument, double price)
 			m_algo_instrument_pos.insert(instrument_pos_pair(instrument,-pos.Long));
 		}
 		///报单引用
-		strcpy(req.OrderRef, ORDER_REF);
+		strcpy(req.OrderRef, m_OrderRef);
 		///业务单元
 		//	TThostFtdcBusinessUnitType	BusinessUnit;
 		///请求编号
@@ -1016,15 +1024,15 @@ void CTraderSpi::ClearShortPos(string instrument, double price)
 	CThostFtdcInputOrderField req;
 	memset(&req, 0, sizeof(req));
 	///经纪公司代码
-	strcpy(req.BrokerID, BROKER_ID);
+	strcpy(req.BrokerID, m_BrokerId.c_str());
 	///投资者代码
-	strcpy(req.InvestorID, INVESTOR_ID);
+	strcpy(req.InvestorID, m_InvestorId.c_str());
 	///合约代码
 	strcpy(req.InstrumentID, instrument.c_str());
 
 	///用户代码
 	//	TThostFtdcUserIDType	UserID;
-	strcpy(req.UserID, INVESTOR_ID);
+	strcpy(req.UserID, m_InvestorId.c_str());
 	///报单价格条件: 限价
 	
 	if (price<0) {
@@ -1079,7 +1087,7 @@ void CTraderSpi::ClearShortPos(string instrument, double price)
 	if( pos.YdShort > 0 )
 	{
 		///报单引用
-		strcpy(req.OrderRef, ORDER_REF);
+		strcpy(req.OrderRef, m_OrderRef);
 		///业务单元
 		//	TThostFtdcBusinessUnitType	BusinessUnit;
 		///请求编号
@@ -1104,7 +1112,7 @@ void CTraderSpi::ClearShortPos(string instrument, double price)
 			m_algo_instrument_pos.insert(instrument_pos_pair(instrument,pos.Short));
 		}
 		///报单引用
-		strcpy(req.OrderRef, ORDER_REF);
+		strcpy(req.OrderRef, m_OrderRef);
 		///业务单元
 		//	TThostFtdcBusinessUnitType	BusinessUnit;
 		///请求编号
@@ -1269,4 +1277,72 @@ CString CTraderSpi::GetOrderPriceType(TThostFtdcOrderPriceTypeType type)
 		ret = "其它类型";
 	}
 	return ret;
+}
+
+void CTraderSpi::ShowTradeDetail()
+{
+	CTradeSystemView* view = CTradeSystemView::GetCurrView();
+	if( view != NULL && view->GetCurrConn() == m_Conn)
+	{
+		view->m_OrderTradeDlg.m_TradeList.DeleteAllItems();
+
+		int item = m_TradeList.size();
+		int n=0;
+		for(n=0; n<item; n++)
+		{
+			CThostFtdcTradeField tradeInfo= m_TradeList[n];
+			CThostFtdcTradeField *pTrade = &tradeInfo;
+			view->m_OrderTradeDlg.m_TradeList.InsertItem(n, pTrade->TradeID);
+			view->m_OrderTradeDlg.m_TradeList.SetItemText(n, 1, pTrade->OrderSysID);
+			view->m_OrderTradeDlg.m_TradeList.SetItemText(n, 2, pTrade->InstrumentID);	
+			view->m_OrderTradeDlg.m_TradeList.SetItemText(n, 3, 
+				pTrade->Direction == THOST_FTDC_D_Sell? "    卖" : "买");
+			CString str = GetTradeFlag(pTrade->OffsetFlag);
+			view->m_OrderTradeDlg.m_TradeList.SetItemText(n, 4, str);	
+			str.Format("%.2f", pTrade->Price);
+			view->m_OrderTradeDlg.m_TradeList.SetItemText(n, 5, str);	
+			str.Format("%u", pTrade->Volume);
+			view->m_OrderTradeDlg.m_TradeList.SetItemText(n, 6, str);	
+			view->m_OrderTradeDlg.m_TradeList.SetItemText(n, 7, pTrade->TradeTime);	
+			str = GetTradeType( pTrade->TradeType );
+			view->m_OrderTradeDlg.m_TradeList.SetItemText(n, 8, str);
+		}		
+
+		n =0;
+		view->m_OrderTradeDlg.m_OrderList.DeleteAllItems();
+		for( order_state_map::iterator iter = m_order_state.begin();
+			iter != m_order_state.end() ; iter++, n++)
+		{
+			//omit the padding one, which is used to avoid a empty map
+			if (iter->first.length() == 0)
+				continue;
+			CThostFtdcOrderField* pOrder = &(iter->second);
+			view->m_OrderTradeDlg.m_OrderList.InsertItem(n, pOrder->OrderSysID);
+			
+			view->m_OrderTradeDlg.m_OrderList.SetItemText(n, 1, pOrder->InstrumentID);
+			
+			view->m_OrderTradeDlg.m_OrderList.SetItemText(n, 2, 
+				pOrder->Direction == THOST_FTDC_D_Sell? "    卖" : "买");
+			
+			CString str = GetTradeFlag(pOrder->CombOffsetFlag[0]);
+			view->m_OrderTradeDlg.m_OrderList.SetItemText(n, 3, str);	
+			
+			str.Format("%u", pOrder->VolumeTotalOriginal);
+			view->m_OrderTradeDlg.m_OrderList.SetItemText(n, 4, str);	
+			
+			str.Format("%u", pOrder->VolumeTotal);
+			view->m_OrderTradeDlg.m_OrderList.SetItemText(n, 5, str);	
+			
+			str.Format("%u", pOrder->VolumeTraded);
+			view->m_OrderTradeDlg.m_OrderList.SetItemText(n, 6, str);
+			
+			str.Format("%.2f", pOrder->LimitPrice);
+			view->m_OrderTradeDlg.m_OrderList.SetItemText(n, 7, str);	
+			
+			view->m_OrderTradeDlg.m_OrderList.SetItemText(n, 8, pOrder->InsertTime);	
+			
+			str = GetOrderPriceType(pOrder->OrderPriceType);
+			view->m_OrderTradeDlg.m_OrderList.SetItemText(n, 9, str);
+		}
+	}
 }

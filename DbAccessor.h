@@ -37,7 +37,7 @@ public:
 		string day_e, string time_e, vector<CHalfMinuteData>& result);
 	void getData(string instrument_ID, int limitNum, vector<CHalfMinuteData>& result);
 	void getData(string sql, vector<CHalfMinuteData>& result);
-	DbAccessor();
+	DbAccessor(string conn_str);
 private:
 	void getMarketDataFromRecord(CRecordset& record,CThostFtdcDepthMarketDataField& data);
 	void getOrderInfoFromRecord(CRecordset& rs,OrderInfo& data);
