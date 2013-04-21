@@ -31,6 +31,8 @@ extern int iInstrumentID;
 // 请求编号
 
 extern DbAccessorPool dbAccessPool;
+
+bool CMdSpi::StoreMarketData = true;
 CMdSpi::~CMdSpi()
 {
 	m_log.close();
@@ -48,20 +50,23 @@ CMdSpi::~CMdSpi()
 CMdSpi::CMdSpi(CThostFtdcMdApi* api, string broker_id, string investor_id, 
 			   string passwd, TradeConn* conn)
 	:m_pUserApi(api),m_requestID(0), m_BrokerId(broker_id), m_InvestorId(investor_id),
-		m_Passwd(passwd), m_log(".\\marketdata.log",ios::app), m_Conn(conn)
+		m_Passwd(passwd), m_log(".\\marketdata.log",ios::app), m_Conn(conn), 
+		m_ConnStatus(false)
 {
 	::InitializeCriticalSection(&m_data_critsec);
 	ASSERT(m_Conn != NULL);
 	// stl library can be buggy with empty maps. Insert some rubbish data here.
 	m_tick_data_map.insert(CTickDataPair("", CThostFtdcDepthMarketDataField() ));
+	m_StoreMarketData = StoreMarketData;
+	StoreMarketData = false;
+	m_series_generator.push_back(new OneMinuteSeriesGenerator(&(m_Conn->m_Router),m_StoreMarketData));
+	m_series_generator.push_back(new HalfMinuteSeriesGenerator(&(m_Conn->m_Router),m_StoreMarketData));
+	m_series_generator.push_back(new TenMinuteSeriesGenerator(&(m_Conn->m_Router),m_StoreMarketData));
+	m_series_generator.push_back(new VarOneMinuteSeriesGenerator(&(m_Conn->m_Router),m_StoreMarketData,5));
+	//	m_series_generator.push_back(new VarOneMinuteSeriesGenerator(0));
+	//	m_series_generator.push_back(new VarOneMinuteSeriesGenerator(59));
+	m_series_generator.push_back(new VarHalfMinuteSeriesGenerator(&(m_Conn->m_Router),m_StoreMarketData,5));
 
-	m_series_generator.push_back(new OneMinuteSeriesGenerator(&(m_Conn->m_Router)));
-	m_series_generator.push_back(new HalfMinuteSeriesGenerator(&(m_Conn->m_Router)));
-	m_series_generator.push_back(new TenMinuteSeriesGenerator(&(m_Conn->m_Router)));
-	m_series_generator.push_back(new VarOneMinuteSeriesGenerator(&(m_Conn->m_Router),5));
-//	m_series_generator.push_back(new VarOneMinuteSeriesGenerator(0));
-//	m_series_generator.push_back(new VarOneMinuteSeriesGenerator(59));
-	m_series_generator.push_back(new VarHalfMinuteSeriesGenerator(&(m_Conn->m_Router),5));
 }
 
 void CMdSpi::OnRspError(CThostFtdcRspInfoField *pRspInfo,
@@ -75,15 +80,16 @@ void CMdSpi::OnFrontDisconnected(int nReason)
 {
 	m_log << "--->>> " << __FUNCTION__ << endl;
 	m_log << "--->>> Reason = " << nReason << endl;
+	m_ConnStatus = false;
 	CString str;
 	CTradeSystemView* view = CTradeSystemView::GetCurrView();
-	if( view != NULL)
+	if( view != NULL && view->GetCurrConn() == m_Conn)
 	{
-	str.Format("数据服务器: %s", "OFF");
-	view->m_MDStatus.SetWindowText(str);
+		str.Format("数据服务器: %s", "OFF");
+		view->m_MDStatus.SetWindowText(str);
 	}
 }
-		
+
 void CMdSpi::OnHeartBeatWarning(int nTimeLapse)
 {
 	m_log << "--->>> " << __FUNCTION__ << endl;
@@ -95,12 +101,13 @@ void CMdSpi::OnFrontConnected()
 	m_log << "--->>> " << __FUNCTION__ << endl;
 	///用户登录请求
 	ReqUserLogin();
+	m_ConnStatus = true;
 	CString str;
 	CTradeSystemView* view = CTradeSystemView::GetCurrView();
-	if( view != NULL)
+	if( view != NULL && view->GetCurrConn() == m_Conn)
 	{
-	str.Format("数据服务器: %s", "ON");
-	view->m_MDStatus.SetWindowText(str);
+		str.Format("数据服务器: %s", "ON");
+		view->m_MDStatus.SetWindowText(str);
 	}
 }
 
@@ -206,111 +213,114 @@ void CMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketDa
 		m_tick_data_map[pDepthMarketData->InstrumentID] = *pDepthMarketData;
 	}
 
-	char* buffer = new char[8196];
-	int index=0;
-	/*const char* format_str="insert into stock_data.depthmarketdata values('%s','%s','%s','%s',%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,'%s',"
+	if( m_StoreMarketData )
+	{
+		char* buffer = new char[8196];
+		int index=0;
+		/*const char* format_str="insert into stock_data.depthmarketdata values('%s','%s','%s','%s',%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,'%s',"
 		"%d,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf)";*/
-	const char* format_str="insert into stock_data.\"DepthMarketData\" values('%s','%s','%s','%s',%lf,%lf,%lf,%lf,%lf,%lf,%lf,%d,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,'%s',";
-
-
-	index= sprintf(buffer,format_str,
-		pDepthMarketData->TradingDay,
-		pDepthMarketData->InstrumentID,
-		pDepthMarketData->ExchangeID,
-		pDepthMarketData->ExchangeInstID,
-		pDepthMarketData->LastPrice,
-		pDepthMarketData->PreSettlementPrice,
-		pDepthMarketData->PreClosePrice,
-		pDepthMarketData->PreOpenInterest,
-		pDepthMarketData->OpenPrice,
-		pDepthMarketData->HighestPrice,
-		pDepthMarketData->LowestPrice,
-		pDepthMarketData->Volume,
-		pDepthMarketData->Turnover,
-		pDepthMarketData->OpenInterest,
-		pDepthMarketData->ClosePrice,
-		pDepthMarketData->SettlementPrice,
-		pDepthMarketData->UpperLimitPrice,
-		pDepthMarketData->LowerLimitPrice,
-		pDepthMarketData->PreDelta,
-		pDepthMarketData->CurrDelta,
-		pDepthMarketData->UpdateTime
-	);
-
-	format_str= "%d,%lf,%d,%lf,%d,%lf,%d,%lf,%d,%lf,%d,%lf,%d,%lf,%d,%lf,%d,%lf,%d,%lf,%d,%lf)";
-	index+= sprintf(buffer+index,format_str,
-		pDepthMarketData->UpdateMillisec,
-		pDepthMarketData->BidPrice1,
-		pDepthMarketData->BidVolume1,
-		pDepthMarketData->AskPrice1,
-		pDepthMarketData->AskVolume1,
-		pDepthMarketData->BidPrice2,
-		pDepthMarketData->BidVolume2,
-		pDepthMarketData->AskPrice2,
-		pDepthMarketData->AskVolume2,
-		pDepthMarketData->BidPrice3,
-		pDepthMarketData->BidVolume3,
-		pDepthMarketData->AskPrice3,
-		pDepthMarketData->AskVolume3,
-		pDepthMarketData->BidPrice4,
-		pDepthMarketData->BidVolume4,
-		pDepthMarketData->AskPrice4,
-		pDepthMarketData->AskVolume4,
-		pDepthMarketData->BidPrice5,
-		pDepthMarketData->BidVolume5,
-		pDepthMarketData->AskPrice5,
-		pDepthMarketData->AskVolume5,
-		pDepthMarketData->AveragePrice
-	);
-/*
-	sprintf(buffer, format_str, 
-		pDepthMarketData->TradingDay,
-		pDepthMarketData->InstrumentID,
-		pDepthMarketData->ExchangeID,
-		pDepthMarketData->ExchangeInstID,
-		pDepthMarketData->LastPrice,
-		pDepthMarketData->PreSettlementPrice,
-		pDepthMarketData->PreClosePrice,
-		pDepthMarketData->PreOpenInterest,
-		pDepthMarketData->OpenPrice,
-		pDepthMarketData->HighestPrice,
-		pDepthMarketData->LowestPrice,
-		pDepthMarketData->Volume,
-		pDepthMarketData->Turnover,
-		pDepthMarketData->OpenInterest,
-		pDepthMarketData->ClosePrice,
-		pDepthMarketData->SettlementPrice,
-		pDepthMarketData->UpperLimitPrice,
-		pDepthMarketData->LowerLimitPrice,
-		pDepthMarketData->PreDelta,
-		pDepthMarketData->CurrDelta,
-		pDepthMarketData->UpdateTime,
-		pDepthMarketData->UpdateMillisec,
-		pDepthMarketData->BidPrice1,
-		pDepthMarketData->BidVolume1,
-		pDepthMarketData->AskPrice1,
-		pDepthMarketData->AskVolume1,
-		pDepthMarketData->BidPrice2,
-		pDepthMarketData->BidVolume2,
-		pDepthMarketData->AskPrice2,
-		pDepthMarketData->AskVolume2,
-		pDepthMarketData->BidPrice3,
-		pDepthMarketData->BidVolume3,
-		pDepthMarketData->AskPrice3,
-		pDepthMarketData->AskVolume3,
-		pDepthMarketData->BidPrice4,
-		pDepthMarketData->BidVolume4,
-		pDepthMarketData->AskPrice4,
-		pDepthMarketData->AskVolume4,
-		pDepthMarketData->BidPrice5,
-		pDepthMarketData->BidVolume5,
-		pDepthMarketData->AskPrice5,
-		pDepthMarketData->AskVolume5,
-		pDepthMarketData->AveragePrice
-	);*/
-	//m_log<<buffer<<endl;
-
-	gThreadPool.Run(ExecSQL, (void*) buffer);
+		const char* format_str="insert into stock_data.\"DepthMarketData\" values('%s','%s','%s','%s',%lf,%lf,%lf,%lf,%lf,%lf,%lf,%d,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,'%s',";
+		
+		
+		index= sprintf(buffer,format_str,
+			pDepthMarketData->TradingDay,
+			pDepthMarketData->InstrumentID,
+			pDepthMarketData->ExchangeID,
+			pDepthMarketData->ExchangeInstID,
+			pDepthMarketData->LastPrice,
+			pDepthMarketData->PreSettlementPrice,
+			pDepthMarketData->PreClosePrice,
+			pDepthMarketData->PreOpenInterest,
+			pDepthMarketData->OpenPrice,
+			pDepthMarketData->HighestPrice,
+			pDepthMarketData->LowestPrice,
+			pDepthMarketData->Volume,
+			pDepthMarketData->Turnover,
+			pDepthMarketData->OpenInterest,
+			pDepthMarketData->ClosePrice,
+			pDepthMarketData->SettlementPrice,
+			pDepthMarketData->UpperLimitPrice,
+			pDepthMarketData->LowerLimitPrice,
+			pDepthMarketData->PreDelta,
+			pDepthMarketData->CurrDelta,
+			pDepthMarketData->UpdateTime
+			);
+		
+		format_str= "%d,%lf,%d,%lf,%d,%lf,%d,%lf,%d,%lf,%d,%lf,%d,%lf,%d,%lf,%d,%lf,%d,%lf,%d,%lf)";
+		index+= sprintf(buffer+index,format_str,
+			pDepthMarketData->UpdateMillisec,
+			pDepthMarketData->BidPrice1,
+			pDepthMarketData->BidVolume1,
+			pDepthMarketData->AskPrice1,
+			pDepthMarketData->AskVolume1,
+			pDepthMarketData->BidPrice2,
+			pDepthMarketData->BidVolume2,
+			pDepthMarketData->AskPrice2,
+			pDepthMarketData->AskVolume2,
+			pDepthMarketData->BidPrice3,
+			pDepthMarketData->BidVolume3,
+			pDepthMarketData->AskPrice3,
+			pDepthMarketData->AskVolume3,
+			pDepthMarketData->BidPrice4,
+			pDepthMarketData->BidVolume4,
+			pDepthMarketData->AskPrice4,
+			pDepthMarketData->AskVolume4,
+			pDepthMarketData->BidPrice5,
+			pDepthMarketData->BidVolume5,
+			pDepthMarketData->AskPrice5,
+			pDepthMarketData->AskVolume5,
+			pDepthMarketData->AveragePrice
+			);
+			/*
+			sprintf(buffer, format_str, 
+			pDepthMarketData->TradingDay,
+			pDepthMarketData->InstrumentID,
+			pDepthMarketData->ExchangeID,
+			pDepthMarketData->ExchangeInstID,
+			pDepthMarketData->LastPrice,
+			pDepthMarketData->PreSettlementPrice,
+			pDepthMarketData->PreClosePrice,
+			pDepthMarketData->PreOpenInterest,
+			pDepthMarketData->OpenPrice,
+			pDepthMarketData->HighestPrice,
+			pDepthMarketData->LowestPrice,
+			pDepthMarketData->Volume,
+			pDepthMarketData->Turnover,
+			pDepthMarketData->OpenInterest,
+			pDepthMarketData->ClosePrice,
+			pDepthMarketData->SettlementPrice,
+			pDepthMarketData->UpperLimitPrice,
+			pDepthMarketData->LowerLimitPrice,
+			pDepthMarketData->PreDelta,
+			pDepthMarketData->CurrDelta,
+			pDepthMarketData->UpdateTime,
+			pDepthMarketData->UpdateMillisec,
+			pDepthMarketData->BidPrice1,
+			pDepthMarketData->BidVolume1,
+			pDepthMarketData->AskPrice1,
+			pDepthMarketData->AskVolume1,
+			pDepthMarketData->BidPrice2,
+			pDepthMarketData->BidVolume2,
+			pDepthMarketData->AskPrice2,
+			pDepthMarketData->AskVolume2,
+			pDepthMarketData->BidPrice3,
+			pDepthMarketData->BidVolume3,
+			pDepthMarketData->AskPrice3,
+			pDepthMarketData->AskVolume3,
+			pDepthMarketData->BidPrice4,
+			pDepthMarketData->BidVolume4,
+			pDepthMarketData->AskPrice4,
+			pDepthMarketData->AskVolume4,
+			pDepthMarketData->BidPrice5,
+			pDepthMarketData->BidVolume5,
+			pDepthMarketData->AskPrice5,
+			pDepthMarketData->AskVolume5,
+			pDepthMarketData->AveragePrice
+		);*/
+		//m_log<<buffer<<endl;
+		
+		gThreadPool.Run(ExecSQL, (void*) buffer);
+	}
 	}
 }
 

@@ -16,8 +16,8 @@ static char THIS_FILE[]=__FILE__;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-VarHalfMinuteSeriesGenerator::VarHalfMinuteSeriesGenerator(MessageRouter* router,int delimiter)
-	:HalfMinuteSeriesGenerator(router,"VarHalfMinuteKSeries"),
+VarHalfMinuteSeriesGenerator::VarHalfMinuteSeriesGenerator(MessageRouter* router,bool StoreMarketData,int delimiter)
+	:HalfMinuteSeriesGenerator(router,StoreMarketData,"VarHalfMinuteKSeries"),
 	 m_delimiter(delimiter)
 {
 
@@ -118,27 +118,29 @@ void VarHalfMinuteSeriesGenerator::InputTickData(const CThostFtdcDepthMarketData
 				
 				m_Router->sendData(half_minute_data);
 				
-				char* buffer = new char[8196];
-				int index=0;
-				
-				const char* format_str="insert into stock_data.\"HalfMinuteData\" values('%s','%s',%lf,%lf,%lf,%lf,%lf,%lf,'%s')";
-				
-				
-				sprintf(buffer,format_str,
-					half_minute_data.m_Day.c_str(),
-					(half_minute_data.m_Time).c_str(),
-					half_minute_data.m_OpenPrice,
-					half_minute_data.m_ClosePrice,
-					half_minute_data.m_HighPrice,
-					half_minute_data.m_LowPrice,
-					half_minute_data.m_Volume,
-					half_minute_data.m_OpenInterest,
-					instrument_id.c_str()
-					);
-				m_log<< buffer<<endl;
-				//DbConn conn(dbAccessPool);
-				//conn.m_db->execSql(buffer);
-				gThreadPool.Run(ExecSQL, (void*) buffer);
+				if (m_StoreMarketData)
+				{
+					char* buffer = new char[8196];
+					int index=0;
+					
+					const char* format_str="insert into stock_data.\"HalfMinuteData\" values('%s','%s',%lf,%lf,%lf,%lf,%lf,%lf,'%s')";	
+					
+					sprintf(buffer,format_str,
+						half_minute_data.m_Day.c_str(),
+						(half_minute_data.m_Time).c_str(),
+						half_minute_data.m_OpenPrice,
+						half_minute_data.m_ClosePrice,
+						half_minute_data.m_HighPrice,
+						half_minute_data.m_LowPrice,
+						half_minute_data.m_Volume,
+						half_minute_data.m_OpenInterest,
+						instrument_id.c_str()
+						);
+					m_log<< buffer<<endl;
+					//DbConn conn(dbAccessPool);
+					//conn.m_db->execSql(buffer);
+					gThreadPool.Run(ExecSQL, (void*) buffer);
+				}
 			}
 		}
 		

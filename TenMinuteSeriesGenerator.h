@@ -14,7 +14,7 @@ class MessageRouter;
 class TenMinuteSeriesGenerator : public KSeriesGenerator  
 {
 public:
-	TenMinuteSeriesGenerator(MessageRouter* router);
+	TenMinuteSeriesGenerator(MessageRouter* router,bool StoreMarketData);
 	virtual ~TenMinuteSeriesGenerator();
 	virtual void InputTickData(const CThostFtdcDepthMarketDataField& tick);
 private:

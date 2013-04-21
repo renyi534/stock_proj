@@ -282,6 +282,30 @@ CString CTradeSystemView::GetActiveInstrument()
 void CTradeSystemView::RefreshForm()
 {
 	CString str;
+	
+	TradeConn* curr_conn = this->GetCurrConn();
+
+	if(curr_conn->m_TradeSpi->GetConnStatus())
+	{
+		str.Format("交易服务器: %s", "ON");
+		m_TradeStatus.SetWindowText(str);
+	}
+	else
+	{
+		str.Format("交易服务器: %s", "OFF");
+		m_TradeStatus.SetWindowText(str);
+	}
+
+	if(curr_conn->m_UserSpi->GetConnStatus())
+	{
+		str.Format("数据服务器: %s", "ON");
+		m_MDStatus.SetWindowText(str);
+	}
+	else
+	{
+		str.Format("数据服务器: %s", "OFF");
+		m_MDStatus.SetWindowText(str);
+	}
 
 	int accountCount = theApp.GetConnCount();
 	int i=0;

@@ -14,7 +14,7 @@ class MessageRouter;
 class VarOneMinuteSeriesGenerator : public OneMinuteSeriesGenerator  
 {
 public:
-	VarOneMinuteSeriesGenerator(MessageRouter*, int delimiter);
+	VarOneMinuteSeriesGenerator(MessageRouter*, bool StoreMarketData,int delimiter);
 	virtual ~VarOneMinuteSeriesGenerator();
 	virtual void InputTickData(const CThostFtdcDepthMarketDataField& tick);
 protected:

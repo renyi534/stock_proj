@@ -49,7 +49,10 @@ public:
 	///深度行情通知
 	virtual void OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData);
 
-
+	inline bool GetConnStatus()
+	{
+		return m_ConnStatus;
+	}
 private:
 
 	void ReqUserLogin();
@@ -74,6 +77,9 @@ private:
 	string m_InvestorId;
 	string m_Passwd;
 	TradeConn* m_Conn;
+	bool m_StoreMarketData;
+	static bool StoreMarketData;
+	bool m_ConnStatus;
 	CRITICAL_SECTION		m_data_critsec;
 	
 };

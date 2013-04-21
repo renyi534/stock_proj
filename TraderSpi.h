@@ -108,6 +108,11 @@ public:
 	bool IsMyOrder(CThostFtdcOrderField *pOrder);
 	// 是否正在交易的报单
 	bool IsTradingOrder(CThostFtdcOrderField *pOrder);
+
+	inline bool GetConnStatus()
+	{
+		return m_ConnStatus;
+	}
 private:
 	CString GetOrderPriceType(TThostFtdcOrderPriceTypeType type);
 	CString GetTradeType(TThostFtdcTradeTypeType type);
@@ -143,5 +148,6 @@ private:
 	TThostFtdcOrderRefType	m_OrderRef;	//报单引用
 
 	TradeConn* m_Conn;
+	bool m_ConnStatus;
 	friend class CTradeSystemView;
 };

@@ -16,8 +16,8 @@ static char THIS_FILE[]=__FILE__;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-OneMinuteSeriesGenerator::OneMinuteSeriesGenerator(MessageRouter* router, string name):
-		KSeriesGenerator(name, router)
+OneMinuteSeriesGenerator::OneMinuteSeriesGenerator(MessageRouter* router, bool StoreMarketData, string name):
+		KSeriesGenerator(name, router, StoreMarketData)
 {
 	// stl library can be buggy with empty maps. Insert some rubbish data here.
 	m_one_minute_data_map.insert(CMinuteDataPair("", CMinuteData() ));
@@ -107,27 +107,30 @@ void OneMinuteSeriesGenerator::InputTickData(const CThostFtdcDepthMarketDataFiel
 				m_one_minute_data.m_Volume -= prev_data.m_Volume;
 				m_Router->sendData(m_one_minute_data);
 				
-				char* buffer = new char[8196];
-				int index=0;
-				
-				const char* format_str="insert into stock_data.\"OneMinuteData\" values('%s','%s',%lf,%lf,%lf,%lf,%lf,%lf,'%s')";
-				
-
-				sprintf(buffer,format_str,
-					m_one_minute_data.m_Day.c_str(),
-					(m_one_minute_data.m_Time).c_str(),
-					m_one_minute_data.m_OpenPrice,
-					m_one_minute_data.m_ClosePrice,
-					m_one_minute_data.m_HighPrice,
-					m_one_minute_data.m_LowPrice,
-					m_one_minute_data.m_Volume,
-					m_one_minute_data.m_OpenInterest,
-					instrument_id.c_str()
-					);
-				m_log<< buffer<<endl;
-				//DbConn conn(dbAccessPool);
-				//conn.m_db->execSql(buffer);
-				gThreadPool.Run(ExecSQL, (void*) buffer);
+				if( m_StoreMarketData)
+				{
+					char* buffer = new char[8196];
+					int index=0;
+					
+					const char* format_str="insert into stock_data.\"OneMinuteData\" values('%s','%s',%lf,%lf,%lf,%lf,%lf,%lf,'%s')";
+					
+					
+					sprintf(buffer,format_str,
+						m_one_minute_data.m_Day.c_str(),
+						(m_one_minute_data.m_Time).c_str(),
+						m_one_minute_data.m_OpenPrice,
+						m_one_minute_data.m_ClosePrice,
+						m_one_minute_data.m_HighPrice,
+						m_one_minute_data.m_LowPrice,
+						m_one_minute_data.m_Volume,
+						m_one_minute_data.m_OpenInterest,
+						instrument_id.c_str()
+						);
+					m_log<< buffer<<endl;
+					//DbConn conn(dbAccessPool);
+					//conn.m_db->execSql(buffer);
+					gThreadPool.Run(ExecSQL, (void*) buffer);
+				}
 			}
 		}
 		resetOneMinuteData(m_one_minute_data, instrument_id);

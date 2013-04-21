@@ -27,9 +27,10 @@ void CTraderSpi::OnFrontConnected()
 	m_log << "--->>> " << "OnFrontConnected" << endl;
 	///用户登录请求
 	ReqUserLogin();
+	m_ConnStatus = true;
 	CString str;
 	CTradeSystemView* view = CTradeSystemView::GetCurrView();
-	if( view != NULL)
+	if( view != NULL && view->GetCurrConn() == m_Conn)
 	{
 		str.Format("交易服务器: %s", "ON");
 		view->m_TradeStatus.SetWindowText(str);
@@ -835,9 +836,11 @@ void CTraderSpi::OnFrontDisconnected(int nReason)
 {
 	m_log << "--->>> " << "OnFrontDisconnected" << endl;
 	m_log << "--->>> Reason = " << nReason << endl;
+	
+	m_ConnStatus = false;
 	CString str;
 	CTradeSystemView* view = CTradeSystemView::GetCurrView();
-	if( view != NULL)
+	if( view != NULL && view->GetCurrConn()==m_Conn)
 	{
 		str.Format("交易服务器: %s", "OFF");
 		view->m_TradeStatus.SetWindowText(str);
