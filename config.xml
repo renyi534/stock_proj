@@ -27,7 +27,7 @@
         </INSTANCE>   
     </ITEM>
     <ITEM>
-        <NAME>DtAlgorithm</NAME>
+        <NAME>RandomAlgorithm</NAME>
             <INSTANCE>
             <ITEM>
                 <INSTRUMENT>1</INSTRUMENT>
@@ -47,7 +47,7 @@
 
     <ALGORITHM>
     <ITEM>
-        <NAME>RandomAlgorithm</NAME>
+        <NAME>DtAlgorithm</NAME>
         <INSTANCE>
             <ITEM>
                 <INSTRUMENT>0</INSTRUMENT>

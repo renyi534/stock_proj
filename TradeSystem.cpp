@@ -184,10 +184,10 @@ void CTradeSystemApp::LoadConfig()
 			xml.OutOfElem();
 			
 			xml.OutOfElem();
-			xml.OutOfElem();
 		}
 
 		tradeConn->m_Router.InitAlgorithm();
+		xml.OutOfElem();
 		xml.OutOfElem();
 	}
 	xml.OutOfElem();
