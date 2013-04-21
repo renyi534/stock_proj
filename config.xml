@@ -54,11 +54,6 @@
                 <CONFIG>c:\temp.xml</CONFIG>
 		<SLOT>0</SLOT>                
             </ITEM>
-            <ITEM>
-                <INSTRUMENT>1</INSTRUMENT>
-                <CONFIG>c:\temp.xml</CONFIG>
-		<SLOT>0</SLOT>                
-            </ITEM>
         </INSTANCE>   
     </ITEM>
     <ITEM>

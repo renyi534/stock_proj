@@ -50,7 +50,9 @@ CMdSpi::~CMdSpi()
 CMdSpi::CMdSpi(CThostFtdcMdApi* api, string broker_id, string investor_id, 
 			   string passwd, TradeConn* conn)
 	:m_pUserApi(api),m_requestID(0), m_BrokerId(broker_id), m_InvestorId(investor_id),
-		m_Passwd(passwd), m_log(".\\marketdata.log",ios::app), m_Conn(conn), 
+		m_Passwd(passwd), 
+		m_log((string(".\\")+broker_id+investor_id+"market.log").c_str(),ios::app), 
+		m_Conn(conn), 
 		m_ConnStatus(false)
 {
 	::InitializeCriticalSection(&m_data_critsec);

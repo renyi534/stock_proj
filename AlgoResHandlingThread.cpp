@@ -35,7 +35,7 @@ static void HandleAlgoResponse(MSG& msg)
 	{
 		data_short = (OrderInfoShort*)msg.wParam;
 		TradeConn* tradeConn = 
-			theApp.GetTradeConn(data->broker_id, data->investor_id);
+			theApp.GetTradeConn(data_short->broker_id, data_short->investor_id);
 
 		ASSERT(tradeConn != NULL);
 		tradeConn->m_TradeSpi->ReqOrderInsert(*data_short);

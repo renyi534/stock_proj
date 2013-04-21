@@ -19,10 +19,10 @@ Class5=CTradeSystemView
 ResourceCount=6
 Resource1=IDD_ABOUTBOX
 Resource2=IDD_TRADESYSTEM_FORM
-Resource3=IDR_MAINFRAME
+Resource3=IDD_ALGORITHM_DLG
 Class6=COrderTradeDlg
-Resource4=IDD_ORDER_TRADE
-Resource5=IDD_ALGORITHM_DLG
+Resource4=IDR_MAINFRAME
+Resource5=IDD_ORDER_TRADE
 Class7=CAlgorithmCfgDlg
 Resource6=IDD_RISK_DLG
 

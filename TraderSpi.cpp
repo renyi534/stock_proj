@@ -44,7 +44,8 @@ CTraderSpi::~CTraderSpi()
 
 CTraderSpi::CTraderSpi(CThostFtdcTraderApi* api, string broker_id, 
 					   string investor_id, string passwd, TradeConn* conn)
-	:m_pTradeApi(api),m_requestID(0),m_log(".\\trade.log", ios::app),
+	:m_pTradeApi(api),m_requestID(0),
+	 m_log((string(".\\")+broker_id+investor_id+"trade.log").c_str(), ios::app),
 	  m_BrokerId(broker_id), m_InvestorId(investor_id), m_Passwd(passwd),
 	  m_Conn(conn)
 {

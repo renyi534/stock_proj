@@ -117,6 +117,19 @@ void RandomAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 		res.amount = -totalAmount;
 	}
 
+	static int counter =0;
+
+	if ( counter == 0 )
+	{
+		res.amount =1;
+	}
+	else if (counter %2 ==1)
+	{
+		res.amount = -2;
+	}
+	else
+		res.amount =2;
+	counter++;
 	if(res.amount>0)
 	{
 		res.price=m_AskPrice;

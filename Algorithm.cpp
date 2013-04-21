@@ -69,8 +69,8 @@ int	Algorithm::ExecAlgo(OrderInfo & res)
 int	Algorithm::SendStrategy(OrderInfo & res)
 {
 	OrderInfo* data=new OrderInfo(res);
-	res.broker_id = m_BrokerId;
-	res.investor_id = m_InvestorId;
+	data->broker_id = m_BrokerId;
+	data->investor_id = m_InvestorId;
 	TradeHandlingThread->PostThreadMessage(WM_ACTION_ITEM, (WPARAM)data,  1);
 	return 0;
 }
@@ -78,8 +78,8 @@ int	Algorithm::SendStrategy(OrderInfo & res)
 int	Algorithm::SendStrategy(OrderInfoShort & res)
 {
 	OrderInfoShort* data=new OrderInfoShort(res);
-	res.broker_id = m_BrokerId;
-	res.investor_id = m_InvestorId;
+	data->broker_id = m_BrokerId;
+	data->investor_id = m_InvestorId;
 	TradeHandlingThread->PostThreadMessage(WM_ACTION_ITEM, (WPARAM)data,  2);
 	return 0;
 }

@@ -312,8 +312,8 @@ void CTradeSystemView::RefreshForm()
 	for (i=0; i< accountCount; i++)
 	{
 		TradeConn* tradeConn = GetConnById(i);
-		m_AccountList.SetItemText(i,0,tradeConn->m_TradeSpi->m_account.BrokerID);
-		m_AccountList.SetItemText(i,1,tradeConn->m_TradeSpi->m_account.AccountID);
+		//m_AccountList.SetItemText(i,0,tradeConn->m_TradeSpi->m_account.BrokerID);
+		//m_AccountList.SetItemText(i,1,tradeConn->m_TradeSpi->m_account.AccountID);
 		
 		str.Format("%.2f", tradeConn->m_TradeSpi->m_account.Balance);
 		m_AccountList.SetItemText(i,2,str);
