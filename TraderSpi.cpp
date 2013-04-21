@@ -748,7 +748,7 @@ void CTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade)
 	string insert_sql = "insert into stock_data.trade_details(broker_id, "
 		"investor_id, instrument_id, "
 		"trans_day, trans_time, price, amount, is_buy, is_open) "
-		"values('%s','%s','%s',%.2f,%d,%d,%d)";
+		"values('%s','%s','%s','%s','%s',%.2f,%d,%d,%d)";
 	
     int amount = pTrade->Volume;
 	
@@ -795,7 +795,7 @@ void CTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade)
 	
 	gThreadPool.Run(ExecSQL, (void*) buffer);
 	//conn.m_db->execSql(buffer);
-	
+	m_TradeList.push_back(*pTrade);
     ReqQryTradingAccount();
 }
 
@@ -1315,12 +1315,14 @@ void CTraderSpi::ShowTradeDetail()
 		n =0;
 		view->m_OrderTradeDlg.m_OrderList.DeleteAllItems();
 		for( order_state_map::iterator iter = m_order_state.begin();
-			iter != m_order_state.end() ; iter++, n++)
+			iter != m_order_state.end() ; iter++)
 		{
 			//omit the padding one, which is used to avoid a empty map
 			if (iter->first.length() == 0)
 				continue;
-			CThostFtdcOrderField* pOrder = &(iter->second);
+
+			CThostFtdcOrderField  orderInfo = (iter->second);
+			CThostFtdcOrderField* pOrder = &orderInfo;
 			view->m_OrderTradeDlg.m_OrderList.InsertItem(n, pOrder->OrderSysID);
 			
 			view->m_OrderTradeDlg.m_OrderList.SetItemText(n, 1, pOrder->InstrumentID);
@@ -1347,6 +1349,8 @@ void CTraderSpi::ShowTradeDetail()
 			
 			str = GetOrderPriceType(pOrder->OrderPriceType);
 			view->m_OrderTradeDlg.m_OrderList.SetItemText(n, 9, str);
+			
+			n++;
 		}
 	}
 }
