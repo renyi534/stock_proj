@@ -344,7 +344,12 @@ int CTradeSystemApp::ExitInstance()
 	{
 		delete [] ppInstrumentID[i];
 	}
-	
+
+	for( map<string, TradeConn*>::iterator iter = m_TradeConnMap.begin();
+			iter != m_TradeConnMap.end(); iter++)
+	{
+		delete iter->second;
+	}
 	return CWinApp::ExitInstance();
 }
 
