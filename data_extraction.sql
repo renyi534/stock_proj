@@ -952,16 +952,51 @@ $$ LANGUAGE PLPGSQL;
 
 select generate_history_stat_data('minute_data', 'minute_stat_data', 1.5);
 
+CREATE FUNCTION Calc_profit() RETURNS void AS $$
+drop table if exists profit_minute;
 create table profit_minute as
-select id, sum(CASE WHEN (class='Hold') THEN 
+select id, trans_time, gross_profit, gross_profit-trans_cost as net_profit,
+       trans_cost, pos
+from
+(
+select id, gross_profit,
+           sum ( case when(last_pos * Pos > 0 OR last_pos = Pos) then
+                      0
+                 else
+                      case when (last_pos =0 or pos =0) then
+                           0.3
+                      else
+                           0.6
+                      end
+                 end) over (order by trans_time) as trans_cost,
+           Pos, trans_time
+from
+(           
+select id, sum(case when (Pos > 0) then
+                    nxt_close-close
+               else
+                    case when(pos<0) then
+                         close-nxt_close
+                    else
+                         0
+                    end
+               end) over (order by trans_time) as gross_profit,
+            lag(Pos) over (order by trans_time) as last_pos,
+            Pos, n.trans_time
+from
+(
+select id, avg(CASE WHEN (class='Hold') THEN 
                             0 
                        ELSE 
                             CASE WHEN(class = 'Sell') THEN
-                                close-nxt_close
+                                -1.0
                             ELSE
-                                -close+nxt_close
+                                1.0
                             END
-                       END) over (order by trans_time), trans_time 
+                       END) over (order by trans_time ROWS BETWEEN 240 PRECEDING AND CURRENT ROW) as Pos, trans_time,
+       close, nxt_close  
 from
 (select n.id, n.trans_time, m.close, lead(m.close) over (order by m.trans_time) nxt_close, t.result as class , t.res 
- from minute_data m, minute_stat_data n, minute_classify t where n.id=t.id and n.trans_time = m.trans_time) l order by trans_time;
+ from minute_data m, minute_stat_data n, minute_classify t where n.id=t.id and n.trans_time = m.trans_time) l order by trans_time
+) n ) k ) l;
+$$ LANGUAGE SQL;
