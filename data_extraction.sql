@@ -1000,3 +1000,112 @@ from
  from minute_data m, minute_stat_data n, minute_classify t where n.id=t.id and n.trans_time = m.trans_time) l order by trans_time
 ) n ) k ) l;
 $$ LANGUAGE SQL;
+
+CREATE OR REPLACE FUNCTION generate_minute_stat_data
+    ( 
+    original_table_name     TEXT,
+    target_table_name       TEXT,
+	period                  INT,
+    parameter	            FLOAT8
+    ) 
+RETURNS VOID AS $$
+DECLARE
+    index   BIGINT;
+    result  BIGINT;
+    stmt    TEXT;
+    ti      TIMESTAMP;
+BEGIN
+    ti=clock_timestamp();
+    EXECUTE 'DROP TABLE IF EXISTS temp_history_tr_table cascade';
+    stmt= 'CREATE TEMP TABLE temp_history_tr_table AS
+		SELECT trans_time, open, high, low, close, volume, open_interest,
+		   CASE WHEN ( abs(high-low)>abs(high-last_close) ) THEN
+			CASE WHEN (abs(high-low)>abs(low-last_close)) THEN
+				abs(high-low)
+			ELSE
+				abs(low-last_close)
+			END
+		   ELSE
+			CASE WHEN (abs(high-last_close)>abs(low-last_close)) THEN
+				abs(high-last_close)
+			ELSE
+				abs(low-last_close)
+			END
+		   END as tr,
+			100::float8*(close-min_low)/(max_high-min_low) AS stochastic_K,
+			(close-former_n_close) AS Momentum_1,
+			(close-former_4_close) AS Momentum_2,
+			100::float8*close/former_n_close AS ROC,
+			CASE WHEN(high-low = 0) THEN
+				0
+			ELSE
+				(high-last_close)/(high-low)
+			END AS AD_Oscillator,
+			100::float8*close/MA5 AS Disparity_5,
+			100::float8*close/MA10 AS Disparity_10,			
+			(MA5-MA10)/MA5 AS OSCP,
+			100::float8*(max_high-close)/(max_high-min_low) AS Williams_R,
+			avg(Mt) over (order by trans_time rows between '||period||' preceding and CURRENT ROW) as SMt,
+			Mt
+		FROM
+			(SELECT trans_time, open, high, low, close, volume, open_interest,
+		   		min(low) over (order by trans_time ROWS BETWEEN '||period||' PRECEDING AND CURRENT ROW) as min_low,
+				max(high) over (order by trans_time ROWS BETWEEN '||period||' PRECEDING AND CURRENT ROW) as max_high,
+				avg(close) over (order by trans_time rows between 5 preceding and current row) as MA5,
+				avg(close) over (order by trans_time rows between 10 preceding and current row) as MA10,	
+				lag(close) over (order by trans_time) as last_close,
+				avg(close) over (order by trans_time rows between '||period||' preceding and '||period||' preceding) as former_n_close,
+				avg(close) over (order by trans_time rows between 4 preceding and 4 preceding) as former_4_close,				
+				(high+low+close)/3 as Mt
+			FROM '||original_table_name||') l;';
+    RAISE INFO '%',stmt;
+    EXECUTE stmt;
+    RAISE INFO 'Time:%', clock_timestamp()-ti;
+
+    ti=clock_timestamp();
+    EXECUTE 'DROP TABLE IF EXISTS '||target_table_name||' cascade;';
+    stmt= 'CREATE TABLE '||target_table_name||' AS 
+				SELECT id, trans_time, stochastic_K, stochastic_D,
+					avg(stochastic_D) over (order by trans_time rows between '||period||' preceding and CURRENT ROW) as slow_stochastic_D,
+					Momentum_1, Momentum_2, ROC, Williams_R, AD_Oscillator, Disparity_5, Disparity_10, OSCP, 
+					CASE WHEN(Dt = 0) THEN
+						0
+					ELSE
+						(Mt-SMt)/(0.015*Dt)::float8
+					END AS CCI, tr,
+					avg(tr) over (order by trans_time rows between 5 preceding and CURRENT ROW) as atr_5,
+					avg(tr) over (order by trans_time rows between 10 preceding and CURRENT ROW) as atr_10,
+					close, lead(close) over (order by trans_time) as next_close
+				FROM
+				(
+					SELECT row_number() over (order by trans_time) as id, 
+					trans_time, close, open, high, low, volume, open_interest, tr, 
+					avg(stochastic_K) over (order by trans_time rows between '||period||' preceding and CURRENT ROW) as stochastic_D,
+					avg(abs(Mt-SMt)) over (order by trans_time rows between '||period||' preceding and CURRENT ROW) as Dt,
+					Mt, SMt, stochastic_K, Momentum_1, Momentum_2, ROC, AD_Oscillator, Disparity_5, Disparity_10, OSCP, Williams_R
+					from temp_history_tr_table
+				) l;';
+    
+    RAISE INFO '%',stmt;
+    EXECUTE stmt;
+    RAISE INFO 'Time:%', clock_timestamp()-ti;
+
+    EXECUTE 'ALTER TABLE '||target_table_name||' ADD column class TEXT;';
+    
+    EXECUTE 'UPDATE '||target_table_name||' 
+        SET class=
+            CASE WHEN(next_close>close+'||parameter||') THEN
+                ''Buy''
+            ELSE
+                CASE WHEN (next_close<close-'||parameter||') THEN
+                    ''Sell''   
+                ELSE
+                    ''Hold''
+                END
+            END;';
+
+
+    EXECUTE 'ALTER TABLE '||target_table_name||' DROP column next_close;';
+    EXECUTE 'ALTER TABLE '||target_table_name||' DROP column close;';
+END
+$$ LANGUAGE PLPGSQL;
