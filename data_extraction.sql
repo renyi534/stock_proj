@@ -1064,7 +1064,8 @@ BEGIN
 
     ti=clock_timestamp();
     EXECUTE 'DROP TABLE IF EXISTS '||target_table_name||' cascade;';
-    stmt= 'CREATE TABLE '||target_table_name||' AS 
+    EXECUTE 'DROP TABLE IF EXISTS temp_history_stat_table  cascade;';
+    stmt= 'CREATE TEMP TABLE temp_history_stat_table  AS 
 				SELECT id, trans_time, stochastic_K, stochastic_D,
 					avg(stochastic_D) over (order by trans_time rows between '||period||' preceding and CURRENT ROW) as slow_stochastic_D,
 					Momentum_1, Momentum_2, ROC, Williams_R, AD_Oscillator, Disparity_5, Disparity_10, OSCP, 
@@ -1090,9 +1091,20 @@ BEGIN
     EXECUTE stmt;
     RAISE INFO 'Time:%', clock_timestamp()-ti;
 
-    EXECUTE 'ALTER TABLE '||target_table_name||' ADD column class TEXT;';
-    
-    EXECUTE 'UPDATE '||target_table_name||' 
+    EXECUTE 'ALTER TABLE temp_history_stat_table   ADD column prev_class1 TEXT;';
+    EXECUTE 'ALTER TABLE temp_history_stat_table   ADD column prev_class2 TEXT;';
+    EXECUTE 'ALTER TABLE temp_history_stat_table   ADD column prev_class3 TEXT;';
+    EXECUTE 'ALTER TABLE temp_history_stat_table   ADD column prev_class4 TEXT;';
+    EXECUTE 'ALTER TABLE temp_history_stat_table   ADD column prev_class5 TEXT;';
+    EXECUTE 'ALTER TABLE temp_history_stat_table   ADD column prev_class6 TEXT;';
+    EXECUTE 'ALTER TABLE temp_history_stat_table   ADD column prev_class7 TEXT;';
+    EXECUTE 'ALTER TABLE temp_history_stat_table   ADD column prev_class8 TEXT;';
+    EXECUTE 'ALTER TABLE temp_history_stat_table   ADD column prev_class9 TEXT;';
+    EXECUTE 'ALTER TABLE temp_history_stat_table   ADD column prev_class10 TEXT;';
+    EXECUTE 'ALTER TABLE temp_history_stat_table   ADD column class TEXT;';
+
+   
+    EXECUTE 'UPDATE temp_history_stat_table   
         SET class=
             CASE WHEN(next_close>close+'||parameter||') THEN
                 ''Buy''
@@ -1104,8 +1116,23 @@ BEGIN
                 END
             END;';
 
+    EXECUTE 'Create Table '||target_table_name||' AS
+        SELECT id, trans_time, stochastic_K, stochastic_D, slow_stochastic_D,
+		Momentum_1, Momentum_2, ROC, Williams_R, AD_Oscillator, Disparity_5,
+		Disparity_10, OSCP, CCI, tr, atr_5, atr_10, 
+		lag(class) over (order by trans_time) AS prev_class1,
+		lag(class, 2) over (order by trans_time ) AS prev_class2,
+		lag(class, 3) over (order by trans_time ) AS prev_class3,
+		lag(class, 4) over (order by trans_time ) AS prev_class4,
+		lag(class, 5) over (order by trans_time ) AS prev_class5,
+		lag(class, 6) over (order by trans_time ) AS prev_class6,
+		lag(class, 7) over (order by trans_time ) AS prev_class7,
+		lag(class, 8) over (order by trans_time ) AS prev_class8,
+		lag(class, 9) over (order by trans_time ) AS prev_class9,
+		lag(class, 10) over (order by trans_time ) AS prev_class10,
+		class
+	FROM temp_history_stat_table   
+           ;';
 
-    EXECUTE 'ALTER TABLE '||target_table_name||' DROP column next_close;';
-    EXECUTE 'ALTER TABLE '||target_table_name||' DROP column close;';
 END
 $$ LANGUAGE PLPGSQL;
