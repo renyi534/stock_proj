@@ -109,8 +109,24 @@ int CompositeAlgorithm::OnTenMinuteData(const CTenMinuteData& data)
 	{
 		res.amount += (*iter)->OnTenMinuteData(data); 
 	}
+
 	SendStrategy(res);
 	return res.amount;
+}
+
+int	CompositeAlgorithm::SendStrategy(OrderInfoShort & res)
+{
+	if(res.amount>0)
+	{
+		res.price=m_AskPrice;
+	}
+	else if(res.amount<0)
+	{
+		res.price=m_BidPrice;
+	}
+
+	Algorithm::SendStrategy(res);
+	return 0;
 }
 
 int CompositeAlgorithm::OnTickData(const CThostFtdcDepthMarketDataField& data)
@@ -120,7 +136,8 @@ int CompositeAlgorithm::OnTickData(const CThostFtdcDepthMarketDataField& data)
 	{
 		(*iter)->OnTickData(data); 
 	}
-
+	m_AskPrice = data.AskPrice1;
+	m_BidPrice = data.BidPrice1;
 	return 0;
 }
 

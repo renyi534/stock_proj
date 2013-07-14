@@ -30,10 +30,13 @@ public:
 	virtual bool AddAlgorithm(Algorithm * algo);
 	virtual void SetSlot(int slot);
 	virtual void SetAccountInfo(string broker, string investor);
+	virtual SendStrategy(OrderInfoShort & res);
 private:
 	vector<Algorithm*> m_AlgoList;
 	string m_Instrument;
 	string m_Name;
+	double m_AskPrice;
+	double m_BidPrice;
 };
 
 #endif // !defined(AFX_COMPOSITEALGORITHM_H__274107D6_4B23_435F_92BE_D82967399E32__INCLUDED_)
