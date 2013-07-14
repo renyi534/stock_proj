@@ -38,7 +38,7 @@ struct OrderInfoShort
 	string investor_id;
 	string m_instrumentID;//¹ÉÆ±´úÂë
 	int	   amount;
-	int    totalAmount;
+	//int    totalAmount;
 	double price;
 	string day;
 	string time;
@@ -52,10 +52,10 @@ public:
     Algorithm(string instrument);
     Algorithm(string instrument, string config_file);
     virtual BOOL InitInstance();
-    virtual void OnMinuteData(const CMinuteData& data) {}
-    virtual void OnTenMinuteData(const CTenMinuteData& data) {}
-	virtual void OnHalfMinuteData(const CHalfMinuteData& data) {}
-    virtual void OnTickData(const CThostFtdcDepthMarketDataField&) {}
+    virtual int OnMinuteData(const CMinuteData& data) {return 0;}
+    virtual int OnTenMinuteData(const CTenMinuteData& data) {return 0;}
+	virtual int OnHalfMinuteData(const CHalfMinuteData& data) {return 0;}
+    virtual int OnTickData(const CThostFtdcDepthMarketDataField&) {return 0;}
     virtual void OnTradeData(const CThostFtdcTradeField&) {}
     virtual void OnAccountData(const CThostFtdcTradingAccountField&) {}
     virtual void OnPositionData(const CThostFtdcInvestorPositionField&) {}

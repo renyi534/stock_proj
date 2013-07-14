@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ; CLW file contains information for the MFC ClassWizard
 
 [General Info]

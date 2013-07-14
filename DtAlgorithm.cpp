@@ -37,7 +37,7 @@ DtAlgorithm::~DtAlgorithm()
 	m_state_log.close();
 }
 
-void DtAlgorithm::OnMinuteData(const CMinuteData& data)
+int DtAlgorithm::OnMinuteData(const CMinuteData& data)
 {
 
 	double val = 0;
@@ -106,7 +106,7 @@ void DtAlgorithm::OnMinuteData(const CMinuteData& data)
 	res.m_instrumentID = data.m_InstrumentID;
 
 	totalAmount += res.amount;
-	res.totalAmount = totalAmount;
+
 
 
 	SendStrategy(res);
@@ -147,16 +147,7 @@ void DtAlgorithm::OnMinuteData(const CMinuteData& data)
 	m_state_log<<res.m_instrumentID+", "+res.day+" "+res.time<<", price:"<<res.price<<", m:"<<im<<", e:"
 		<<ie<<", ud:"<<iud<<", P_action_con:"<<ipa<<",  N_action_con:"<<ina<<", P_is_start:"<<ips<<", N_is_start:"<<ins<<endl;
 
-}
-
-
-
-/*int mkk=1;*/
-
-void DtAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
-{
-
-	
+	return res.amount;
 }
 
 
@@ -176,76 +167,11 @@ int	DtAlgorithm::SendStrategy( OrderInfoShort & res)
 	return 0;
 }
 
-void DtAlgorithm::OnTickData(const CThostFtdcDepthMarketDataField& data)
+int DtAlgorithm::OnTickData(const CThostFtdcDepthMarketDataField& data)
 {
 	m_AskPrice = data.AskPrice1;
 	m_BidPrice = data.BidPrice1;
-/*
-	string strTime(data.UpdateTime, 0, 5);
-	if (strTime > "15:10")
-	{
-	//	return;
-	}
-
-	mwArray stopopen(1,1, mxDOUBLE_CLASS);
-	mwArray ia(1,1, mxDOUBLE_CLASS);
-	mwArray ib(1,1, mxDOUBLE_CLASS);
-
-	double val;
-	val = m_AskPrice;
-	ia.SetData(&val,1);
-	val = m_BidPrice;
-	ib.SetData(&val,1);
-
-	TickStopLoss4(1, stopopen, ia, ib);
-
-	stopopen.GetData(&val,1);
-
-	if(val==0)
-	{
-		return;
-	}
-
-
-	OrderInfoShort res;
-	
-	//res.price=-1;
-	
-	res.amount=val;
-
-	if ( totalAmount >=2 && res.amount > 0)
-		res.amount =0;
-	else if ( totalAmount <=-2 && res.amount < 0 )
-		res.amount =0;
-
-
-
-	if(res.amount>0)
-	{
-		res.price=m_AskPrice;
-	}
-	
-	if(res.amount<0)
-	{
-		res.price=m_BidPrice;
-	}
-
-	
-	res.day= data.TradingDay;
-	res.time = data.UpdateTime;
-	res.milliSec =0;
-	res.m_instrumentID = data.InstrumentID;
-
-	totalAmount += res.amount;
-	res.totalAmount = totalAmount;
-
-
-	SendStrategy(res);
-	return;
-*/
-
-
-                                                  
+    return 0;                  
 }
 void DtAlgorithm::OnTradeData(const CThostFtdcTradeField& data)
 {

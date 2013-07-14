@@ -105,6 +105,10 @@ SOURCE=.\AlgorithmCfgDlg.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\CompositeAlgorithm.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\DataSimulator.cpp
 # End Source File
 # Begin Source File
@@ -235,6 +239,10 @@ SOURCE=.\Algorithm.h
 # Begin Source File
 
 SOURCE=.\AlgorithmCfgDlg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\CompositeAlgorithm.h
 # End Source File
 # Begin Source File
 

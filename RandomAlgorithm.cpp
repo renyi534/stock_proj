@@ -37,20 +37,10 @@ RandomAlgorithm::~RandomAlgorithm()
 	m_state_log.close();
 }
 
-void RandomAlgorithm::OnMinuteData(const CMinuteData& data)
-{
-	return;
-}
-
-void RandomAlgorithm::OnTenMinuteData(const CTenMinuteData& data)
-{
-	m_log<<"Receive ten minute data"<<endl;
-	return;
-}
 
 int mkk=1;
 
-void RandomAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
+int RandomAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 {
 	if (isIni<3)
 	{
@@ -63,7 +53,7 @@ void RandomAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 		else
 		{
 			isIni++;
-			return;
+			return 0;
 		}
 	}
 	double val = 0;
@@ -147,7 +137,6 @@ void RandomAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 	res.m_instrumentID = data.m_InstrumentID;
 
 	totalAmount += res.amount;
-	res.totalAmount = totalAmount;
 
 
 	SendStrategy(res);
@@ -184,7 +173,7 @@ void RandomAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 
 	m_state_log<<res.m_instrumentID+", "+res.day+" "+res.time<<", price:"<<res.price<<", m:"<<im<<", e:"<<ie<<", atr:"<<iatr<<", stop:"<<istop<<", trend:"<<itrend<<", LastMaxe:"<<iLastme<<endl;
 
-	
+	return res.amount;
 }
 
 
@@ -204,11 +193,11 @@ int	RandomAlgorithm::SendStrategy( OrderInfoShort & res)
 	return 0;
 }
 
-void RandomAlgorithm::OnTickData(const CThostFtdcDepthMarketDataField& data)
+int RandomAlgorithm::OnTickData(const CThostFtdcDepthMarketDataField& data)
 {
 	m_AskPrice = data.AskPrice1;
 	m_BidPrice = data.BidPrice1;
-
+	return 0;
                                                   
 }
 void RandomAlgorithm::OnTradeData(const CThostFtdcTradeField& data)

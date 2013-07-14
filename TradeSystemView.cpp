@@ -255,6 +255,7 @@ void CTradeSystemView::OnTimer(UINT nIDEvent)
 			}
 		}
 	}*/
+
 	CFormView::OnTimer(nIDEvent);
 }
 
