@@ -11,10 +11,13 @@
 
 //#include "Algorithm.h"
 class Algorithm;
+class CompositeAlgorithm;
 class MessageRouter  
 {
 public:
 	void AddAlgorithm(string algo_name, string instrument, int slot, string config_file="");
+	void AddCompositeAlgorithm(string algo_name, string instrument, 
+								 int slot, vector<string> algo_list);
 	virtual ~MessageRouter();
 	void sendData(const CMinuteData& data);
 	void sendData(const CTenMinuteData& data);
@@ -34,11 +37,23 @@ private:
 		string config_file;
 		int slot;
 	};
+
+	struct CompAlgoInfo
+	{
+		string Name;
+		string Instrument;
+		int slot;
+		vector<AlgoInstrumentPair> AlgoList;
+	};
+
 	Algorithm* createAlgorithm(AlgoInstrumentPair algoInstrument);
+	CompositeAlgorithm* createCompositeAlgorithm(CompAlgoInfo compAlgoInfo);
 
 	vector<Algorithm*> m_algorithms;
 
 	vector<AlgoInstrumentPair> m_algoInstrument;
+	vector<CompAlgoInfo> m_compAlgoInfo;
+
 	string m_BrokerId;
 	string m_InvestorId;
 };

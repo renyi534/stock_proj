@@ -65,8 +65,8 @@ public:
 	virtual ~Algorithm();
 	void RegisterInstrument(string instrument);
 	bool IsInterestingInstrument(string instrument);
-	void SetSlot(int slot);
-	void SetAccountInfo(string broker, string investor);
+	virtual void SetSlot(int slot);
+	virtual void SetAccountInfo(string broker, string investor);
 protected:
     string  m_configFile;
 	set<string>  m_Instruments;

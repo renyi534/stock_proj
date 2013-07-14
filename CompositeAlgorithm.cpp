@@ -24,7 +24,11 @@ CompositeAlgorithm::CompositeAlgorithm(string name, string instrument):
 
 CompositeAlgorithm::~CompositeAlgorithm()
 {
-
+	vector<Algorithm*>::iterator iter;
+	for(iter = m_AlgoList.begin(); iter != m_AlgoList.end(); iter++)
+	{
+		delete *iter;
+	}
 }
 
 BOOL CompositeAlgorithm::InitInstance()
@@ -148,6 +152,31 @@ void CompositeAlgorithm::OnPositionData(const CThostFtdcInvestorPositionField& d
 	for(iter = m_AlgoList.begin(); iter != m_AlgoList.end(); iter++)
 	{
 		(*iter)->OnPositionData(data); 
+	}
+
+	return;
+}
+
+void CompositeAlgorithm::SetSlot(int slot)
+{
+	Algorithm::SetSlot(slot);
+
+	vector<Algorithm*>::iterator iter;
+	for(iter = m_AlgoList.begin(); iter != m_AlgoList.end(); iter++)
+	{
+		(*iter)->SetSlot(slot); 
+	}
+
+	return;
+}
+
+void CompositeAlgorithm::SetAccountInfo(string broker, string investor)
+{
+	Algorithm::SetAccountInfo(broker, investor);
+	vector<Algorithm*>::iterator iter;
+	for(iter = m_AlgoList.begin(); iter != m_AlgoList.end(); iter++)
+	{
+		(*iter)->SetAccountInfo(broker, investor); 
 	}
 
 	return;

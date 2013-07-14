@@ -51,7 +51,7 @@ int iInstrumentID = 0;									// 行情订阅数量
 char HS300_URL[128]="http://hq.sinajs.cn/list=sz399300"; 
 
 DbAccessorPool dbAccessPool;
-set<string> activeAlgorithm;
+
 bool WriteDb = false;
 /////////////////////////////////////////////////////////////////////////////
 // CTradeSystemApp
@@ -159,7 +159,6 @@ void CTradeSystemApp::LoadConfig()
 			xml.IntoElem();
 			xml.FindChildElem("NAME");
 			CString name = xml.GetChildData();
-			activeAlgorithm.insert((LPCSTR)name);
 			
 			xml.FindChildElem("INSTANCE");
 			xml.IntoElem();
@@ -185,9 +184,49 @@ void CTradeSystemApp::LoadConfig()
 			
 			xml.OutOfElem();
 		}
-
-		tradeConn->m_Router.InitAlgorithm();
 		xml.OutOfElem();
+
+		if (xml.FindChildElem("COMPOSITE_ALGORITHM"))
+		{
+			xml.IntoElem();
+			while ( xml.FindChildElem("ITEM") )
+			{
+				xml.IntoElem();
+				xml.FindChildElem("NAME");
+				CString name = xml.GetChildData();
+				xml.FindChildElem("INSTRUMENT");
+				CString instNo = xml.GetChildData();
+				int index = atoi((LPCSTR)instNo);
+				CString instrument;
+				if(( index >=0 && index <iInstrumentID ) )
+				{
+					instrument = ppInstrumentID[index];
+				}
+				xml.FindChildElem("SLOT");
+				int slot = atoi((LPCSTR)xml.GetChildData());
+				vector<string> algo_list;
+				if( xml.FindChildElem("ALGO_LIST") )
+				{
+					xml.IntoElem();
+					while ( xml.FindChildElem("NAME") )
+					{
+						string algoName = (LPCSTR)xml.GetChildData();
+						algo_list.push_back(algoName);
+					}
+					xml.OutOfElem();
+				}
+				
+				if(instrument.GetLength() >0 && algo_list.size() >0)
+				{
+					tradeConn->m_Router.AddCompositeAlgorithm((LPCSTR)name, 
+						(LPCSTR)instrument, slot, algo_list);
+				}
+				xml.OutOfElem();
+			}
+			xml.OutOfElem();
+		}
+		tradeConn->m_Router.InitAlgorithm();
+
 		xml.OutOfElem();
 	}
 	xml.OutOfElem();

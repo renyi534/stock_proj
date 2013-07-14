@@ -28,7 +28,8 @@ public:
     virtual void OnAccountData(const CThostFtdcTradingAccountField&);
     virtual void OnPositionData(const CThostFtdcInvestorPositionField&);
 	virtual bool AddAlgorithm(Algorithm * algo);
-
+	virtual void SetSlot(int slot);
+	virtual void SetAccountInfo(string broker, string investor);
 private:
 	vector<Algorithm*> m_AlgoList;
 	string m_Instrument;

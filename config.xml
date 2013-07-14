@@ -1,8 +1,7 @@
 <PARAMETER>
     <INSTRUMENT>
-        <ITEM>IF1304</ITEM>
-        <ITEM>IF1305</ITEM>
-        <ITEM>IF1306</ITEM>
+        <ITEM>IF1307</ITEM>
+        <ITEM>IF1308</ITEM>
         <ITEM>IF1309</ITEM>
     </INSTRUMENT>               
     <DB_CONN>DSN=PostgreSQL35W;UID=postgres;PWD=123</DB_CONN>
@@ -22,21 +21,24 @@
             <ITEM>
                 <INSTRUMENT>0</INSTRUMENT>
                 <CONFIG>c:\temp.xml</CONFIG>                
-		<SLOT>0</SLOT>                
-            </ITEM>
-        </INSTANCE>   
-    </ITEM>
-    <ITEM>
-        <NAME>RandomAlgorithm</NAME>
-            <INSTANCE>
-            <ITEM>
-                <INSTRUMENT>1</INSTRUMENT>
-                <CONFIG>c:\temp.xml</CONFIG>
-		<SLOT>0</SLOT>                
+		        <SLOT>0</SLOT>                
             </ITEM>
         </INSTANCE>   
     </ITEM>
     </ALGORITHM>
+
+    <COMPOSITE_ALGORITHM>
+        <ITEM>
+            <NAME>Comp1</NAME>
+            <INSTRUMENT>0</INSTRUMENT>
+		    <SLOT>0</SLOT>                
+            <ALGO_LIST>
+                <NAME>DtAlgorithm</NAME>
+                <NAME>RandomAlgorithm</NAME>
+            </ALGO_LIST>
+        </ITEM>
+    </COMPOSITE_ALGORITHM>
+
     </ACCOUNT>
     <ACCOUNT>
     <TRADE>tcp://asp-sim2-front1.financial-trading-platform.com:26205</TRADE>
@@ -46,16 +48,6 @@
     <PASSWORD>123456</PASSWORD>
 
     <ALGORITHM>
-    <ITEM>
-        <NAME>DtAlgorithm</NAME>
-        <INSTANCE>
-            <ITEM>
-                <INSTRUMENT>0</INSTRUMENT>
-                <CONFIG>c:\temp.xml</CONFIG>
-		<SLOT>0</SLOT>                
-            </ITEM>
-        </INSTANCE>   
-    </ITEM>
     <ITEM>
         <NAME>HsAlgorithm</NAME>
             <INSTANCE>

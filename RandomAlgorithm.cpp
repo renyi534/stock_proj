@@ -185,7 +185,7 @@ int	RandomAlgorithm::SendStrategy( OrderInfoShort & res)
 	//第一行就是真实的发送指令，第二行是本地模拟写log
 	if( res.amount != 0 )
 	{
-		Algorithm::SendStrategy(res);	
+		//Algorithm::SendStrategy(res);	
 		m_log<<res.m_instrumentID+",  "+res.day+" "+res.time<<",  Amount, "<< res.amount <<", Price, "<<res.price<<endl;
 	}
 	
