@@ -16,9 +16,9 @@ class HsAlgorithm : public Algorithm
 public:
 	HsAlgorithm(string instrument_id);
 	virtual ~HsAlgorithm();
-    virtual void OnMinuteData(const CMinuteData& data);
-	virtual void OnHalfMinuteData(const CHalfMinuteData& data);
-    virtual void OnTickData(const CThostFtdcDepthMarketDataField&);
+    virtual int OnMinuteData(const CMinuteData& data);
+	virtual int OnHalfMinuteData(const CHalfMinuteData& data);
+    virtual int OnTickData(const CThostFtdcDepthMarketDataField&);
     virtual void OnTradeData(const CThostFtdcTradeField&);
     virtual void OnAccountData(const CThostFtdcTradingAccountField&);
     virtual void OnPositionData(const CThostFtdcInvestorPositionField&);

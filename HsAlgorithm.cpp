@@ -33,11 +33,11 @@ HsAlgorithm::~HsAlgorithm()
 	m_log.close();
 }
 int hs_mkk=1;
-void HsAlgorithm::OnMinuteData(const CMinuteData& data)
+int HsAlgorithm::OnMinuteData(const CMinuteData& data)
 {
 	// Filter IF's minute K series
 	if( m_InstrumentID == data.m_InstrumentID )
-		return;
+		return 0;
 
 	double val = 0;
 	mwArray newopen(1,1, mxDOUBLE_CLASS);
@@ -78,7 +78,6 @@ void HsAlgorithm::OnMinuteData(const CMinuteData& data)
 	if( res.time>"14:55:29")
 	{
 		res.amount=-totalAmount;
-		res.totalAmount=0;
 	}
 
 	if (res.amount>=0)
@@ -93,12 +92,13 @@ void HsAlgorithm::OnMinuteData(const CMinuteData& data)
 	SendStrategy(res);
 
 	totalAmount += res.amount;
+	return res.amount;
 }
 
 
-void HsAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
+int HsAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 {
-
+	return 0;
 }
 int	HsAlgorithm::SendStrategy(const OrderInfoShort & res)
 {
@@ -113,7 +113,7 @@ int	HsAlgorithm::SendStrategy(const OrderInfoShort & res)
 	return 0;
 }
 
-void HsAlgorithm::OnTickData(const CThostFtdcDepthMarketDataField& data)
+int HsAlgorithm::OnTickData(const CThostFtdcDepthMarketDataField& data)
 {
 	// record IF's latest price
 	if( m_InstrumentID == data.InstrumentID )
@@ -121,6 +121,7 @@ void HsAlgorithm::OnTickData(const CThostFtdcDepthMarketDataField& data)
 		m_AskPrice = data.AskPrice1;
 		m_BidPrice = data.BidPrice1;    
 	}
+	return 0;
 }
 
 void HsAlgorithm::OnTradeData(const CThostFtdcTradeField& data)

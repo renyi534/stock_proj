@@ -38,16 +38,10 @@ WeightedAlgorithm::~WeightedAlgorithm()
 	m_state_log.close();
 }
 
-void WeightedAlgorithm::OnMinuteData(const CMinuteData& data)
-{
-	return;
-}
-
-
 
 /*int mkk=1;*/
 
-void WeightedAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
+int WeightedAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 {
 	if (isIni<3)
 	{
@@ -60,7 +54,7 @@ void WeightedAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 		else
 		{
 			isIni++;
-			return;
+			return 0;
 		}
 	}
 	double val = 0;
@@ -130,7 +124,6 @@ void WeightedAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 	res.m_instrumentID = data.m_InstrumentID;
 
 	totalAmount += res.amount;
-	res.totalAmount = totalAmount;
 
 
 	SendStrategy(res);
@@ -166,7 +159,7 @@ void WeightedAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 	m_state_log<<res.m_instrumentID+", "+res.day+" "+res.time<<", price:"<<res.price<<", m:"<<im<<", e:"
 		<<ie<<", atr:"<<iatr<<", stop:"<<istop<<", trend:"<<itrend<<", last_maxe:"<<last_maxe<<endl;
 
-	
+	return res.amount;
 }
 
 
@@ -186,12 +179,12 @@ int	WeightedAlgorithm::SendStrategy(const OrderInfoShort & res)
 	return 0;
 }
 
-void WeightedAlgorithm::OnTickData(const CThostFtdcDepthMarketDataField& data)
+int  WeightedAlgorithm::OnTickData(const CThostFtdcDepthMarketDataField& data)
 {
 	m_AskPrice = data.AskPrice1;
 	m_BidPrice = data.BidPrice1;
 
-                                                  
+    return 0;                                              
 }
 void WeightedAlgorithm::OnTradeData(const CThostFtdcTradeField& data)
 {

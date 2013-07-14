@@ -224,7 +224,7 @@ void CTradeSystemView::OnTimer(UINT nIDEvent)
 	}
 	else if( m_HS300Timer == nIDEvent )
 	{
-		static CThostFtdcDepthMarketDataField old_data;
+		/*static CThostFtdcDepthMarketDataField old_data;
 		StockRetriever ret;
 		CThostFtdcDepthMarketDataField data;
 		memset(&data, 0, sizeof(data));
@@ -239,7 +239,7 @@ void CTradeSystemView::OnTimer(UINT nIDEvent)
 				old_data = data;
 				tradeConn->m_UserSpi->OnRtnDepthMarketData(&data);
 			}
-		}
+		}*/
 	}
 	CFormView::OnTimer(nIDEvent);
 }
