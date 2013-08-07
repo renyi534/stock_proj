@@ -952,7 +952,7 @@ $$ LANGUAGE PLPGSQL;
 
 select generate_history_stat_data('minute_data', 'minute_stat_data', 1.5);
 
-CREATE FUNCTION Calc_profit() RETURNS void AS $$
+CREATE or replace FUNCTION Calc_profit() RETURNS void AS $$
 drop table if exists profit_minute;
 create table profit_minute as
 select id, trans_time, gross_profit, gross_profit-trans_cost as net_profit,
@@ -993,7 +993,7 @@ select id, avg(CASE WHEN (class='Hold') THEN
                             ELSE
                                 1.0
                             END
-                       END) over (order by trans_time ROWS BETWEEN 240 PRECEDING AND CURRENT ROW) as Pos, trans_time,
+                       END) over (order by trans_time ROWS BETWEEN 10 PRECEDING AND CURRENT ROW) as Pos, trans_time,
        close, nxt_close  
 from
 (select n.id, n.trans_time, m.close, lead(m.close) over (order by m.trans_time) nxt_close, t.result as class , t.res 
@@ -1134,5 +1134,76 @@ BEGIN
 	FROM temp_history_stat_table   
            ;';
 
+END
+$$ LANGUAGE PLPGSQL;
+
+drop table if exists minute_avg_data;
+create table minute_avg_data as 
+select trans_time, 
+     avg(close) over(order by trans_time rows between 10 preceding and CURRENT ROW) as close,
+     avg(open) over(order by trans_time rows between 10 preceding and CURRENT ROW) as open,
+     avg(high) over(order by trans_time rows between 10 preceding and CURRENT ROW) as high,
+     avg(low) over(order by trans_time rows between 10 preceding and CURRENT ROW) as low,
+     avg(volume) over(order by trans_time rows between 10 preceding and CURRENT ROW) as volume,
+     avg(open_interest) over(order by trans_time rows between 10 preceding and CURRENT ROW) as open_interest
+from minute_data;
+
+CREATE or replace FUNCTION Calc_profit
+	(
+	avg_period INT,
+	cost	   float8,
+	table_name text
+	) RETURNS void AS $$
+declare
+	stmt TEXT;
+begin
+execute 'drop table if exists '||table_name;
+stmt = '
+create table '||table_name||' as
+select id, trans_time, gross_profit, gross_profit-trans_cost as net_profit,
+       trans_cost, pos
+from
+(
+select id, gross_profit,
+           sum ( case when(last_pos * Pos > 0 OR last_pos = Pos) then
+                      0
+                 else
+                      case when (last_pos =0 or pos =0) then
+                           ' || cost ||'
+                      else
+                           ' || cost*2 ||'
+                      end
+                 end) over (order by trans_time) as trans_cost,
+           Pos, trans_time
+from
+(           
+select id, sum(case when (Pos > 0) then
+                    nxt_close-close
+               else
+                    case when(pos<0) then
+                         close-nxt_close
+                    else
+                         0
+                    end
+               end) over (order by trans_time) as gross_profit,
+            lag(Pos) over (order by trans_time) as last_pos,
+            Pos, n.trans_time
+from
+(
+select id, avg(CASE WHEN (class=''Hold'') THEN 
+                            0 
+                       ELSE 
+                            CASE WHEN(class = ''Sell'') THEN
+                                -1.0
+                            ELSE
+                                1.0
+                            END
+                       END) over (order by trans_time ROWS BETWEEN '||avg_period ||' PRECEDING AND CURRENT ROW) as Pos, trans_time,
+       close, nxt_close  
+from
+(select n.id, n.trans_time, m.close, lead(m.close) over (order by m.trans_time) nxt_close, t.result as class , t.res 
+ from minute_data m, minute_stat_data n, minute_classify t where n.id=t.id and n.trans_time = m.trans_time) l order by trans_time
+) n ) k ) l;';
+execute stmt; 
 END
 $$ LANGUAGE PLPGSQL;
