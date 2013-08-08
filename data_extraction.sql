@@ -1160,7 +1160,7 @@ begin
 execute 'drop table if exists '||table_name;
 stmt = '
 create table '||table_name||' as
-select id, trans_time, gross_profit, gross_profit-trans_cost as net_profit,
+select id, trans_time, close, gross_profit, gross_profit-trans_cost as net_profit,
        trans_cost, pos
 from
 (
@@ -1174,7 +1174,7 @@ select id, gross_profit,
                            ' || cost*2 ||'
                       end
                  end) over (order by trans_time) as trans_cost,
-           Pos, trans_time
+           Pos, trans_time, close
 from
 (           
 select id, sum(case when (Pos > 0) then
@@ -1187,6 +1187,7 @@ select id, sum(case when (Pos > 0) then
                     end
                end) over (order by trans_time) as gross_profit,
             lag(Pos) over (order by trans_time) as last_pos,
+	    close,
             Pos, n.trans_time
 from
 (
@@ -1206,4 +1207,89 @@ from
 ) n ) k ) l;';
 execute stmt; 
 END
+$$ LANGUAGE PLPGSQL;
+
+CREATE OR REPLACE FUNCTION generate_training_stat_data
+    ( 
+    original_table_name     TEXT,
+    target_table_name       TEXT,
+    period                  INT
+    ) 
+RETURNS VOID AS $$
+DECLARE
+    index   BIGINT;
+    result  BIGINT;
+    stmt    TEXT;
+    ti      TIMESTAMP;
+BEGIN
+    ti=clock_timestamp();
+    EXECUTE 'DROP TABLE IF EXISTS '||target_table_name||' cascade';
+    EXECUTE 'drop table if exists minute_avg_data;';
+    EXECUTE 'create table minute_avg_data as 
+	select trans_time, 
+     		avg(close) over(order by trans_time rows between 10 preceding and CURRENT ROW) as close,
+     		avg(open) over(order by trans_time rows between 10 preceding and CURRENT ROW) as open,
+     		avg(high) over(order by trans_time rows between 10 preceding and CURRENT ROW) as high,
+     		avg(low) over(order by trans_time rows between 10 preceding and CURRENT ROW) as low,
+     		avg(volume) over(order by trans_time rows between 10 preceding and CURRENT ROW) as volume,
+     		avg(open_interest) over(order by trans_time rows between 10 preceding and CURRENT ROW) as open_interest
+	from '||original_table_name;
+    EXECUTE 'select generate_minute_stat_data(''minute_avg_data'', ''avg_stat_data'', '||period||',0.2)';
+    EXECUTE 'select generate_minute_stat_data('''|| original_table_name||''', ''unit_stat_data'', '||period||',0.5)';
+    EXECUTE 'CREATE TABLE '||target_table_name||' AS
+		SELECT m.id, m.trans_time, m.stochastic_k, m.stochastic_d, m.slow_stochastic_d,
+			m.momentum_1, m.momentum_2, m.roc, m.williams_r, m.ad_oscillator, m.disparity_5,
+			m.disparity_10, m.oscp, m.cci, m.tr, m.atr_5, m.atr_10,
+			n.prev_class1, n.prev_class2, n.prev_class3, n.prev_class4, n.prev_class5, n.prev_class6,
+			n.prev_class7, n.prev_class8, n.prev_class9, n.prev_class10, n.class
+		FROM avg_stat_data m, unit_stat_data n
+		WHERE m.id = n.id ';
+END    
+$$ LANGUAGE PLPGSQL;
+
+
+CREATE OR REPLACE FUNCTION generate_training_stat_data2
+    ( 
+    original_table_name     TEXT,
+    target_table_name       TEXT,
+    period                  INT
+    ) 
+RETURNS VOID AS $$
+DECLARE
+    index   BIGINT;
+    result  BIGINT;
+    stmt    TEXT;
+    ti      TIMESTAMP;
+BEGIN
+    ti=clock_timestamp();
+    EXECUTE 'DROP TABLE IF EXISTS '||target_table_name||' cascade';
+    EXECUTE 'drop table if exists minute_avg_data;';
+    EXECUTE 'create table minute_avg_data as 
+	select trans_time, 
+     		avg(close) over(order by trans_time rows between 10 preceding and CURRENT ROW) as close,
+     		avg(open) over(order by trans_time rows between 10 preceding and CURRENT ROW) as open,
+     		avg(high) over(order by trans_time rows between 10 preceding and CURRENT ROW) as high,
+     		avg(low) over(order by trans_time rows between 10 preceding and CURRENT ROW) as low,
+     		avg(volume) over(order by trans_time rows between 10 preceding and CURRENT ROW) as volume,
+     		avg(open_interest) over(order by trans_time rows between 10 preceding and CURRENT ROW) as open_interest
+	from '||original_table_name;
+    EXECUTE 'select generate_minute_stat_data(''minute_avg_data'', ''avg_stat_data'', '||period||',0.2)';
+
+    EXECUTE 'CREATE TABLE '||target_table_name||' AS
+		SELECT m.id, m.trans_time, m.stochastic_k, m.stochastic_d, m.slow_stochastic_d,
+			m.momentum_1, m.momentum_2, m.roc, m.williams_r, m.ad_oscillator, m.disparity_5,
+			m.disparity_10, m.oscp, m.cci, m.tr, m.atr_5, m.atr_10,
+			lead(prev_class1, 9) over (order by trans_time ) AS prev_class1,
+			lead(prev_class2, 9) over (order by trans_time ) AS prev_class2,
+			lead(prev_class3, 9) over (order by trans_time ) AS prev_class3,
+			lead(prev_class4, 9) over (order by trans_time ) AS prev_class4,
+			lead(prev_class5, 9) over (order by trans_time ) AS prev_class5,
+			lead(prev_class6, 9) over (order by trans_time ) AS prev_class6,
+			lead(prev_class7, 9) over (order by trans_time ) AS prev_class7,
+			lead(prev_class8, 9) over (order by trans_time ) AS prev_class8,
+			lead(prev_class9, 9) over (order by trans_time ) AS prev_class9,
+			lead(prev_class10, 9) over (order by trans_time ) AS prev_class10,
+			lead(class, 9) over (order by trans_time ) AS class				
+		FROM avg_stat_data m';
+END    
 $$ LANGUAGE PLPGSQL;
