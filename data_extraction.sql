@@ -1554,3 +1554,44 @@ BEGIN
 		FROM avg_stat_data m';
 END    
 $$ LANGUAGE PLPGSQL;
+
+CREATE OR REPLACE FUNCTION generate_training_stat_data
+    ( 
+    original_table_name     TEXT,
+    ref_table_name          TEXT,
+    ref_threshold           float,
+    target_table_name       TEXT,
+    stat_period             INT,
+    avg_period		    INT
+    ) 
+RETURNS VOID AS $$
+DECLARE
+    index   BIGINT;
+    result  BIGINT;
+    stmt    TEXT;
+    ti      TIMESTAMP;
+BEGIN
+    ti=clock_timestamp();
+    EXECUTE 'DROP TABLE IF EXISTS '||target_table_name||' cascade';
+    EXECUTE 'drop table if exists minute_avg_data;';
+    EXECUTE 'create table minute_avg_data as 
+	select trans_time, 
+     		avg(close) over(order by trans_time rows between '||avg_period||' preceding and CURRENT ROW) as close,
+     		avg(open) over(order by trans_time rows between '||avg_period||'  preceding and CURRENT ROW) as open,
+     		avg(high) over(order by trans_time rows between '||avg_period||'  preceding and CURRENT ROW) as high,
+     		avg(low) over(order by trans_time rows between '||avg_period||'  preceding and CURRENT ROW) as low,
+     		avg(volume) over(order by trans_time rows between '||avg_period||' preceding and CURRENT ROW) as volume,
+     		avg(open_interest) over(order by trans_time rows between '||avg_period||' preceding and CURRENT ROW) as open_interest
+	from '||original_table_name;
+    EXECUTE 'select generate_minute_stat_data(''minute_avg_data'', ''avg_stat_data'', '||stat_period||',0.2)';
+    EXECUTE 'select generate_minute_stat_data('''|| ref_table_name||''', ''unit_stat_data'', '||stat_period||','||ref_threshold||')';
+    EXECUTE 'CREATE TABLE '||target_table_name||' AS
+		SELECT m.id, m.trans_time, m.stochastic_k, m.stochastic_d, m.slow_stochastic_d,
+			m.momentum_1, m.momentum_2, m.roc, m.williams_r, m.ad_oscillator, m.disparity_5,
+			m.disparity_10, m.oscp, m.cci, m.tr, m.atr_5, m.atr_10,
+			n.prev_class1, n.prev_class2, n.prev_class3, n.prev_class4, n.prev_class5, n.prev_class6,
+			n.prev_class7, n.prev_class8, n.prev_class9, n.prev_class10, n.class
+		FROM avg_stat_data m, unit_stat_data n
+		WHERE m.trans_time = n.trans_time ';
+END    
+$$ LANGUAGE PLPGSQL;
