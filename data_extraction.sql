@@ -1076,7 +1076,8 @@ BEGIN
 					END AS CCI, tr,
 					avg(tr) over (order by trans_time rows between 5 preceding and CURRENT ROW) as atr_5,
 					avg(tr) over (order by trans_time rows between 10 preceding and CURRENT ROW) as atr_10,
-					close, lead(close) over (order by trans_time) as next_close
+					close, lead(close) over (order by trans_time) as next_close,
+					lag(close) over (order by trans_time) as prev_close
 				FROM
 				(
 					SELECT row_number() over (order by trans_time) as id, 
@@ -1118,8 +1119,16 @@ BEGIN
 
     EXECUTE 'Create Table '||target_table_name||' AS
         SELECT id, trans_time, stochastic_K, stochastic_D, slow_stochastic_D,
-		Momentum_1, Momentum_2, ROC, Williams_R, AD_Oscillator, Disparity_5,
-		Disparity_10, OSCP, CCI, tr, atr_5, atr_10, 
+		Momentum_1, Momentum_2, ROC, Williams_R, 
+		100::float8*AD_Oscillator as AD_Oscillator, 
+		Disparity_5,
+		Disparity_10, 
+		100000::float8*OSCP as OSCP, 
+		CCI, tr, atr_5, atr_10, 
+		1e4::float8*(ln(close)-ln(prev_close)) as log_ind1,
+		1e4::float8*(ln(close)-ln(lag(close, 5) over (order by trans_time ))) AS log_ind5,
+		1e4::float8*(ln(close)-ln(lag(close, 10) over (order by trans_time ))) AS log_ind10,
+		1e4::float8*(ln(close)-ln(lag(close, 30) over (order by trans_time ))) AS log_ind30,
 		lag(class) over (order by trans_time) AS prev_class1,
 		lag(class, 2) over (order by trans_time ) AS prev_class2,
 		lag(class, 3) over (order by trans_time ) AS prev_class3,
