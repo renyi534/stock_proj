@@ -31,7 +31,8 @@
         <ITEM>
             <NAME>Comp1</NAME>
             <INSTRUMENT>0</INSTRUMENT>
-		    <SLOT>0</SLOT>                
+            <SLOT>0</SLOT>  
+            <MAX_LOSS>-10</MAX_LOSS>
             <ALGO_LIST>
                 <NAME>DtAlgorithm</NAME>
                 <NAME>RandomAlgorithm</NAME>
@@ -64,6 +65,19 @@
         </INSTANCE>   
     </ITEM>
     </ALGORITHM>
+
+    <COMPOSITE_ALGORITHM>
+        <ITEM>
+            <NAME>Comp1</NAME>
+            <INSTRUMENT>0</INSTRUMENT>
+            <SLOT>0</SLOT> 
+            <MAX_LOSS>-10</MAX_LOSS>
+            <ALGO_LIST>
+                <NAME>DtAlgorithm</NAME>
+                <NAME>RandomAlgorithm</NAME>
+            </ALGO_LIST>
+        </ITEM>
+    </COMPOSITE_ALGORITHM>
     </ACCOUNT>
     </ACCOUNTS>
 </PARAMETER>

@@ -61,8 +61,8 @@ CMdSpi::CMdSpi(CThostFtdcMdApi* api, string broker_id, string investor_id,
 	m_tick_data_map.insert(CTickDataPair("", CThostFtdcDepthMarketDataField() ));
 	m_StoreMarketData = StoreMarketData;
 	StoreMarketData = false;
-	m_series_generator.push_back(new OneMinuteSeriesGenerator(&(m_Conn->m_Router),m_StoreMarketData));
-	m_series_generator.push_back(new HalfMinuteSeriesGenerator(&(m_Conn->m_Router),m_StoreMarketData));
+	//m_series_generator.push_back(new OneMinuteSeriesGenerator(&(m_Conn->m_Router),m_StoreMarketData));
+	//m_series_generator.push_back(new HalfMinuteSeriesGenerator(&(m_Conn->m_Router),m_StoreMarketData));
 	m_series_generator.push_back(new TenMinuteSeriesGenerator(&(m_Conn->m_Router),m_StoreMarketData));
 	m_series_generator.push_back(new VarOneMinuteSeriesGenerator(&(m_Conn->m_Router),m_StoreMarketData,5));
 	//	m_series_generator.push_back(new VarOneMinuteSeriesGenerator(0));

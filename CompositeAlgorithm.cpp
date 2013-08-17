@@ -16,10 +16,15 @@ static char THIS_FILE[]=__FILE__;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CompositeAlgorithm::CompositeAlgorithm(string name, string instrument):
+CompositeAlgorithm::CompositeAlgorithm(string name, string instrument, double max_loss):
+	Algorithm(instrument),
 	m_Instrument(instrument), m_Name(name)
 {
-	RegisterInstrument(instrument);
+	m_Position = 0;
+	m_CurrProfit = 0;
+	m_MaxLoss = max_loss;
+	m_ClosePrice = 0;
+	m_AlreadyForceClear = false;
 }
 
 CompositeAlgorithm::~CompositeAlgorithm()
@@ -116,6 +121,9 @@ int CompositeAlgorithm::OnTenMinuteData(const CTenMinuteData& data)
 
 int	CompositeAlgorithm::SendStrategy(OrderInfoShort & res)
 {
+	if (m_AlreadyForceClear)
+		return 0;
+
 	if(res.amount>0)
 	{
 		res.price=m_AskPrice;
@@ -126,6 +134,7 @@ int	CompositeAlgorithm::SendStrategy(OrderInfoShort & res)
 	}
 
 	Algorithm::SendStrategy(res);
+	m_Position += res.amount;
 	return 0;
 }
 
@@ -138,6 +147,31 @@ int CompositeAlgorithm::OnTickData(const CThostFtdcDepthMarketDataField& data)
 	}
 	m_AskPrice = data.AskPrice1;
 	m_BidPrice = data.BidPrice1;
+	
+	if (m_ClosePrice >0)
+		m_PrevPrice = m_ClosePrice;
+	else
+		m_PrevPrice = data.ClosePrice;
+
+	m_ClosePrice = data.ClosePrice;
+
+
+	m_CurrProfit += m_Position * (m_ClosePrice - m_PrevPrice);
+
+	if (m_MaxLoss<0 && m_CurrProfit<m_MaxLoss)
+	{
+		OrderInfoShort res;
+		
+		res.day= data.TradingDay;
+		res.time = data.UpdateTime;
+		res.milliSec = data.UpdateMillisec;
+		res.m_instrumentID = data.InstrumentID;
+		res.amount = -m_Position;
+		res.price = -1;
+		SendStrategy(res);
+		m_AlreadyForceClear = true;
+		return res.amount;
+	}
 	return 0;
 }
 

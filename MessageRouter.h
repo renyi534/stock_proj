@@ -17,7 +17,7 @@ class MessageRouter
 public:
 	void AddAlgorithm(string algo_name, string instrument, int slot, string config_file="");
 	void AddCompositeAlgorithm(string algo_name, string instrument, 
-								 int slot, vector<string> algo_list);
+								 int slot, vector<string> algo_list, double max_loss);
 	virtual ~MessageRouter();
 	void sendData(const CMinuteData& data);
 	void sendData(const CTenMinuteData& data);
@@ -43,6 +43,7 @@ private:
 		string Name;
 		string Instrument;
 		int slot;
+		double max_loss;
 		vector<AlgoInstrumentPair> AlgoList;
 	};
 

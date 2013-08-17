@@ -178,13 +178,14 @@ void MessageRouter::AddAlgorithm(string algo_name, string instrument,
 }
 
 void MessageRouter::AddCompositeAlgorithm(string algo_name, string instrument, 
-								 int slot, vector<string> algo_list)
+								 int slot, vector<string> algo_list, double max_loss)
 {
 	CompAlgoInfo info;
 
 	info.Name = algo_name;
 	info.Instrument = instrument;
 	info.slot = slot;
+	info.max_loss = max_loss;
 	vector<string>::iterator iter;
 
 	for (iter = algo_list.begin(); iter != algo_list.end(); iter++)
@@ -227,7 +228,7 @@ Algorithm* MessageRouter::createAlgorithm(AlgoInstrumentPair algoInstrument)
 
 CompositeAlgorithm* MessageRouter::createCompositeAlgorithm(CompAlgoInfo info)
 {
-	CompositeAlgorithm* compAlgo = new CompositeAlgorithm(info.Name, info.Instrument);
+	CompositeAlgorithm* compAlgo = new CompositeAlgorithm(info.Name, info.Instrument, info.max_loss);
 
 	vector<AlgoInstrumentPair>::iterator iter;
 

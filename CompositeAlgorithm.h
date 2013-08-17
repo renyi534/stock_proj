@@ -17,7 +17,7 @@ using namespace std;
 class CompositeAlgorithm : public Algorithm  
 {
 public:
-	CompositeAlgorithm(string name, string instrument);
+	CompositeAlgorithm(string name, string instrument, double max_loss=0);
 	virtual ~CompositeAlgorithm();
 	virtual BOOL InitInstance();
     virtual int OnMinuteData(const CMinuteData& data);
@@ -37,6 +37,12 @@ private:
 	string m_Name;
 	double m_AskPrice;
 	double m_BidPrice;
+	int m_Position;
+	double m_CurrProfit;
+	double m_MaxLoss;
+	double m_ClosePrice;
+	double m_PrevPrice;
+	bool m_AlreadyForceClear;
 };
 
 #endif // !defined(AFX_COMPOSITEALGORITHM_H__274107D6_4B23_435F_92BE_D82967399E32__INCLUDED_)

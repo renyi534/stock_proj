@@ -55,7 +55,7 @@ public:
     virtual int OnMinuteData(const CMinuteData& data) {return 0;}
     virtual int OnTenMinuteData(const CTenMinuteData& data) {return 0;}
 	virtual int OnHalfMinuteData(const CHalfMinuteData& data) {return 0;}
-    virtual int OnTickData(const CThostFtdcDepthMarketDataField&) {return 0;}
+    virtual int OnTickData(const CThostFtdcDepthMarketDataField& data) { return 0;}
     virtual void OnTradeData(const CThostFtdcTradeField&) {}
     virtual void OnAccountData(const CThostFtdcTradingAccountField&) {}
     virtual void OnPositionData(const CThostFtdcInvestorPositionField&) {}
@@ -73,6 +73,7 @@ protected:
 	string m_BrokerId;
 	string m_InvestorId;
 	int m_Slot;
+
 private:
     void HandleNewMarketData(MSG& msg);
     void UpdateTradeInfo(MSG&);

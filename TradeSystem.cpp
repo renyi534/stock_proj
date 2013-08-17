@@ -204,6 +204,11 @@ void CTradeSystemApp::LoadConfig()
 				}
 				xml.FindChildElem("SLOT");
 				int slot = atoi((LPCSTR)xml.GetChildData());
+
+				double max_loss = 0;
+				if (xml.FindChildElem("MAX_LOSS"))
+					max_loss = atof((LPCSTR)xml.GetChildData());
+
 				vector<string> algo_list;
 				if( xml.FindChildElem("ALGO_LIST") )
 				{
@@ -219,7 +224,7 @@ void CTradeSystemApp::LoadConfig()
 				if(instrument.GetLength() >0 && algo_list.size() >0)
 				{
 					tradeConn->m_Router.AddCompositeAlgorithm((LPCSTR)name, 
-						(LPCSTR)instrument, slot, algo_list);
+						(LPCSTR)instrument, slot, algo_list, max_loss);
 				}
 				xml.OutOfElem();
 			}

@@ -21,16 +21,19 @@ extern DbAccessorPool dbAccessPool;
 Algorithm::Algorithm(string instrument)
 {
     RegisterInstrument(instrument);
+
 }
 
 Algorithm::Algorithm(string instrument, string config_file)
 {
 	RegisterInstrument(instrument);
     m_configFile = config_file;
+
 }
 
 Algorithm::Algorithm()
 {
+
 }
 
 Algorithm::~Algorithm()
