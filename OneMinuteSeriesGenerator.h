@@ -10,12 +10,12 @@
 #endif // _MSC_VER > 1000
 
 #include "KSeriesGenerator.h"
-
+class MessageRouter;
 class OneMinuteSeriesGenerator : public KSeriesGenerator  
 {
 public:
 	OneMinuteSeriesGenerator();
-	OneMinuteSeriesGenerator(string name);
+	OneMinuteSeriesGenerator(MessageRouter* router, bool StoreMarketData=false,string name="OneMinuteSeriesGenerator");
 	virtual ~OneMinuteSeriesGenerator();
 	virtual void InputTickData(const CThostFtdcDepthMarketDataField& tick);
 protected:

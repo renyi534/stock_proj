@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ; CLW file contains information for the MFC ClassWizard
 
 [General Info]
@@ -19,10 +18,10 @@ Class5=CTradeSystemView
 ResourceCount=6
 Resource1=IDD_ABOUTBOX
 Resource2=IDD_TRADESYSTEM_FORM
-Resource3=IDR_MAINFRAME
+Resource3=IDD_ORDER_TRADE
 Class6=COrderTradeDlg
-Resource4=IDD_ORDER_TRADE
-Resource5=IDD_ALGORITHM_DLG
+Resource4=IDD_ALGORITHM_DLG
+Resource5=IDR_MAINFRAME
 Class7=CAlgorithmCfgDlg
 Resource6=IDD_RISK_DLG
 
@@ -62,7 +61,7 @@ HeaderFile=TradeSystemView.h
 ImplementationFile=TradeSystemView.cpp
 Filter=D
 VirtualFilter=VWC
-LastObject=IDC_INSTRUMENT_LIST
+LastObject=IDC_ACCOUNT_LIST
 
 [DLG:IDD_ABOUTBOX]
 Type=1
@@ -76,22 +75,16 @@ Control4=IDOK,button,1342373889
 [DLG:IDD_TRADESYSTEM_FORM]
 Type=1
 Class=CTradeSystemView
-ControlCount=15
+ControlCount=9
 Control1=IDC_MD_STATUS,static,1342308352
 Control2=IDC_TRADE_STATUS,static,1342308352
-Control3=IDC_STATIC,button,1342177287
-Control4=IDC_STATIC,static,1342308352
-Control5=IDC_DATETIME_START,SysDateTimePick32,1342242848
-Control6=IDC_STATIC,static,1342308352
-Control7=IDC_DATETIME_END,SysDateTimePick32,1342242848
-Control8=IDC_SIMU_START,button,1342242816
-Control9=IDC_CLEAR_SHORT,button,1342242816
-Control10=IDC_CLEAR_LONG,button,1342242816
-Control11=IDC_ACCOUNT_LIST,SysListView32,1350633473
-Control12=IDC_INSTRUMENT_LIST,SysListView32,1350631425
-Control13=IDC_POSITION_LIST,SysListView32,1350631425
-Control14=IDC_TRADE_TAB,SysTabControl32,1342177280
-Control15=IDC_STATIC,static,1342308352
+Control3=IDC_CLEAR_SHORT,button,1342242816
+Control4=IDC_CLEAR_LONG,button,1342242816
+Control5=IDC_ACCOUNT_LIST,SysListView32,1350633473
+Control6=IDC_INSTRUMENT_LIST,SysListView32,1350631425
+Control7=IDC_POSITION_LIST,SysListView32,1350631425
+Control8=IDC_TRADE_TAB,SysTabControl32,1342177280
+Control9=IDC_STATIC,static,1342308352
 
 [TB:IDR_MAINFRAME]
 Type=1

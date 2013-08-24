@@ -5,7 +5,7 @@
 #include "stdafx.h"
 #include "tradesystem.h"
 #include "VarOneMinuteSeriesGenerator.h"
-
+#include "MessageRouter.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -17,8 +17,8 @@ static char THIS_FILE[]=__FILE__;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-VarOneMinuteSeriesGenerator::VarOneMinuteSeriesGenerator(int delimiter)
-	:OneMinuteSeriesGenerator("VarOneMinuteKSeries"),
+VarOneMinuteSeriesGenerator::VarOneMinuteSeriesGenerator(MessageRouter* router, bool StoreMarketData, int delimiter)
+	:OneMinuteSeriesGenerator(router, StoreMarketData, "VarOneMinuteKSeries"),
 	 m_delimiter(delimiter)
 {
 
@@ -105,29 +105,32 @@ void VarOneMinuteSeriesGenerator::InputTickData(const CThostFtdcDepthMarketDataF
 			{
 				m_one_minute_data.m_OpenInterest -= prev_data.m_OpenInterest;
 				m_one_minute_data.m_Volume -= prev_data.m_Volume;
-				MessageRouter::Router.sendData(m_one_minute_data);
+				m_Router->sendData(m_one_minute_data);
 				
-				char* buffer = new char[8196];
-				int index=0;
-				
-				const char* format_str="insert into stock_data.\"OneMinuteData\" values('%s','%s',%lf,%lf,%lf,%lf,%lf,%lf,'%s')";
-				
-
-				sprintf(buffer,format_str,
-					m_one_minute_data.m_Day.c_str(),
-					(m_one_minute_data.m_Time).c_str(),
-					m_one_minute_data.m_OpenPrice,
-					m_one_minute_data.m_ClosePrice,
-					m_one_minute_data.m_HighPrice,
-					m_one_minute_data.m_LowPrice,
-					m_one_minute_data.m_Volume,
-					m_one_minute_data.m_OpenInterest,
-					instrument_id.c_str()
-					);
-				m_log<< buffer<<endl;
-				//DbConn conn(dbAccessPool);
-				//conn.m_db->execSql(buffer);
-				gThreadPool.Run(ExecSQL, (void*) buffer);
+				if (m_StoreMarketData)
+				{
+					char* buffer = new char[8196];
+					int index=0;
+					
+					const char* format_str="insert into stock_data.\"OneMinuteData\" values('%s','%s',%lf,%lf,%lf,%lf,%lf,%lf,'%s')";
+					
+					
+					sprintf(buffer,format_str,
+						m_one_minute_data.m_Day.c_str(),
+						(m_one_minute_data.m_Time).c_str(),
+						m_one_minute_data.m_OpenPrice,
+						m_one_minute_data.m_ClosePrice,
+						m_one_minute_data.m_HighPrice,
+						m_one_minute_data.m_LowPrice,
+						m_one_minute_data.m_Volume,
+						m_one_minute_data.m_OpenInterest,
+						instrument_id.c_str()
+						);
+					m_log<< buffer<<endl;
+					//DbConn conn(dbAccessPool);
+					//conn.m_db->execSql(buffer);
+					gThreadPool.Run(ExecSQL, (void*) buffer);
+				}
 			}
 		}
 		resetOneMinuteData(m_one_minute_data, instrument_id);

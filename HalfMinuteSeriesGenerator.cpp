@@ -5,7 +5,7 @@
 #include "stdafx.h"
 #include "tradesystem.h"
 #include "HalfMinuteSeriesGenerator.h"
-
+#include "MessageRouter.h"
 #ifdef _DEBUG
 #undef THIS_FILE
 static char THIS_FILE[]=__FILE__;
@@ -16,8 +16,8 @@ static char THIS_FILE[]=__FILE__;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-HalfMinuteSeriesGenerator::HalfMinuteSeriesGenerator(string name):
-	KSeriesGenerator(name)
+HalfMinuteSeriesGenerator::HalfMinuteSeriesGenerator(MessageRouter* router, bool StoreMarketData, string name):
+	KSeriesGenerator(name, router, StoreMarketData)
 {
 	// stl library can be buggy with empty maps. Insert some rubbish data here.
 	m_half_minute_data_map.insert(CHalfMinuteDataPair("", CHalfMinuteData() ));
@@ -109,29 +109,32 @@ void HalfMinuteSeriesGenerator::InputTickData(const CThostFtdcDepthMarketDataFie
 				half_minute_data.m_OpenInterest -= prev_data.m_OpenInterest;
 				half_minute_data.m_Volume -= prev_data.m_Volume;
 				
-				MessageRouter::Router.sendData(half_minute_data);
+				m_Router->sendData(half_minute_data);
 				
-				char* buffer = new char[8196];
-				int index=0;
-				
-				const char* format_str="insert into stock_data.\"HalfMinuteData\" values('%s','%s',%lf,%lf,%lf,%lf,%lf,%lf,'%s')";
-				
-				
-				sprintf(buffer,format_str,
-					half_minute_data.m_Day.c_str(),
-					(half_minute_data.m_Time).c_str(),
-					half_minute_data.m_OpenPrice,
-					half_minute_data.m_ClosePrice,
-					half_minute_data.m_HighPrice,
-					half_minute_data.m_LowPrice,
-					half_minute_data.m_Volume,
-					half_minute_data.m_OpenInterest,
-					instrument_id.c_str()
-					);
-				m_log<< buffer<<endl;
-				//DbConn conn(dbAccessPool);
-				//conn.m_db->execSql(buffer);
-				gThreadPool.Run(ExecSQL, (void*) buffer);
+				if( m_StoreMarketData)
+				{
+					char* buffer = new char[8196];
+					int index=0;
+					
+					const char* format_str="insert into stock_data.\"HalfMinuteData\" values('%s','%s',%lf,%lf,%lf,%lf,%lf,%lf,'%s')";
+					
+					
+					sprintf(buffer,format_str,
+						half_minute_data.m_Day.c_str(),
+						(half_minute_data.m_Time).c_str(),
+						half_minute_data.m_OpenPrice,
+						half_minute_data.m_ClosePrice,
+						half_minute_data.m_HighPrice,
+						half_minute_data.m_LowPrice,
+						half_minute_data.m_Volume,
+						half_minute_data.m_OpenInterest,
+						instrument_id.c_str()
+						);
+					m_log<< buffer<<endl;
+					//DbConn conn(dbAccessPool);
+					//conn.m_db->execSql(buffer);
+					gThreadPool.Run(ExecSQL, (void*) buffer);
+				}
 			}
 		}
 		

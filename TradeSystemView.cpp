@@ -16,10 +16,10 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-extern TradeConn* tradeConn;
 extern char *ppInstrumentID[30];			// 行情订阅列表
 extern int iInstrumentID;									// 行情订阅数量
 extern char HS300_URL[];
+extern CTradeSystemApp theApp;
 /////////////////////////////////////////////////////////////////////////////
 // CTradeSystemView
 
@@ -31,7 +31,8 @@ ON_BN_CLICKED(IDC_SIMU_START, OnSimuStart)
 ON_BN_CLICKED(IDC_CLEAR_SHORT, OnClearShort)
 ON_BN_CLICKED(IDC_CLEAR_LONG, OnClearLong)
 ON_WM_TIMER()
-//}}AFX_MSG_MAP
+	ON_NOTIFY(LVN_ITEMCHANGED, IDC_ACCOUNT_LIST, OnItemchangedAccountList)
+	//}}AFX_MSG_MAP
 // Standard printing commands
 ON_COMMAND(ID_FILE_PRINT, CFormView::OnFilePrint)
 ON_COMMAND(ID_FILE_PRINT_DIRECT, CFormView::OnFilePrint)
@@ -62,8 +63,6 @@ void CTradeSystemView::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_POSITION_LIST, m_PositionList);
 	DDX_Control(pDX, IDC_INSTRUMENT_LIST, m_InstrumentList);
 	DDX_Control(pDX, IDC_ACCOUNT_LIST, m_AccountList);
-	DDX_Control(pDX, IDC_DATETIME_END, m_DateEnd);
-	DDX_Control(pDX, IDC_DATETIME_START, m_DateStart);
 	DDX_Control(pDX, IDC_TRADE_STATUS, m_TradeStatus);
 	DDX_Control(pDX, IDC_MD_STATUS, m_MDStatus);
 	//}}AFX_DATA_MAP
@@ -98,7 +97,7 @@ void CTradeSystemView::OnInitialUpdate()
 	m_RefreshFormTimer = SetTimer(1, 4000, 0);	
 	m_RefreshPosTimer  = SetTimer(2, 10000, 0);	
 	m_CorrectionPosTimer  = SetTimer(3, 20000, 0);
-	m_HS300Timer  = SetTimer(4, 500, 0);
+	//m_HS300Timer  = SetTimer(4, 500, 0);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -180,21 +179,31 @@ void CTradeSystemView::OnClearShort()
 	
 	
 	CString instrument =GetActiveInstrument();
-	
-	tradeConn->m_TradeSpi->CancelAllOrders((LPCSTR)instrument);
-	CThostFtdcDepthMarketDataField tickData = 
-		tradeConn->m_UserSpi->m_tick_data_map[(LPCSTR)instrument];
-	tradeConn->m_TradeSpi->ClearShortPos((LPCSTR)instrument, tickData.AskPrice1);
+	TradeConn* tradeConn = this->GetCurrConn();
+
+	if (tradeConn != NULL)
+	{
+		tradeConn->m_TradeSpi->CancelAllOrders((LPCSTR)instrument);
+
+		CThostFtdcDepthMarketDataField tickData = 
+			tradeConn->m_UserSpi->m_tick_data_map[(LPCSTR)instrument];
+		tradeConn->m_TradeSpi->ClearShortPos((LPCSTR)instrument, tickData.AskPrice1);
+	}
 }
 
 void CTradeSystemView::OnClearLong() 
 {
 	// TODO: Add your control notification handler code here
 	CString instrument =GetActiveInstrument();;
-	tradeConn->m_TradeSpi->CancelAllOrders((LPCSTR)instrument);
-	CThostFtdcDepthMarketDataField tickData = 
-		tradeConn->m_UserSpi->m_tick_data_map[(LPCSTR)instrument];
-	tradeConn->m_TradeSpi->ClearLongPos((LPCSTR)instrument, tickData.BidPrice1);	
+	TradeConn* tradeConn = this->GetCurrConn();
+	
+	if (tradeConn != NULL)
+	{
+		tradeConn->m_TradeSpi->CancelAllOrders((LPCSTR)instrument);
+		CThostFtdcDepthMarketDataField tickData = 
+			tradeConn->m_UserSpi->m_tick_data_map[(LPCSTR)instrument];
+		tradeConn->m_TradeSpi->ClearLongPos((LPCSTR)instrument, tickData.BidPrice1);	
+	}
 }
 
 BOOL CTradeSystemView::DestroyWindow() 
@@ -203,7 +212,7 @@ BOOL CTradeSystemView::DestroyWindow()
 	KillTimer(m_RefreshFormTimer);
 	KillTimer(m_RefreshPosTimer);
 	KillTimer(m_CorrectionPosTimer);
-	KillTimer(m_HS300Timer);
+	//KillTimer(m_HS300Timer);
 	return CFormView::DestroyWindow();
 }
 
@@ -212,7 +221,11 @@ void CTradeSystemView::OnTimer(UINT nIDEvent)
 	// TODO: Add your message handler code here and/or call default
 	if( nIDEvent == m_RefreshPosTimer )
 	{
-		tradeConn->m_TradeSpi->ReqQryTradingAccount();
+		for(int i =0; i<theApp.GetConnCount(); i++)
+		{
+			TradeConn * tradeConn = GetConnById(i);
+			tradeConn->m_TradeSpi->ReqQryTradingAccount();
+		}
 	}
 	else if (nIDEvent == m_RefreshFormTimer)
 	{
@@ -222,9 +235,9 @@ void CTradeSystemView::OnTimer(UINT nIDEvent)
 	{
 		CorrectAlgoPos();
 	}
-	else if( m_HS300Timer == nIDEvent )
+/*	else if( m_HS300Timer == nIDEvent )
 	{
-		/*static CThostFtdcDepthMarketDataField old_data;
+		static CThostFtdcDepthMarketDataField old_data;
 		StockRetriever ret;
 		CThostFtdcDepthMarketDataField data;
 		memset(&data, 0, sizeof(data));
@@ -237,10 +250,12 @@ void CTradeSystemView::OnTimer(UINT nIDEvent)
 				) )
 			{
 				old_data = data;
-				tradeConn->m_UserSpi->OnRtnDepthMarketData(&data);
+				if (tradeConn != NULL)
+					tradeConn->m_UserSpi->OnRtnDepthMarketData(&data);
 			}
-		}*/
-	}
+		}
+	}*/
+
 	CFormView::OnTimer(nIDEvent);
 }
 
@@ -269,34 +284,65 @@ void CTradeSystemView::RefreshForm()
 {
 	CString str;
 	
-	m_AccountList.SetItemText(0,0,tradeConn->m_TradeSpi->m_account.BrokerID);
-	m_AccountList.SetItemText(0,1,tradeConn->m_TradeSpi->m_account.AccountID);
-	
-	str.Format("%.2f", tradeConn->m_TradeSpi->m_account.Balance);
-	m_AccountList.SetItemText(0,2,str);
-	
-	str.Format("%.2f", tradeConn->m_TradeSpi->m_account.Available);
-	m_AccountList.SetItemText(0,3,str);
-	
-	str.Format("%.2f", tradeConn->m_TradeSpi->m_account.WithdrawQuota);
-	m_AccountList.SetItemText(0,4,str);
-	
-	str.Format("%.2f", tradeConn->m_TradeSpi->m_account.FrozenCash);
-	m_AccountList.SetItemText(0,5,str);
-	
-	str.Format("%.2f", tradeConn->m_TradeSpi->m_account.CloseProfit);
-	m_AccountList.SetItemText(0,6,str);
-	
-	str.Format("%.2f", tradeConn->m_TradeSpi->m_account.PositionProfit);
-	m_AccountList.SetItemText(0,7,str);
-	
-	str.Format("%.2f", tradeConn->m_TradeSpi->m_account.CurrMargin);
-	m_AccountList.SetItemText(0,8,str);
-	
+	TradeConn* curr_conn = this->GetCurrConn();
+
+	if(curr_conn->m_TradeSpi->GetConnStatus())
+	{
+		str.Format("交易服务器: %s", "ON");
+		m_TradeStatus.SetWindowText(str);
+	}
+	else
+	{
+		str.Format("交易服务器: %s", "OFF");
+		m_TradeStatus.SetWindowText(str);
+	}
+
+	if(curr_conn->m_UserSpi->GetConnStatus())
+	{
+		str.Format("数据服务器: %s", "ON");
+		m_MDStatus.SetWindowText(str);
+	}
+	else
+	{
+		str.Format("数据服务器: %s", "OFF");
+		m_MDStatus.SetWindowText(str);
+	}
+
+	int accountCount = theApp.GetConnCount();
+	int i=0;
+	for (i=0; i< accountCount; i++)
+	{
+		TradeConn* tradeConn = GetConnById(i);
+		//m_AccountList.SetItemText(i,0,tradeConn->m_TradeSpi->m_account.BrokerID);
+		//m_AccountList.SetItemText(i,1,tradeConn->m_TradeSpi->m_account.AccountID);
+		
+		str.Format("%.2f", tradeConn->m_TradeSpi->m_account.Balance);
+		m_AccountList.SetItemText(i,2,str);
+		
+		str.Format("%.2f", tradeConn->m_TradeSpi->m_account.Available);
+		m_AccountList.SetItemText(i,3,str);
+		
+		str.Format("%.2f", tradeConn->m_TradeSpi->m_account.WithdrawQuota);
+		m_AccountList.SetItemText(i,4,str);
+		
+		str.Format("%.2f", tradeConn->m_TradeSpi->m_account.FrozenCash);
+		m_AccountList.SetItemText(i,5,str);
+		
+		str.Format("%.2f", tradeConn->m_TradeSpi->m_account.CloseProfit);
+		m_AccountList.SetItemText(i,6,str);
+		
+		str.Format("%.2f", tradeConn->m_TradeSpi->m_account.PositionProfit);
+		m_AccountList.SetItemText(i,7,str);
+		
+		str.Format("%.2f", tradeConn->m_TradeSpi->m_account.CurrMargin);
+		m_AccountList.SetItemText(i,8,str);
+	}
 	int instrument_count = m_InstrumentList.GetItemCount();
 	
-	for ( int i=0; i< instrument_count; i++)
+	for (i=0; i< instrument_count; i++)
 	{
+		TradeConn* tradeConn = GetCurrConn();
+	
 		CString curr_ins = m_InstrumentList.GetItemText(i, 0);
 		CThostFtdcDepthMarketDataField tick_data;
 		memset(&tick_data, 0, sizeof(tick_data));
@@ -359,8 +405,16 @@ void CTradeSystemView::InitListCtrl()
 	m_AccountList.InsertColumn(8, _T("保证金"), LVCFMT_CENTER, rect.Width()-8*nColInterval);
 	
 
+	int accountCount = theApp.GetConnCount();
+	vector<TradeConn*> conn_list;
+	theApp.GetTradeConnList(conn_list);
+	int i =0;
+	for (i=0; i< accountCount; i++)
+	{
+		m_AccountList.InsertItem(i,conn_list[i]->m_BrokerId.c_str());
+		m_AccountList.SetItemText(i,1,conn_list[i]->m_InvestorId.c_str());
+	}
 
-	m_AccountList.InsertItem(0,"");
 	m_AccountList.SetBkColor(RGB(BK_R,BK_G,BK_B));
 	m_AccountList.SetHeaderHeight(1.5);          //设置头部高度
 	m_AccountList.SetHeaderFontHW(16,0);         //设置头部字体高度,和宽度,0表示缺省，自适应 
@@ -422,8 +476,7 @@ void CTradeSystemView::InitListCtrl()
 	m_PositionList.SetHeaderBKColor(head_BK_R,head_BK_G,head_BK_B,8); //设置头部背景色
 	m_PositionList.SetFontHW(13,0);               //设置字体高度，和宽度,0表示缺省宽度
 
-	int i =0;
-	for (  i =0 ; i< iInstrumentID; i++)
+	for (i =0 ; i< iInstrumentID; i++)
 	{
 		m_InstrumentList.InsertItem(i, ppInstrumentID[i]);
 		m_PositionList.InsertItem(i, ppInstrumentID[i]);
@@ -438,6 +491,7 @@ void CTradeSystemView::UpdatePosition()
 {
 	int instrument_count = m_PositionList.GetItemCount();
 	
+	TradeConn* tradeConn = GetCurrConn();
 	for ( int i=0; i< instrument_count; i++)
 	{
 		CString instrument = m_PositionList.GetItemText(i, 0);
@@ -492,70 +546,123 @@ void CTradeSystemView::UpdatePosition()
 
 void CTradeSystemView::CorrectAlgoPos()
 {
-	for (int i=0; i<iInstrumentID; i++)
+	for (int j=0; j< theApp.GetConnCount(); j++)
 	{
-		CString instrument=ppInstrumentID[i];
-		
-		InvestorPosition pos;
-		memset(&pos, 0, sizeof(pos));
-		
-		if( tradeConn == NULL )
-			return;
-		
-		CTraderSpi::inv_pos_map::iterator pos_iter = 
-			tradeConn->m_TradeSpi->m_inv_pos.find((LPCSTR)instrument);
-		
-		if ( pos_iter != tradeConn->m_TradeSpi->m_inv_pos.end() )
+		TradeConn* tradeConn = GetConnById(j);
+		for (int i=0; i<iInstrumentID; i++)
 		{
-			pos = pos_iter->second;
-		}
-		
-		int algoPos =0;
-		if ( tradeConn->m_TradeSpi->m_algo_instrument_pos.find((LPCSTR)instrument) 
-			!= tradeConn->m_TradeSpi->m_algo_instrument_pos.end() )
-		{
-			algoPos = tradeConn->m_TradeSpi->m_algo_instrument_pos[(LPCSTR)instrument];
-		}
-
-		if( pos.Long-pos.Short !=  algoPos)
-		{
-			if(m_instrument_error_cnt.find((LPCSTR)instrument) != 
-				m_instrument_error_cnt.end())
+			CString instrument=ppInstrumentID[i];
+			
+			InvestorPosition pos;
+			memset(&pos, 0, sizeof(pos));
+			
+			if( tradeConn == NULL )
+				return;
+			
+			CTraderSpi::inv_pos_map::iterator pos_iter = 
+				tradeConn->m_TradeSpi->m_inv_pos.find((LPCSTR)instrument);
+			
+			if ( pos_iter != tradeConn->m_TradeSpi->m_inv_pos.end() )
 			{
-				int new_cnt = m_instrument_error_cnt[(LPCSTR)instrument]+1;
-				m_instrument_error_cnt[(LPCSTR)instrument] = new_cnt;
-			}
-			else
-			{
-				m_instrument_error_cnt.insert(instrument_error_cnt_pair((LPCSTR)instrument, 1));
+				pos = pos_iter->second;
 			}
 			
-			if ( m_instrument_error_cnt[(LPCSTR)instrument] >= 3 )
+			int algoPos =0;
+			if ( tradeConn->m_TradeSpi->m_algo_instrument_pos.find((LPCSTR)instrument) 
+				!= tradeConn->m_TradeSpi->m_algo_instrument_pos.end() )
 			{
-				
-				tradeConn->m_TradeSpi->CancelAllOrders((LPCSTR)instrument);
-				
-				OrderInfoShort orderShort;
-				orderShort.m_instrumentID = (LPCSTR)instrument;
-				orderShort.amount = 
-					algoPos
-					-(pos.Long-pos.Short);
-				
-				if ( orderShort.amount > 0 )
+				algoPos = tradeConn->m_TradeSpi->m_algo_instrument_pos[(LPCSTR)instrument];
+			}
+			
+			if( pos.Long-pos.Short !=  algoPos)
+			{
+				if(m_instrument_error_cnt.find((LPCSTR)instrument) != 
+					m_instrument_error_cnt.end())
 				{
-					orderShort.price = tradeConn->m_UserSpi->m_tick_data_map[(LPCSTR)instrument].AskPrice1;
+					int new_cnt = m_instrument_error_cnt[(LPCSTR)instrument]+1;
+					m_instrument_error_cnt[(LPCSTR)instrument] = new_cnt;
 				}
 				else
 				{
-					orderShort.price = tradeConn->m_UserSpi->m_tick_data_map[(LPCSTR)instrument].BidPrice1;				
+					m_instrument_error_cnt.insert(instrument_error_cnt_pair((LPCSTR)instrument, 1));
 				}
+				
+				if ( m_instrument_error_cnt[(LPCSTR)instrument] >= 3 )
+				{
+					
+					tradeConn->m_TradeSpi->CancelAllOrders((LPCSTR)instrument);
+					
+					OrderInfoShort orderShort;
+					orderShort.m_instrumentID = (LPCSTR)instrument;
+					orderShort.amount = 
+						algoPos
+						-(pos.Long-pos.Short);
+					
+					if ( orderShort.amount > 0 )
+					{
+						orderShort.price = tradeConn->m_UserSpi->m_tick_data_map[(LPCSTR)instrument].AskPrice1;
+					}
+					else
+					{
+						orderShort.price = tradeConn->m_UserSpi->m_tick_data_map[(LPCSTR)instrument].BidPrice1;				
+					}
+					m_instrument_error_cnt.erase((LPCSTR)instrument);
+					tradeConn->m_TradeSpi->ReqOrderInsert(orderShort, true);
+				}
+			}
+			else
+			{
 				m_instrument_error_cnt.erase((LPCSTR)instrument);
-				tradeConn->m_TradeSpi->ReqOrderInsert(orderShort, true);
 			}
 		}
-		else
-		{
-			m_instrument_error_cnt.erase((LPCSTR)instrument);
-		}
 	}
+}
+
+TradeConn* CTradeSystemView::GetCurrConn()
+{
+    int nItem =0;
+	POSITION pos = m_AccountList.GetFirstSelectedItemPosition();
+	
+	if (pos != NULL)
+		nItem = m_AccountList.GetNextSelectedItem(pos);
+	
+	return GetConnById(nItem);
+}
+
+TradeConn* CTradeSystemView::GetConnById(int nItem)
+{
+	CString broker = m_AccountList.GetItemText(nItem, 0);
+	CString investor = m_AccountList.GetItemText(nItem, 1);
+	CTradeSystemApp* app =(CTradeSystemApp*)AfxGetApp();
+	TradeConn* conn = theApp.GetTradeConn((LPCSTR)broker, (LPCSTR)investor);
+	ASSERT(conn != NULL);
+	return conn;
+}
+
+void CTradeSystemView::OnItemchangedAccountList(NMHDR* pNMHDR, LRESULT* pResult) 
+{
+	NM_LISTVIEW* pNMListView = (NM_LISTVIEW*)pNMHDR;
+	// TODO: Add your control notification handler code here
+    if(pNMListView->uChanged == LVIF_STATE)
+    {
+		if(pNMListView->uNewState)
+		{
+			TradeConn* conn = GetCurrConn();
+
+			if(conn != NULL)
+			{
+				conn->m_TradeSpi->ShowTradeDetail();
+			}
+           //TRACE0("选择改变且有选中的行\r\n");
+		}
+        else
+		{
+           //TRACE0("选择改变且没有选中的行\r\n");
+		}
+    }
+    else
+	{
+		//item content change. Not state change.
+	}
+	*pResult = 0;
 }

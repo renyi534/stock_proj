@@ -172,25 +172,17 @@ IDD_TRADESYSTEM_FORM DIALOGEX 0, 0, 873, 525
 STYLE WS_CHILD
 FONT 9, "宋体"
 BEGIN
-    LTEXT           "数据服务器: OFF ",IDC_MD_STATUS,791,19,75,8
-    LTEXT           "交易服务器: OFF",IDC_TRADE_STATUS,791,7,75,8
-    GROUPBOX        "模拟面板",IDC_STATIC,29,474,811,31
-    LTEXT           "起始日:",IDC_STATIC,39,486,29,8
-    CONTROL         "DateTimePicker2",IDC_DATETIME_START,"SysDateTimePick32",
-                    DTS_RIGHTALIGN | WS_TABSTOP,91,486,100,15
-    LTEXT           "结束日:",IDC_STATIC,360,486,29,8
-    CONTROL         "DateTimePicker3",IDC_DATETIME_END,"SysDateTimePick32",
-                    DTS_RIGHTALIGN | WS_TABSTOP,405,486,100,15
-    PUSHBUTTON      "开始模拟",IDC_SIMU_START,733,486,50,14
-    PUSHBUTTON      "清空仓",IDC_CLEAR_SHORT,205,197,50,14
-    PUSHBUTTON      "清多仓",IDC_CLEAR_LONG,581,198,50,14
+    LTEXT           "数据服务器: OFF ",IDC_MD_STATUS,791,43,75,8
+    LTEXT           "交易服务器: OFF",IDC_TRADE_STATUS,791,17,75,8
+    PUSHBUTTON      "清空仓",IDC_CLEAR_SHORT,199,243,50,14
+    PUSHBUTTON      "清多仓",IDC_CLEAR_LONG,581,243,50,14
     CONTROL         "List2",IDC_ACCOUNT_LIST,"SysListView32",LVS_REPORT | 
-                    LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,7,764,27
+                    LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,7,764,64
     CONTROL         "List3",IDC_INSTRUMENT_LIST,"SysListView32",LVS_REPORT | 
-                    WS_BORDER | WS_TABSTOP,7,49,859,70,WS_EX_STATICEDGE
+                    WS_BORDER | WS_TABSTOP,7,85,859,70,WS_EX_STATICEDGE
     CONTROL         "List4",IDC_POSITION_LIST,"SysListView32",LVS_REPORT | 
-                    WS_BORDER | WS_TABSTOP,7,126,859,66,WS_EX_STATICEDGE
-    CONTROL         "Tab1",IDC_TRADE_TAB,"SysTabControl32",0x0,7,223,859,245
+                    WS_BORDER | WS_TABSTOP,7,175,859,66,WS_EX_STATICEDGE
+    CONTROL         "Tab1",IDC_TRADE_TAB,"SysTabControl32",0x0,7,263,859,245
     LTEXT           "Copyright 2012 PhotonHedge, All Rights Reserved",
                     IDC_STATIC,663,510,203,8
 END

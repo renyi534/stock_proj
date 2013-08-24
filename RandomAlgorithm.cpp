@@ -20,7 +20,7 @@ extern DbAccessorPool dbAccessPool;
 
 RandomAlgorithm::RandomAlgorithm(string instrument_id):
 Algorithm(instrument_id),
-m_InstrumentID(instrument_id), m_Amount(0), m_log("c:\\random_algo_data.log", ios::app),m_state_log("c:\\random_algo_state.log", ios::app)
+m_InstrumentID(instrument_id), m_Amount(0), m_log(".\\random_algo_data.log", ios::app),m_state_log(".\\random_algo_state.log", ios::app)
 {
 	lastVol=0;
 	totalAmount=0;
@@ -107,6 +107,19 @@ int RandomAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 		res.amount = -totalAmount;
 	}
 
+	static int counter =0;
+
+	if ( counter == 0 )
+	{
+		res.amount =1;
+	}
+	else if (counter %2 ==1)
+	{
+		res.amount = -2;
+	}
+	else
+		res.amount =2;
+	counter++;
 	if(res.amount>0)
 	{
 		res.price=m_AskPrice;
@@ -166,13 +179,13 @@ int RandomAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 
 
 
-int	RandomAlgorithm::SendStrategy(const OrderInfoShort & res)
+int	RandomAlgorithm::SendStrategy( OrderInfoShort & res)
 {
 
 	//第一行就是真实的发送指令，第二行是本地模拟写log
 	if( res.amount != 0 )
 	{
-		Algorithm::SendStrategy(res);	
+		//Algorithm::SendStrategy(res);	
 		m_log<<res.m_instrumentID+",  "+res.day+" "+res.time<<",  Amount, "<< res.amount <<", Price, "<<res.price<<endl;
 	}
 	

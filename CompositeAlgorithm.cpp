@@ -16,15 +16,24 @@ static char THIS_FILE[]=__FILE__;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CompositeAlgorithm::CompositeAlgorithm(string name, string instrument):
+CompositeAlgorithm::CompositeAlgorithm(string name, string instrument, double max_loss):
+	Algorithm(instrument),
 	m_Instrument(instrument), m_Name(name)
 {
-	RegisterInstrument(instrument);
+	m_Position = 0;
+	m_CurrProfit = 0;
+	m_MaxLoss = max_loss;
+	m_ClosePrice = 0;
+	m_AlreadyForceClear = false;
 }
 
 CompositeAlgorithm::~CompositeAlgorithm()
 {
-
+	vector<Algorithm*>::iterator iter;
+	for(iter = m_AlgoList.begin(); iter != m_AlgoList.end(); iter++)
+	{
+		delete *iter;
+	}
 }
 
 BOOL CompositeAlgorithm::InitInstance()
@@ -105,8 +114,28 @@ int CompositeAlgorithm::OnTenMinuteData(const CTenMinuteData& data)
 	{
 		res.amount += (*iter)->OnTenMinuteData(data); 
 	}
+
 	SendStrategy(res);
 	return res.amount;
+}
+
+int	CompositeAlgorithm::SendStrategy(OrderInfoShort & res)
+{
+	if (m_AlreadyForceClear)
+		return 0;
+
+	if(res.amount>0)
+	{
+		res.price=m_AskPrice;
+	}
+	else if(res.amount<0)
+	{
+		res.price=m_BidPrice;
+	}
+
+	Algorithm::SendStrategy(res);
+	m_Position += res.amount;
+	return 0;
 }
 
 int CompositeAlgorithm::OnTickData(const CThostFtdcDepthMarketDataField& data)
@@ -116,7 +145,33 @@ int CompositeAlgorithm::OnTickData(const CThostFtdcDepthMarketDataField& data)
 	{
 		(*iter)->OnTickData(data); 
 	}
+	m_AskPrice = data.AskPrice1;
+	m_BidPrice = data.BidPrice1;
+	
+	if (m_ClosePrice >0)
+		m_PrevPrice = m_ClosePrice;
+	else
+		m_PrevPrice = data.ClosePrice;
 
+	m_ClosePrice = data.ClosePrice;
+
+
+	m_CurrProfit += m_Position * (m_ClosePrice - m_PrevPrice);
+
+	if (m_MaxLoss<0 && m_CurrProfit<m_MaxLoss)
+	{
+		OrderInfoShort res;
+		
+		res.day= data.TradingDay;
+		res.time = data.UpdateTime;
+		res.milliSec = data.UpdateMillisec;
+		res.m_instrumentID = data.InstrumentID;
+		res.amount = -m_Position;
+		res.price = -1;
+		SendStrategy(res);
+		m_AlreadyForceClear = true;
+		return res.amount;
+	}
 	return 0;
 }
 
@@ -148,6 +203,31 @@ void CompositeAlgorithm::OnPositionData(const CThostFtdcInvestorPositionField& d
 	for(iter = m_AlgoList.begin(); iter != m_AlgoList.end(); iter++)
 	{
 		(*iter)->OnPositionData(data); 
+	}
+
+	return;
+}
+
+void CompositeAlgorithm::SetSlot(int slot)
+{
+	Algorithm::SetSlot(slot);
+
+	vector<Algorithm*>::iterator iter;
+	for(iter = m_AlgoList.begin(); iter != m_AlgoList.end(); iter++)
+	{
+		(*iter)->SetSlot(slot); 
+	}
+
+	return;
+}
+
+void CompositeAlgorithm::SetAccountInfo(string broker, string investor)
+{
+	Algorithm::SetAccountInfo(broker, investor);
+	vector<Algorithm*>::iterator iter;
+	for(iter = m_AlgoList.begin(); iter != m_AlgoList.end(); iter++)
+	{
+		(*iter)->SetAccountInfo(broker, investor); 
 	}
 
 	return;

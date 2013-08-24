@@ -19,8 +19,8 @@ extern DbAccessorPool dbAccessPool;
 //////////////////////////////////////////////////////////////////////
 
 DtAlgorithm::DtAlgorithm(string instrument_id):
-m_InstrumentID(instrument_id), m_Amount(0), m_log("c:\\dt_algo_data.log", ios::app),
-m_state_log("c:\\dt_algo_state.log", ios::app)
+m_InstrumentID(instrument_id), m_Amount(0), m_log(".\\dt_algo_data.log", ios::app),
+m_state_log(".\\dt_algo_state.log", ios::app)
 {
 	lastVol=0;
 	totalAmount=0;
@@ -153,13 +153,13 @@ int DtAlgorithm::OnMinuteData(const CMinuteData& data)
 
 
 
-int	DtAlgorithm::SendStrategy(const OrderInfoShort & res)
+int	DtAlgorithm::SendStrategy( OrderInfoShort & res)
 {
 
 	//第一行就是真实的发送指令，第二行是本地模拟写log
 	if( res.amount != 0 )
 	{
-		Algorithm::SendStrategy(res);
+		//Algorithm::SendStrategy(res);
 		m_log<<res.m_instrumentID+",  "+res.day+" "+res.time<<",  Amount, "<< res.amount <<", Price, "<<res.price<<endl;
 
 	}

@@ -5,7 +5,7 @@
 #include "stdafx.h"
 #include "tradesystem.h"
 #include "TenMinuteSeriesGenerator.h"
-
+#include "MessageRouter.h"
 #ifdef _DEBUG
 #undef THIS_FILE
 static char THIS_FILE[]=__FILE__;
@@ -16,8 +16,8 @@ static char THIS_FILE[]=__FILE__;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-TenMinuteSeriesGenerator::TenMinuteSeriesGenerator():
-		KSeriesGenerator("TenMinuteKSeries")
+TenMinuteSeriesGenerator::TenMinuteSeriesGenerator(MessageRouter* router, bool StoreMarketData):
+		KSeriesGenerator("TenMinuteKSeries", router, StoreMarketData)
 {
 	// stl library can be buggy with empty maps. Insert some rubbish data here.
 	m_ten_minute_data_map.insert(CTenMinuteDataPair("", CTenMinuteData() ));
@@ -105,29 +105,31 @@ void TenMinuteSeriesGenerator::InputTickData(const CThostFtdcDepthMarketDataFiel
 			{
 				m_ten_minute_data.m_OpenInterest -= prev_data.m_OpenInterest;
 				m_ten_minute_data.m_Volume -= prev_data.m_Volume;
-				MessageRouter::Router.sendData(m_ten_minute_data);
+				m_Router->sendData(m_ten_minute_data);
 				
-				char* buffer = new char[8196];
-				int index=0;
-				
-				const char* format_str="insert into stock_data.\"TenMinuteData\" values('%s','%s',%lf,%lf,%lf,%lf,%lf,%lf,'%s')";
-				
-
-				sprintf(buffer,format_str,
-					m_ten_minute_data.m_Day.c_str(),
-					(m_ten_minute_data.m_Time).c_str(),
-					m_ten_minute_data.m_OpenPrice,
-					m_ten_minute_data.m_ClosePrice,
-					m_ten_minute_data.m_HighPrice,
-					m_ten_minute_data.m_LowPrice,
-					m_ten_minute_data.m_Volume,
-					m_ten_minute_data.m_OpenInterest,
-					instrument_id.c_str()
-					);
-				m_log<< buffer<<endl;
-				//DbConn conn(dbAccessPool);
-				//conn.m_db->execSql(buffer);
-				gThreadPool.Run(ExecSQL, (void*) buffer);
+				if(m_StoreMarketData)
+				{
+					char* buffer = new char[8196];
+					int index=0;
+					
+					const char* format_str="insert into stock_data.\"TenMinuteData\" values('%s','%s',%lf,%lf,%lf,%lf,%lf,%lf,'%s')";
+					
+					sprintf(buffer,format_str,
+						m_ten_minute_data.m_Day.c_str(),
+						(m_ten_minute_data.m_Time).c_str(),
+						m_ten_minute_data.m_OpenPrice,
+						m_ten_minute_data.m_ClosePrice,
+						m_ten_minute_data.m_HighPrice,
+						m_ten_minute_data.m_LowPrice,
+						m_ten_minute_data.m_Volume,
+						m_ten_minute_data.m_OpenInterest,
+						instrument_id.c_str()
+						);
+					m_log<< buffer<<endl;
+					//DbConn conn(dbAccessPool);
+					//conn.m_db->execSql(buffer);
+					gThreadPool.Run(ExecSQL, (void*) buffer);
+				}
 			}
 		}
 		resetTenMinuteData(m_ten_minute_data, instrument_id);

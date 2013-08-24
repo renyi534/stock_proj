@@ -20,8 +20,8 @@ extern DbAccessorPool dbAccessPool;
 //////////////////////////////////////////////////////////////////////
 
 WeightedAlgorithm::WeightedAlgorithm(string instrument_id):
-m_InstrumentID(instrument_id), m_Amount(0), m_log("c:\\weighted_algo_data.log", ios::app),
-m_state_log("c:\\weighted_algo_state.log", ios::app)
+m_InstrumentID(instrument_id), m_Amount(0), m_log(".\\weighted_algo_data.log", ios::app),
+m_state_log(".\\weighted_algo_state.log", ios::app)
 {
 	lastVol=0;
 	totalAmount=0;
@@ -165,7 +165,7 @@ int WeightedAlgorithm::OnHalfMinuteData(const CHalfMinuteData& data)
 
 
 
-int	WeightedAlgorithm::SendStrategy(const OrderInfoShort & res)
+int	WeightedAlgorithm::SendStrategy( OrderInfoShort & res)
 {
 
 	//第一行就是真实的发送指令，第二行是本地模拟写log

@@ -17,12 +17,11 @@ static char THIS_FILE[]=__FILE__;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-extern char DB_CONN[];
-DbAccessor::DbAccessor():
+DbAccessor::DbAccessor(string conn_str):
 	m_db()
 {
 	try{
-		m_db.OpenEx(DB_CONN);
+		m_db.OpenEx(conn_str.c_str());
 	}
 	catch(CDBException* pe)
 	{

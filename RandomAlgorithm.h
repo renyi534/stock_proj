@@ -22,7 +22,7 @@ public:
     virtual void OnAccountData(const CThostFtdcTradingAccountField&);
     virtual void OnPositionData(const CThostFtdcInvestorPositionField&);
 	virtual BOOL InitInstance();
-	virtual int	SendStrategy(const OrderInfoShort & res);
+	virtual int	SendStrategy(OrderInfoShort & res);
 private:
 	double totalAmount;
 	double totalMoney;

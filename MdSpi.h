@@ -11,10 +11,11 @@
 using namespace std;
 class DbConn;
 class KSeriesGenerator;
+struct TradeConn;
 class CMdSpi : public CThostFtdcMdSpi
 {
 public:
-	CMdSpi(CThostFtdcMdApi* api);
+	CMdSpi(CThostFtdcMdApi* api, string, string, string, TradeConn*);
 	~CMdSpi();
 	///错误应答
 	virtual void OnRspError(CThostFtdcRspInfoField *pRspInfo,
@@ -48,7 +49,10 @@ public:
 	///深度行情通知
 	virtual void OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData);
 
-
+	inline bool GetConnStatus()
+	{
+		return m_ConnStatus;
+	}
 private:
 
 	void ReqUserLogin();
@@ -69,6 +73,13 @@ private:
 	friend class CTradeSystemView;
 
 	vector<KSeriesGenerator*> m_series_generator;
+	string m_BrokerId;
+	string m_InvestorId;
+	string m_Passwd;
+	TradeConn* m_Conn;
+	bool m_StoreMarketData;
+	static bool StoreMarketData;
+	bool m_ConnStatus;
 	CRITICAL_SECTION		m_data_critsec;
 	
 };

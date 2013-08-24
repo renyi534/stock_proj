@@ -27,19 +27,19 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 // 配置参数
-char FRONT_ADDR_MD[200] = "tcp://asp-sim2-md1.financial-trading-platform.com:26213";	// 安信模拟行情
+//char FRONT_ADDR_MD[200] = "tcp://asp-sim2-md1.financial-trading-platform.com:26213";	// 安信模拟行情
 //char FRONT_ADDR_MD[200] = "tcp://asp-sim2-md1.financial-trading-platform.com:26213";//东证期货模拟行情
 
 
 //char FRONT_ADDR_MD[200] = "tcp://zzqh-md2.financial-trading-platform.com:41213";  //中证真实行情
 
 
-char FRONT_ADDR_TRADE[200] = "tcp://asp-sim2-front1.financial-trading-platform.com:26205";//安信模拟交易
+//char FRONT_ADDR_TRADE[200] = "tcp://asp-sim2-front1.financial-trading-platform.com:26205";//安信模拟交易
 //char FRONT_ADDR_TRADE[200] = "tcp://asp-sim2-front1.financial-trading-platform.com:26205";//东证期货模拟交易地质
 
-TThostFtdcBrokerIDType	BROKER_ID = "2030";				// 经纪公司代码
-TThostFtdcInvestorIDType INVESTOR_ID = "354204";			// 投资者代码
-TThostFtdcPasswordType  PASSWORD = "888888";			// 用户密码
+//TThostFtdcBrokerIDType	BROKER_ID = "2030";				// 经纪公司代码
+//TThostFtdcInvestorIDType INVESTOR_ID = "354204";			// 投资者代码
+//TThostFtdcPasswordType  PASSWORD = "888888";			// 用户密码
 
 /*
 TThostFtdcBrokerIDType	BROKER_ID = "4000";				// 经纪公司代码
@@ -48,14 +48,11 @@ TThostFtdcPasswordType  PASSWORD = "123456";			// 用户密码
 */
 char *ppInstrumentID[30];			// 行情订阅列表
 int iInstrumentID = 0;									// 行情订阅数量
-char DB_CONN[128]="DSN=PostgreSQL35W;UID=postgres;PWD=123";
 char HS300_URL[128]="http://hq.sinajs.cn/list=sz399300"; 
-TThostFtdcInstrumentIDType INSTRUMENT_ID = "IF1207";	// 合约代码
 
 DbAccessorPool dbAccessPool;
-TradeConn* tradeConn; //(FRONT_ADDR_MD,FRONT_ADDR_TRADE,TERT_RESUME);
-set<string> activeAlgorithm;
 
+bool WriteDb = false;
 /////////////////////////////////////////////////////////////////////////////
 // CTradeSystemApp
 
@@ -98,26 +95,7 @@ void CTradeSystemApp::LoadConfig()
 	file.Close();
     CMarkup xml;
     xml.SetDoc( buf );
-    xml.FindChildElem("TRADE");
-    CString trade = xml.GetChildData();
-    strcpy( FRONT_ADDR_TRADE, (LPCSTR)trade);
-
-    xml.FindChildElem("MARKET");
-    CString market = xml.GetChildData();
-    strcpy( FRONT_ADDR_MD, (LPCSTR)market);
- 
-    xml.FindChildElem("BROKER_ID");
-    CString broker = xml.GetChildData();
-    strcpy( BROKER_ID, (LPCSTR)broker);
-
-    xml.FindChildElem("INVESTOR_ID");
-    CString investor = xml.GetChildData();
-    strcpy( INVESTOR_ID, (LPCSTR)investor);
-    
-    xml.FindChildElem("PASSWORD");
-    CString passwd = xml.GetChildData();
-    strcpy( PASSWORD, (LPCSTR)passwd);
-
+	
     xml.FindChildElem("INSTRUMENT");
     xml.IntoElem();
     
@@ -129,46 +107,135 @@ void CTradeSystemApp::LoadConfig()
         strcpy(ppInstrumentID[iInstrumentID++], (LPCSTR) item);
     }
     xml.OutOfElem();
-
+	
     xml.FindChildElem("DB_CONN");
     CString db_conn = xml.GetChildData();
-    strcpy( DB_CONN, (LPCSTR)db_conn);
+	// first init db access
+	dbAccessPool.Init((LPCSTR)db_conn);	
 
+    xml.FindChildElem("WRITE_DB");
+    CString write_db = xml.GetChildData();
+    if ( write_db == "TRUE")
+		WriteDb = true;
+	else
+		WriteDb = false;
+	
     xml.FindChildElem("HS300_URL");
     CString hs300_url = xml.GetChildData();
     strcpy( HS300_URL, (LPCSTR)hs300_url);
-
-    xml.FindChildElem("ALGORITHM");
+	
+    xml.FindChildElem("ACCOUNTS");
     xml.IntoElem();
-    
-    while ( xml.FindChildElem("ITEM") )
+	
+    while ( xml.FindChildElem("ACCOUNT") )
     {
 		xml.IntoElem();
-		xml.FindChildElem("NAME");
-        CString name = xml.GetChildData();
-		activeAlgorithm.insert((LPCSTR)name);
+		xml.FindChildElem("TRADE");
+		CString trade = xml.GetChildData();
+		
+		xml.FindChildElem("MARKET");
+		CString market = xml.GetChildData();
+		
+		xml.FindChildElem("BROKER_ID");
+		CString broker = xml.GetChildData();
+		
+		xml.FindChildElem("INVESTOR_ID");
+		CString investor = xml.GetChildData();
+		
+		xml.FindChildElem("PASSWORD");
+		CString passwd = xml.GetChildData();
+		
+		TradeConn* tradeConn= new TradeConn((LPCSTR)market,(LPCSTR)trade,
+			TERT_QUICK, (LPCSTR)broker, (LPCSTR)investor, (LPCSTR)passwd);		
+		
+		ASSERT(tradeConn != NULL);
+		AddTradeConn((LPCSTR)broker, (LPCSTR)investor, tradeConn);
 
-		xml.FindChildElem("INSTANCE");
+		xml.FindChildElem("ALGORITHM");
 		xml.IntoElem();
+		
 		while ( xml.FindChildElem("ITEM") )
 		{
 			xml.IntoElem();
-			xml.FindChildElem("INSTRUMENT");
-			CString instrument = xml.GetChildData();
-			int index = atoi((LPCSTR)instrument);
-			if( index >=0 && index <iInstrumentID)
+			xml.FindChildElem("NAME");
+			CString name = xml.GetChildData();
+			
+			xml.FindChildElem("INSTANCE");
+			xml.IntoElem();
+			while ( xml.FindChildElem("ITEM") )
 			{
-				xml.FindChildElem("CONFIG");
-				CString config = xml.GetChildData();
-				MessageRouter::Router.AddAlgorithm((LPCSTR)name, 
-					ppInstrumentID[index], (LPCSTR)config);
+				xml.IntoElem();
+				xml.FindChildElem("INSTRUMENT");
+				CString instrument = xml.GetChildData();
+				int index = atoi((LPCSTR)instrument);
+				if( index >=0 && index <iInstrumentID)
+				{
+					xml.FindChildElem("CONFIG");
+					CString config = xml.GetChildData();
+
+					xml.FindChildElem("SLOT");
+					int slot = atoi((LPCSTR)xml.GetChildData());
+					tradeConn->m_Router.AddAlgorithm((LPCSTR)name, 
+						ppInstrumentID[index],  slot, (LPCSTR)config);
+				}
+				xml.OutOfElem();
 			}
+			xml.OutOfElem();
+			
 			xml.OutOfElem();
 		}
 		xml.OutOfElem();
 
+		if (xml.FindChildElem("COMPOSITE_ALGORITHM"))
+		{
+			xml.IntoElem();
+			while ( xml.FindChildElem("ITEM") )
+			{
+				xml.IntoElem();
+				xml.FindChildElem("NAME");
+				CString name = xml.GetChildData();
+				xml.FindChildElem("INSTRUMENT");
+				CString instNo = xml.GetChildData();
+				int index = atoi((LPCSTR)instNo);
+				CString instrument;
+				if(( index >=0 && index <iInstrumentID ) )
+				{
+					instrument = ppInstrumentID[index];
+				}
+				xml.FindChildElem("SLOT");
+				int slot = atoi((LPCSTR)xml.GetChildData());
+
+				double max_loss = 0;
+				if (xml.FindChildElem("MAX_LOSS"))
+					max_loss = atof((LPCSTR)xml.GetChildData());
+
+				vector<string> algo_list;
+				if( xml.FindChildElem("ALGO_LIST") )
+				{
+					xml.IntoElem();
+					while ( xml.FindChildElem("NAME") )
+					{
+						string algoName = (LPCSTR)xml.GetChildData();
+						algo_list.push_back(algoName);
+					}
+					xml.OutOfElem();
+				}
+				
+				if(instrument.GetLength() >0 && algo_list.size() >0)
+				{
+					tradeConn->m_Router.AddCompositeAlgorithm((LPCSTR)name, 
+						(LPCSTR)instrument, slot, algo_list, max_loss);
+				}
+				xml.OutOfElem();
+			}
+			xml.OutOfElem();
+		}
+		tradeConn->m_Router.InitAlgorithm();
+
 		xml.OutOfElem();
-    }
+	}
+	xml.OutOfElem();
+ 
     xml.OutOfElem();
 	delete [] buf;
 }
@@ -179,6 +246,29 @@ void CTradeSystemApp::LoadConfig()
 
 BOOL CTradeSystemApp::InitInstance()
 {
+	if( !libMethod_1Initialize())   
+	{   
+		AfxMessageBox("Could not initialize libMethod_1Initialize!");   
+		return -1;   
+	}   // 为变量分配内存空间，可以查帮助*/
+
+	if( !libMethod_2Initialize())   
+	{   
+		AfxMessageBox("Could not initialize libMethod_2Initialize!");   
+		return -1;   
+	}   // 为变量分配内存空间，可以查帮助*/
+
+	if( !libMethod_3Initialize())   
+	{   
+		AfxMessageBox("Could not initialize libMethod_3Initialize!");   
+		return -1;   
+	}   // 为变量分配内存空间，可以查帮助*/
+
+	if( !libMethod_4Initialize())   
+	{   
+		AfxMessageBox("Could not initialize libMethod_4Initialize!");   
+		return -1;   
+	}   // 为变量分配内存空间，可以查帮助*/
     LoadConfig();
 	AfxEnableControlContainer();
 
@@ -222,35 +312,6 @@ BOOL CTradeSystemApp::InitInstance()
 	// The one and only window has been initialized, so show and update it.
 	m_pMainWnd->ShowWindow(SW_SHOW);
 	m_pMainWnd->UpdateWindow();
-	// first init db access
-	dbAccessPool.Init();
-	tradeConn= new TradeConn(FRONT_ADDR_MD,FRONT_ADDR_TRADE,TERT_QUICK);
-	if( !libMethod_1Initialize())   
-	{   
-		AfxMessageBox("Could not initialize libMethod_1Initialize!");   
-		return -1;   
-	}   // 为变量分配内存空间，可以查帮助*/
-
-	if( !libMethod_2Initialize())   
-	{   
-		AfxMessageBox("Could not initialize libMethod_2Initialize!");   
-		return -1;   
-	}   // 为变量分配内存空间，可以查帮助*/
-
-	if( !libMethod_3Initialize())   
-	{   
-		AfxMessageBox("Could not initialize libMethod_3Initialize!");   
-		return -1;   
-	}   // 为变量分配内存空间，可以查帮助*/
-
-	if( !libMethod_4Initialize())   
-	{   
-		AfxMessageBox("Could not initialize libMethod_4Initialize!");   
-		return -1;   
-	}   // 为变量分配内存空间，可以查帮助*/
-
-	// then init algorithm
-	MessageRouter::Router.InitAlgorithm();
 
 	return TRUE;
 }
@@ -327,7 +388,42 @@ int CTradeSystemApp::ExitInstance()
 	{
 		delete [] ppInstrumentID[i];
 	}
-	
-	delete tradeConn;
+
+	for( map<string, TradeConn*>::iterator iter = m_TradeConnMap.begin();
+			iter != m_TradeConnMap.end(); iter++)
+	{
+		delete iter->second;
+	}
 	return CWinApp::ExitInstance();
+}
+
+TradeConn* CTradeSystemApp::GetTradeConn(string broker_id, string investor_id)
+{
+	string key = broker_id+investor_id;
+	TradeConn* conn = NULL;
+	if (m_TradeConnMap.find(key) != m_TradeConnMap.end())
+		conn = m_TradeConnMap[key];
+	return conn;
+}
+
+void CTradeSystemApp::AddTradeConn(string broker_id, string investor_id, TradeConn *conn)
+{
+	string key = broker_id+investor_id;
+
+	if( m_TradeConnMap.find(key) == m_TradeConnMap.end() )
+		m_TradeConnMap.insert(std::pair<string,TradeConn*>(key, conn));
+}
+
+int CTradeSystemApp::GetConnCount()
+{
+	return m_TradeConnMap.size();
+}
+
+void CTradeSystemApp::GetTradeConnList(vector<TradeConn*>& conn_list)
+{
+	for( map<string, TradeConn*>::iterator iter = m_TradeConnMap.begin();
+			iter != m_TradeConnMap.end(); iter++)
+	{
+		conn_list.push_back(iter->second);
+	}
 }

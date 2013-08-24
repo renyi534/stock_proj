@@ -13,7 +13,9 @@
 #endif
 
 #include "resource.h"       // main symbols
-
+#include <map>
+#include <vector>
+#include "TradeConn.h"
 /////////////////////////////////////////////////////////////////////////////
 // CTradeSystemApp:
 // See TradeSystem.cpp for the implementation of this class
@@ -22,6 +24,10 @@
 class CTradeSystemApp : public CWinApp
 {
 public:
+	int GetConnCount();
+	void AddTradeConn(string broker_id, string investor_id, TradeConn* conn);
+	TradeConn* GetTradeConn(string broker_id, string investor_id);
+	void GetTradeConnList(vector<TradeConn*>& conn_list);
 	CTradeSystemApp();
 
 // Overrides
@@ -41,6 +47,7 @@ public:
 	DECLARE_MESSAGE_MAP()
 private:
     void LoadConfig();
+	map<string, TradeConn*>  m_TradeConnMap;
 };
 
 

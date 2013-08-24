@@ -50,17 +50,17 @@ void DataSimulator::Start()
 	{	
 		if( j< m_HalfMinuteData.size()-1 )
 		{
-			MessageRouter::Router.sendData(m_HalfMinuteData[j++]);
-			MessageRouter::Router.sendData(m_HalfMinuteData[j++]);
+			//MessageRouter::Router.sendData(m_HalfMinuteData[j++]);
+			//MessageRouter::Router.sendData(m_HalfMinuteData[j++]);
 		}
 
-		MessageRouter::Router.sendData(m_MinuteData[i]);
+		//MessageRouter::Router.sendData(m_MinuteData[i]);
 		//Sleep(500);
 	}
 
 	for (; j< m_HalfMinuteData.size(); j++)
 	{
-		MessageRouter::Router.sendData(m_HalfMinuteData[j]);
+		//MessageRouter::Router.sendData(m_HalfMinuteData[j]);
 	}
 	AfxMessageBox("Simulation Ends");
 }

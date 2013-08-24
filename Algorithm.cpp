@@ -21,63 +21,58 @@ extern DbAccessorPool dbAccessPool;
 Algorithm::Algorithm(string instrument)
 {
     RegisterInstrument(instrument);
+
 }
 
 Algorithm::Algorithm(string instrument, string config_file)
 {
 	RegisterInstrument(instrument);
     m_configFile = config_file;
+
 }
 
 Algorithm::Algorithm()
 {
+
 }
 
 Algorithm::~Algorithm()
 {
 
 }
-/*
-int	Algorithm::ExecAlgo(OrderInfo & res)
-{
-	int num = rand();
-	if ( num > RAND_MAX/2 )
-		res.amount=1;
-	else
-		res.amount=-1;
 
-	
-	if( m_algoType == TickData)
-	{
-		res.time = m_marketData.UpdateTime;
-		res.day= m_marketData.TradingDay;
-		res.price = m_marketData.LastPrice;
-		res.milliSec = m_marketData.UpdateMillisec;
-		res.m_instrumentID = m_marketData.InstrumentID;
-	}
-	else if( m_algoType == MinuteData )
-	{
-		res.day= m_oneMinuteData.m_Day;
-		res.time = m_oneMinuteData.m_Time;
-		res.price = m_oneMinuteData.m_ClosePrice;
-		res.milliSec =0;
-		res.m_instrumentID = m_oneMinuteData.m_InstrumentID;
-	}
-	return 0;
-}
-*/
-int	Algorithm::SendStrategy(const OrderInfo & res)
+int	Algorithm::SendStrategy(OrderInfo & res)
 {
+	if( res.amount == 0 )
+		return 0;
 	OrderInfo* data=new OrderInfo(res);
+	data->broker_id = m_BrokerId;
+	data->investor_id = m_InvestorId;
 	TradeHandlingThread->PostThreadMessage(WM_ACTION_ITEM, (WPARAM)data,  1);
 	return 0;
 }
 
-int	Algorithm::SendStrategy(const OrderInfoShort & res)
+int	Algorithm::SendStrategy(OrderInfoShort & res)
 {
+	if( res.amount == 0 )
+		return 0;
+
 	OrderInfoShort* data=new OrderInfoShort(res);
+	data->broker_id = m_BrokerId;
+	data->investor_id = m_InvestorId;
 	TradeHandlingThread->PostThreadMessage(WM_ACTION_ITEM, (WPARAM)data,  2);
 	return 0;
+}
+
+void Algorithm::SetSlot(int slot)
+{
+	m_Slot = slot;
+}
+
+void Algorithm::SetAccountInfo(string broker, string investor)
+{
+	m_BrokerId = broker;
+	m_InvestorId = investor;
 }
 
 int Algorithm::Run()

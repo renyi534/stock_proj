@@ -2,12 +2,14 @@
 #include "stdafx.h"
 #include ".\ThostTraderApi\ThostFtdcTraderApi.h"
 #include <map>
+#include <vector>
 using namespace std;
 struct OrderInfo;
 struct OrderInfoShort;
 #include <iostream>
 #include <fstream>
 using namespace std;
+struct TradeConn;
 
 	struct InvestorPosition
 	{
@@ -34,7 +36,8 @@ using namespace std;
 class CTraderSpi : public CThostFtdcTraderSpi
 {
 public:
-	CTraderSpi(CThostFtdcTraderApi* api);
+	CTraderSpi(CThostFtdcTraderApi* api, string broker_id, string investor_id, 
+		string passwd, TradeConn* conn);
 	CTraderSpi::~CTraderSpi();
 	///当客户端与交易后台建立起通信连接时（还未登录前），该方法被调用。
 	virtual void OnFrontConnected();
@@ -76,6 +79,7 @@ public:
 	virtual void OnRtnTrade(CThostFtdcTradeField *pTrade);
 
 public:
+	void ShowTradeDetail();
 	void CancelAllOrders(string instrument);
 	void ClearShortPos(string instrument, double price);
 	void ClearLongPos(string instrument, double price);
@@ -104,6 +108,11 @@ public:
 	bool IsMyOrder(CThostFtdcOrderField *pOrder);
 	// 是否正在交易的报单
 	bool IsTradingOrder(CThostFtdcOrderField *pOrder);
+
+	inline bool GetConnStatus()
+	{
+		return m_ConnStatus;
+	}
 private:
 	CString GetOrderPriceType(TThostFtdcOrderPriceTypeType type);
 	CString GetTradeType(TThostFtdcTradeTypeType type);
@@ -128,5 +137,17 @@ private:
     typedef map<string,CThostFtdcOrderField> order_state_map;	
     typedef pair<string,CThostFtdcOrderField> order_state_pair;			    
     order_state_map m_order_state;
+
+	vector<CThostFtdcTradeField> m_TradeList;
+
+	string m_BrokerId;
+	string m_InvestorId;
+	string m_Passwd;
+	TThostFtdcFrontIDType	m_FrontId;	//前置编号
+	TThostFtdcSessionIDType	m_SessionId;	//会话编号
+	TThostFtdcOrderRefType	m_OrderRef;	//报单引用
+
+	TradeConn* m_Conn;
+	bool m_ConnStatus;
 	friend class CTradeSystemView;
 };
