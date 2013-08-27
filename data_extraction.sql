@@ -1425,7 +1425,7 @@ BEGIN
      		avg(volume) over(order by trans_time rows between 10 preceding and CURRENT ROW) as volume,
      		avg(open_interest) over(order by trans_time rows between 10 preceding and CURRENT ROW) as open_interest
 	from '||original_table_name;
-    EXECUTE 'select generate_minute_stat_data(''minute_avg_data'', ''avg_stat_data'', '||period||',0.2)';
+    EXECUTE 'select generate_minute_stat_data(''minute_avg_data'', ''avg_stat_data'', '||period||',0.15)';
     EXECUTE 'select generate_minute_stat_data('''|| original_table_name||''', ''unit_stat_data'', '||period||',0.5)';
     EXECUTE 'CREATE TABLE '||target_table_name||' AS
 		SELECT m.id, m.trans_time, m.stochastic_k, m.stochastic_d, m.slow_stochastic_d,
@@ -1563,6 +1563,72 @@ BEGIN
 		FROM avg_stat_data m';
 END    
 $$ LANGUAGE PLPGSQL;
+
+
+CREATE or replace FUNCTION Calc_profit
+	(
+	avg_period INT,
+	cost	   float8,
+	table_name text,
+	threshold  float8
+	) RETURNS void AS $$
+declare
+	stmt TEXT;
+begin
+execute 'drop table if exists '||table_name;
+stmt = '
+create table '||table_name||' as
+select id, trans_time, close, gross_profit, gross_profit-trans_cost as net_profit,
+       trans_cost, pos
+from
+(
+select id, gross_profit,
+           sum ( case when(abs(Pos) < '||threshold ||' and abs(last_Pos)<'||threshold||' OR
+							Pos>'||threshold||' and last_Pos>'||threshold||' OR
+							Pos<-'||threshold||' and last_Pos<-'||threshold||') then
+                      0
+                 else
+                      case when (abs(Pos) < '||threshold ||' or abs(last_Pos)<'||threshold||') then
+                           ' || cost ||'
+                      else
+                           ' || cost*2 ||'
+                      end
+                 end) over (order by trans_time) as trans_cost,
+           Pos, trans_time, close
+from
+(           
+select id, sum(case when (Pos > '||threshold||') then
+                    nxt_close-close
+               else
+                    case when(pos<-'||threshold||') then
+                         close-nxt_close
+                    else
+                         0
+                    end
+               end) over (order by trans_time) as gross_profit,
+            lag(Pos) over (order by trans_time) as last_pos,
+	    close,
+            Pos, n.trans_time
+from
+(
+select id, avg(CASE WHEN (class=''Hold'') THEN 
+                            0 
+                       ELSE 
+                            CASE WHEN(class = ''Sell'') THEN
+                                -1.0
+                            ELSE
+                                1.0
+                            END
+                       END) over (order by trans_time ROWS BETWEEN '||avg_period ||' PRECEDING AND CURRENT ROW) as Pos, trans_time,
+       close, nxt_close  
+from
+(select n.id, n.trans_time, m.close, lead(m.close) over (order by m.trans_time) nxt_close, t.result as class , t.res 
+ from minute_data m, minute_stat_data n, minute_classify t where n.id=t.id and n.trans_time = m.trans_time) l order by trans_time
+) n ) k ) l;';
+execute stmt; 
+END
+$$ LANGUAGE PLPGSQL;
+
 
 CREATE OR REPLACE FUNCTION generate_training_stat_data
     ( 
