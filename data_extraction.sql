@@ -1073,9 +1073,15 @@ BEGIN
 						0
 					ELSE
 						(Mt-SMt)/(0.015*Dt)::float8
-					END AS CCI, tr,
+					END AS CCI, tr, volume, open_interest,
 					avg(tr) over (order by trans_time rows between 5 preceding and CURRENT ROW) as atr_5,
 					avg(tr) over (order by trans_time rows between 10 preceding and CURRENT ROW) as atr_10,
+					avg(volume) over (order by trans_time rows between 10 preceding and CURRENT ROW) as avg_volume_10,
+                                        avg(volume) over (order by trans_time rows between 5 preceding and CURRENT ROW) as avg_volume_5,
+					avg(open_interest) over (order by trans_time rows between 10 preceding and CURRENT ROW) as avg_open_interest_10,
+                                        avg(open_interest) over (order by trans_time rows between 5 preceding and CURRENT ROW) as avg_open_interest_5,
+					avg(close) over (order by trans_time rows between 10 preceding and CURRENT ROW) as avg_close_10,
+                                        avg(close) over (order by trans_time rows between 5 preceding and CURRENT ROW) as avg_close_5,
 					close, lead(close) over (order by trans_time) as next_close,
 					lag(close) over (order by trans_time) as prev_close
 				FROM
@@ -1129,6 +1135,24 @@ BEGIN
 		1e4::float8*(ln(close)-ln(lag(close, 5) over (order by trans_time ))) AS log_ind5,
 		1e4::float8*(ln(close)-ln(lag(close, 10) over (order by trans_time ))) AS log_ind10,
 		1e4::float8*(ln(close)-ln(lag(close, 30) over (order by trans_time ))) AS log_ind30,
+		1e4::float8*(ln(close)-ln(avg_close_10)) AS log_avg_ind10,
+		1e4::float8*(ln(close)-ln(avg_close_5)) AS log_avg_ind5,
+		CASE WHEN (avg_volume_10 > 0 AND volume>0) THEN
+			1e2::float8*(ln(volume)-ln(avg_volume_10)) 
+		ELSE
+			0::float8
+		END AS log_volume_avg_ind10,
+		CASE WHEN (avg_volume_5 > 0 AND volume>0) THEN
+			1e2::float8*(ln(volume)-ln(avg_volume_5)) 
+		ELSE
+			0::float8
+		END AS log_volume_avg_ind5,
+		avg_open_interest_10,
+		avg_open_interest_5,
+		avg_volume_10,
+		avg_volume_5,
+                volume,
+                open_interest,
 		lag(class) over (order by trans_time) AS prev_class1,
 		lag(class, 2) over (order by trans_time ) AS prev_class2,
 		lag(class, 3) over (order by trans_time ) AS prev_class3,
