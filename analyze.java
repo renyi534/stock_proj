@@ -1,20 +1,21 @@
 package weka_test;
 import weka.classifiers.Evaluation;
-import java.sql.DriverManager;
-import java.sql.Connection;
-import java.sql.SQLException;
+
 import java.sql.*;
+
 import weka.classifiers.trees.*;
 import weka.classifiers.functions.*;
 import weka.core.Instances;
 import weka.experiment.InstanceQuery;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
+
 import weka.core.Instances;
 import weka.classifiers.meta.*;
-public class MinuteStatAnalyzer {
+public class MinuteStatAnalyze {
 
 	/**
 	 * @param args
@@ -56,7 +57,7 @@ public class MinuteStatAnalyzer {
             	stmt = connection.createStatement();
             	stmt.executeUpdate("drop table if exists minute_classify;");
             	stmt.executeUpdate("create table minute_classify(id integer, res integer, result text);");
-            	call_stmt = connection.prepareCall("{call generate_minute_stat_data('minute_avg_data', 'minute_stat_data',"+start_index+", 0.2)}");
+            	call_stmt = connection.prepareCall("{call generate_minute_stat_data('minute_data', 'minute_stat_data',"+start_index+", 0.5)}");
             	call_stmt.executeUpdate();
             	call_stmt.close();
             	//stmt.executeUpdate("select generate_history_stat_data('minute_data', 'minute_stat_data',0.5);");
@@ -69,29 +70,35 @@ public class MinuteStatAnalyzer {
 			try{
 			    double correct=0;
 			    int num=0;
-			    int window=100;
+			    int window=50;
 			    int index =0;
 				 InstanceQuery query = new InstanceQuery();
 				 query.setUsername("postgres");
 				 query.setPassword("123456");		    
 				System.out.println("start OK");
-				String out_file = "c:\\stock_analysis\\minute_data_classify.txt";
-				String csv_file = "c:\\stock_analysis\\minute_data_classify.csv";
-				String csv_file2 = "c:\\stock_analysis\\minute_data_classify2.csv";
-				String csv_file3 = "c:\\stock_analysis\\minute_data_classify3.csv";
-				String csv_file4 = "c:\\stock_analysis\\minute_data_classify4.csv";
+
+				String out_file = "e:\\stock_analyzer\\minute_data_classify.txt";
+				String csv_file = "e:\\stock_analyzer\\minute_data_classify.csv";
+				String csv_file2 = "e:\\stock_analyzer\\minute_data_classify2.csv";
+				String csv_file3 = "e:\\stock_analyzer\\minute_data_classify3.csv";
+				String csv_file4 = "e:\\stock_analyzer\\minute_data_classify4.csv";
 		        BufferedWriter writer = new BufferedWriter(
 		                     new FileWriter(out_file));
 				query.setQuery("select stochastic_K, stochastic_D, slow_stochastic_D, "
 						+ "Momentum_1, Momentum_2, ROC, Williams_R, AD_Oscillator, Disparity_5, Disparity_10, OSCP,"
 						+ "CCI, tr, atr_5, atr_10, "
+						//+ "log_ind1, log_ind5, log_ind10, log_ind30,"
+						//+ "log_avg_ind10, log_avg_ind5,"
+						//+ "log_volume_avg_ind10, log_volume_avg_ind5, "
+						//+ "avg_open_interest_10, avg_open_interest_5, open_interest,"
+						//+ "avg_volume_10, avg_volume_5, volume,"
 						+ "prev_class1, prev_class2, prev_class3, prev_class4, prev_class5, "
 						+ "prev_class6, prev_class7, prev_class8, prev_class9, prev_class10, "
 						+ "class "
 						+ "from minute_stat_data minute_stat_data order by trans_time");
 		        
 				Instances full_set = query.retrieveInstances();
-				for(index=start_index; index<= 198450-window-10; index++)
+				for(index=start_index; index<= full_set.numInstances()-window-10; index++)
 				//for(index=start_index; index<= 575-window-10; index++)
 				{
 
@@ -102,6 +109,22 @@ public class MinuteStatAnalyzer {
 				 {
 					 return ;
 				 }
+				 
+				 for( int j=5; j> 1; j--)
+				 {
+
+						 Instances prev_data = new Instances(full_set, index, window/j);
+						 
+						 int numInstance = prev_data.numInstances();
+						 
+						 for (int k=0;k<numInstance; k++)
+						 {
+							 training_data.add(prev_data.instance(k));
+						 }
+						 //training_data =  Instances.mergeInstances(prev_data, training_data);
+
+				 }
+				 				 
 				 System.out.println("get training set complete");
 
 				 int test_index = index+window;
@@ -120,6 +143,7 @@ public class MinuteStatAnalyzer {
 				 //AdaBoostM1 tree = new AdaBoostM1();         // new instance of tree
 				 LibSVM tree = new LibSVM();
 				 //SMO tree = new SMO();
+				 //RandomForest tree = new RandomForest();
 				 String disable_pruning="-R";
 				 String[] options=new String[3];
 				 options[0]= "-s 0 -t 2";
@@ -131,7 +155,8 @@ public class MinuteStatAnalyzer {
 				 
 				 //tree.setOptions(weka.core.Utils.splitOptions("-s 1 -t 2"));
 				 //tree.setOptions(weka.core.Utils.splitOptions("-W weka.classifiers.trees.J48 -I 100"));
-				 tree.setOptions(options);
+				 tree.setOptions(weka.core.Utils.splitOptions("-S 0 -K 2 -D 3 -G 0.0 -R 0.0 -N 0.5 -M 40.0 -C 1000.0 -E 0.001 -P 0.1 -seed 1"));
+				 //tree.setOptions(options);
 				 System.out.println("create random forest");
 				 try
 				 {
@@ -206,8 +231,7 @@ public class MinuteStatAnalyzer {
 	             call_stmt.close();
 				 //stmt.executeUpdate("select Calc_Profit();");
 				 stmt.executeUpdate("copy profit_minute to '"+csv_file4+"' delimiter ',';");	
-				 
-				 stmt.close();
+
 			}
 			catch(Exception e)
 			{
