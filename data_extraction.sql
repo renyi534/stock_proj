@@ -2020,3 +2020,7 @@ BEGIN
 		WHERE m.trans_time = n.trans_time ';
 END    
 $$ LANGUAGE PLPGSQL;
+
+
+testdb=# create table sec20_data as select trans_time, lead(open, 3) over (order by trans_time) as open, max(high) over (order by trans_time rows between 3 preceding and current row) as high, min(low) over (order by trans_time rows between 3 preceding and current row) as low, close, sum(volume) over (order by trans_time rows between 3 preceding and current row) as volume, sum(open_interest) over (order by trans_time rows between 3 preceding and current row) as open_interest from minute_data;
+
