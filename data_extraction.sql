@@ -1344,7 +1344,12 @@ BEGIN
 				abs(low-last_close)
 			END
 		   END as tr,
-			100::float8*(close-min_low)/(max_high-min_low) AS stochastic_K,
+            		CASE WHEN(max_high>min_low) then 
+			100::float8*(close-min_low)/(max_high-min_low)
+            		ELSE
+                		0
+            		END AS stochastic_K,
+			
 			(close-former_n_close) AS Momentum_1,
 			(close-former_4_close) AS Momentum_2,
 			100::float8*close/former_n_close AS ROC,
@@ -1356,7 +1361,11 @@ BEGIN
 			100::float8*close/MA5 AS Disparity_5,
 			100::float8*close/MA10 AS Disparity_10,			
 			(MA5-MA10)/MA5 AS OSCP,
-			100::float8*(max_high-close)/(max_high-min_low) AS Williams_R,
+            		CASE WHEN(max_high>min_low) then 
+				100::float8*(max_high-close)/(max_high-min_low)
+            		ELSE
+                		0
+            		END AS Williams_R,
 			avg(Mt) over (order by trans_time rows between '||period||' preceding and CURRENT ROW) as SMt,
 			Mt
 		FROM
