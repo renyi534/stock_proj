@@ -1345,7 +1345,7 @@ BEGIN
 			END
 		   END as tr,
             		CASE WHEN(max_high>min_low) then 
-			100::float8*(close-min_low)/(max_high-min_low)
+				100::float8*(close-min_low)/(max_high-min_low)
             		ELSE
                 		0
             		END AS stochastic_K,

@@ -14,6 +14,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import weka.core.Instances;
 import weka.classifiers.meta.*;
+import weka.classifiers.*;
+
 public class MinuteAvgStatRegAnalyze {
 
 	/**
@@ -58,7 +60,7 @@ public class MinuteAvgStatRegAnalyze {
             	stmt = connection.createStatement();
             	stmt.executeUpdate("drop table if exists minute_classify;");
             	stmt.executeUpdate("create table minute_classify(id integer, res integer, result float8);");
-            	call_stmt = connection.prepareCall("{call generate_training_stat_reg_data('minute_data', 'minute_stat_data',10,"+start_index+")}");
+            	call_stmt = connection.prepareCall("{call generate_minute_stat_reg_data('minute_data', 'minute_stat_data',"+start_index+",0,1)}");
             	call_stmt.executeUpdate();
             	call_stmt.close();
             	//stmt.executeUpdate("select generate_history_stat_data('minute_data', 'minute_stat_data',0.5);");
@@ -73,7 +75,7 @@ public class MinuteAvgStatRegAnalyze {
 			    double total_variance=0;
 			    double mean_variance=0;
 			    int num=0;
-			    int window=100;
+			    int window=50;
 			    int index =0;
 				 InstanceQuery query = new InstanceQuery();
 				 query.setUsername("postgres");
@@ -95,8 +97,8 @@ public class MinuteAvgStatRegAnalyze {
 						+ "from minute_stat_data minute_stat_data order by trans_time");
 		        
 				Instances full_set = query.retrieveInstances();
-				//for(index=start_index; index<= 171228-window-10;index++)
-				for(index=start_index; index<= 575-window-10; index++)
+				for(index=start_index; index<= 171228-window-10;index++)
+				//for(index=start_index; index<= 575-window-10; index++)
 				{
 
 				 
@@ -122,17 +124,18 @@ public class MinuteAvgStatRegAnalyze {
 				 Instances labeled = new Instances(test_data);
 				 System.out.println("setClassIndex");
 				 //AdaBoostM1 tree = new AdaBoostM1();         // new instance of tree
-				 //LibSVM tree = new LibSVM();
-				 SMOreg tree = new SMOreg();
+				 //M5P tree = new M5P();
+				 Classifier tree = new AdditiveRegression();
+				 //SMOreg tree = new SMOreg();
 				 String disable_pruning="-R";
 				 String[] options=new String[2];
 				 options[0]= "-S 4 -K 2";
 				 options[1]= "-C 78";
 				 //options[2]= "-g 0.04";
-				 //tree.setOptions(weka.core.Utils.splitOptions("-C 78.0 -R -L 0.0010 -P 1.0E-12 -N 0 -V -1 -W 1 -K \"weka.classifiers.functions.supportVector.RBFKernel -C 250007 -G 25\""));
+				 //tree.setOptions(weka.core.Utils.splitOptions("-C 78.0 -L 0.0010 -P 1.0E-12 -N 0 -K \"weka.classifiers.functions.supportVector.RBFKernel -C 250007 -G 25\""));
 
 				 //tree.setOptions(weka.core.Utils.splitOptions("-C 1.0 -L 0.0010 -P 1.0E-12 -N 0 -V -1 -W 1 -K \"weka.classifiers.functions.supportVector.PolyKernel -C 250007 -E 1.0\""));
-				 
+				 tree.setOptions(weka.core.Utils.splitOptions("-S 0.1 -I 100 -W weka.classifiers.trees.REPTree -- -M 2 -V 0.001 -N 3 -S 1 -L 4 -P"));
 				 //tree.setOptions(weka.core.Utils.splitOptions("-s 1 -t 2"));
 				 //tree.setOptions(weka.core.Utils.splitOptions("-W weka.classifiers.functions.LibSVM -I 5"));
 				 //tree.setOptions(options);
@@ -162,7 +165,7 @@ public class MinuteAvgStatRegAnalyze {
 				   double origLabel = test_data.instance(i).classValue();
 
 				   total_variance += Math.abs(clsLabel-origLabel);
-				   if(Math.abs(clsLabel-origLabel)<0.5)
+				   if(clsLabel*origLabel>0.0)
 				   {
 					   correct++;
 				   }
@@ -219,5 +222,4 @@ public class MinuteAvgStatRegAnalyze {
 
 
 }
-
 
